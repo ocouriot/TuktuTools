@@ -1,0 +1,13 @@
+Package: TuktuTools
+Type: Package
+Title: Analyse spatial pattern for caribou
+Version: 0.1.0
+Author: Elie and Ophélie
+Maintainer: The package maintainer <yourself@somewhere.net>
+Description: The Parturitions TuktuTools is a package to analyse spatial pattern in Barren-ground caribou (Rangifer tarandus). The package contains functions analyse spatial pattern and ecology of caribou, such as functions to calculate speed between subsequent relocations, estimate calving based on speed, calculate parwise distances between pairs of individuals from a dataset, for example.
+License: What license is it under?
+Encoding: UTF-8
+LazyData: false
+Depends: lubridate, magrittr, plyr, dplyr, ggplot2, ggpubr, adehabitatLT, sp, sf, move, stringr, cluster, adehabitatHR, NbClust
+Suggests: mapview
+RoxygenNote: 7.1.1
