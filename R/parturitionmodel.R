@@ -101,20 +101,19 @@ parturition.model <- function (df, int, kcons, PlotIt = FALSE, saveplot = FALSE,
                                  Mcalfdeath.AIC=as.numeric(results$results[1,"AIC.calfdeath"]),
                                  M0.mnll=as.numeric(results$results[1,"mnll.nocalf"]),
                                  Mcalf.mnll=as.numeric(results$results[1,"mnll.calf"]),
-                                 Mcaldeath.mnll=as.numeric(results$results[1,"mnll.calfdeath"]),
-                                 Mcalf.calving.date=as.POSIXct(results$BPs[["date.BP1.calf"]]),
-                                 Mcalfdeath.calving.date=as.POSIXct(results$BPs[["date.BP1.calfdeath"]]),
-                                 Mcalfdeath.mort.date=as.POSIXct(results$BPs[["date.BP2.calfdeath"]]))
+                                 Mcaldeath.mnll=as.numeric(results$results[1,"mnll.calfdeath"]))
 
 
     ## results table
     results.summary.temp <- data.frame(ID_Year=ID_Year, Best.Model=results.data.temp$Best.Model,
-                                       calving.date=ifelse(results.data.temp$Best.Model=="calf",
-                                                           results.data.temp$Mcalf.calving.date,
-                                                           ifelse(results.data.temp$Best.Model=="calfdeath",
-                                                                  results.data.temp$Mcalfdeath.calving.date,NA)),
-                                       mort.date=ifelse(results.data.temp$Best.Model=="calfdeath",results.data.temp$Mcalfdeath.mort.date,NA),
-                                       Recovery=ifelse(results.data.temp$Best.Model=="calf",results$BPs$recovery.calf,NA),
+                                       calving.date=ifelse(as.character(results$results[1,"Best.Model"]) == "calf",
+                                                           as.POSIXct(results$BPs[["date.BP1.calf"]]),
+                                                           ifelse(as.character(results$results[1,"Best.Model"]) == "calfdeath",
+                                                                  as.POSIXct(results$BPs[["date.BP1.calfdeath"]]),NA)),
+                                       mort.date=ifelse(as.character(results$results[1,"Best.Model"])=="calfdeath",
+                                                        as.POSIXct(results$BPs[["date.BP2.calfdeath"]]),NA),
+                                       Recovery=ifelse(as.character(results$results[1,"Best.Model"])=="calf",
+                                                       results$BPs$recovery.calf,NA),
                                        calving.date.score=NA)
     results.summary.temp$calving.date <- as.POSIXct(results.summary.temp$calving.date,
                                                     origin="1970-01-01", tz="GMT")

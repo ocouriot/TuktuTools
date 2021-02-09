@@ -159,8 +159,8 @@ mnll3M <- function(df, int, kcons){
 
   # Calculate AIC and compare models
   results[[1,"AIC.nocalf"]] <- 2*(-as.numeric(results[[1,"mnll.nocalf"]]) + 2)
-  results[[1,"AIC.calf"]] <- ifelse(is.na(results[[1,"mnll.calf"]]) == FALSE & results[[1,"mnll.calf"]] != 0,2*(-as.numeric(results[[1,"mnll.calf"]]) + 4),NA)
-  results[[1,"AIC.calfdeath"]] <- ifelse(is.na(results[[1,"mnll.calfdeath"]])== FALSE & results[[1,"mnll.calfdeath"]] != 0, 2*(-as.numeric(results[[1,"mnll.calfdeath"]]) + 5),NA)
+  results[[1,"AIC.calf"]] <- ifelse(is.na(results[[1,"mnll.calf"]]) == FALSE & results[[1,"mnll.calf"]] != 0,2*(-as.numeric(results[[1,"mnll.calf"]]) + 5),NA)
+  results[[1,"AIC.calfdeath"]] <- ifelse(is.na(results[[1,"mnll.calfdeath"]])== FALSE & results[[1,"mnll.calfdeath"]] != 0, 2*(-as.numeric(results[[1,"mnll.calfdeath"]]) + 6),NA)
 
   results[[1,"Best.Model"]] <- substr(names(which.min(results[,5:7])),5,nchar(names(which.min(results[,5:7]))))
 

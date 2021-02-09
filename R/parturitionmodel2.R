@@ -95,15 +95,15 @@ parturition.model2 <- function (df, int, kcons, method, PlotIt = FALSE, saveplot
                                    M0.AIC=as.numeric(results$results[1,"AIC.nocalf"]),
                                    Mcalf.AIC=as.numeric(results$results[1,"AIC.calf"]),
                                  M0.mnll=as.numeric(results$results[1,"mnll.nocalf"]),
-                                 Mcalf.mnll=as.numeric(results$results[1,"mnll.calf"]),
-                                   Mcalf.calving.date=as.POSIXct(results$BPs[["date.BP1.calf"]]))
+                                 Mcalf.mnll=as.numeric(results$results[1,"mnll.calf"]))
 
     ## results table
-    results.summary.temp <- data.frame(ID_Year=ID_Year, Best.Model=results.data.temp$Best.Model,
-                                       calving.date=ifelse(results.data.temp$Best.Model=="calf",
-                                                           results.data.temp$Mcalf.calving.date, NA),
-                                       Recovery=ifelse(results.data.temp$Best.Model=="calf",results$BPs[["recovery.calf"]],NA),
-                                       calving.date.score=NA)
+    results.summary.temp <- data.frame(ID_Year=ID_Year, Best.Model=as.factor(as.character(results$results[1,"Best.Model"])),
+                                       calving.date=ifelse(as.character(results$results[1,"Best.Model"])=="calf",
+                                                           as.POSIXct(results$BPs[["date.BP1.calf"]]), NA),
+                                       Recovery=ifelse(as.character(results$results[1,"Best.Model"])=="calf",
+                                                       results$BPs[["recovery.calf"]], NA),
+                                       calving.date.score = NA)
     results.summary.temp$calving.date <- as.POSIXct(results.summary.temp$calving.date,
                                                     origin="1970-01-01", tz="GMT")
     calving.date.julian <- yday(results.summary.temp$calving.date)
