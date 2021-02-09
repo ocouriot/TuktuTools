@@ -22,6 +22,7 @@
 mnll2M <- function(df, int, kcons){
 
   speed <- na.omit(df$speed)
+  speed[speed == 0] <- 1
   speedmean <- mean(speed)
   speedvar <- var(speed)
 
@@ -73,6 +74,7 @@ mnll2M <- function(df, int, kcons){
         return(fit$Log.Likelihood) else return(NA)}
 
     ll1s <- sapply(BP1s, trytogetbp)
+    ll1s[ll1s %in% c(-Inf, Inf)] <- NA
     MLL1 <- which.max(ll1s)
 
     if(length(MLL1)==0){
@@ -96,7 +98,7 @@ mnll2M <- function(df, int, kcons){
 
   # Calculate AIC and compare models
   results[[1,"AIC.nocalf"]] <- 2*(-as.numeric(results[[1,"mnll.nocalf"]]) + 2)
-  results[[1,"AIC.calf"]] <- ifelse(is.na(results[[1,"mnll.calf"]]) == FALSE & results[[1,"mnll.calf"]] != 0,2*(-as.numeric(results[[1,"mnll.calf"]]) + 4),NA)
+  results[[1,"AIC.calf"]] <- ifelse(is.na(results[[1,"mnll.calf"]]) == FALSE & results[[1,"mnll.calf"]] != 0, 2*(-as.numeric(results[[1,"mnll.calf"]]) + 4), NA)
   results[[1,"Best.Model"]] <- substr(names(which.min(results[,4:5])),5,nchar(names(which.min(results[,4:5]))))
 
 

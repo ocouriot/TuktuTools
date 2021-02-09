@@ -99,10 +99,12 @@ parturition.model <- function (df, int, kcons, PlotIt = FALSE, saveplot = FALSE,
                                  M0.AIC=as.numeric(results$results[1,"AIC.nocalf"]),
                                  Mcalf.AIC=as.numeric(results$results[1,"AIC.calf"]),
                                  Mcalfdeath.AIC=as.numeric(results$results[1,"AIC.calfdeath"]),
+                                 M0.mnll=as.numeric(results$results[1,"mnll.nocalf"]),
+                                 Mcalf.mnll=as.numeric(results$results[1,"mnll.calf"]),
+                                 Mcaldeath.mnll=as.numeric(results$results[1,"mnll.calfdeath"]),
                                  Mcalf.calving.date=as.POSIXct(results$BPs[["date.BP1.calf"]]),
                                  Mcalfdeath.calving.date=as.POSIXct(results$BPs[["date.BP1.calfdeath"]]),
-                                 Mcalfdeath.mort.date=as.POSIXct(results$BPs[["date.BP2.calfdeath"]]),
-                                 Recovery.calf=results$BPs[["recovery.calf"]])
+                                 Mcalfdeath.mort.date=as.POSIXct(results$BPs[["date.BP2.calfdeath"]]))
 
 
     ## results table
@@ -112,7 +114,7 @@ parturition.model <- function (df, int, kcons, PlotIt = FALSE, saveplot = FALSE,
                                                            ifelse(results.data.temp$Best.Model=="calfdeath",
                                                                   results.data.temp$Mcalfdeath.calving.date,NA)),
                                        mort.date=ifelse(results.data.temp$Best.Model=="calfdeath",results.data.temp$Mcalfdeath.mort.date,NA),
-                                       Recovery=ifelse(results.data.temp$Best.Model=="calf",results.data.temp$Recovery.calf,NA),
+                                       Recovery=ifelse(results.data.temp$Best.Model=="calf",results$BPs$recovery.calf,NA),
                                        calving.date.score=NA)
     results.summary.temp$calving.date <- as.POSIXct(results.summary.temp$calving.date,
                                                     origin="1970-01-01", tz="GMT")
@@ -134,48 +136,66 @@ parturition.model <- function (df, int, kcons, PlotIt = FALSE, saveplot = FALSE,
     results.summary.temp$calving.date.score <- z.score
 
     # Estimated parameters (alpha.mean, beta.mean, alpha.calf, beta.calf and recovery time)
-    if (results.summary.temp$Best.Model == "nocalf")
+    
     {
       beta.0 <- speedmean / speedvar
       alpha.0 <- speedmean * beta.0
-      fit2 <- data.frame(ID_Year = ID_Year, alpha.mean = alpha.0, alpha.calf = NA, beta.mean = beta.0,
-                         beta.calf = NA, recovery = NA)
-      fit.values <- rep(alpha.0/beta.0, length(speed))
-      par <- rbind(par,fit2)
+      parnocalf <- data.frame(ID_Year = ID_Year, alpha.0 = alpha.0, beta.0 = beta.0)
+      fit.values.nocalf <- rep(alpha.0/beta.0, length(speed))
       results.summary.temp$calf.loc.x <- NA
       results.summary.temp$calf.loc.y <- NA
     }
 
-    if (results.summary.temp$Best.Model == "calf")
+    
     {
-      fit <- nll.calf(temp, BP = results$BPs[["BP1.calf"]], k = kcons)
-      fit2 <- data.frame(ID_Year=ID_Year, alpha.mean=fit$par[["alpha.mean"]], alpha.calf=fit$par[["alpha.calf"]],
-                         beta.mean=fit$par[["beta.mean"]],beta.calf=exp(fit$par[["log.beta.calf"]]),
-                         recovery=fit$par[["recovery"]])
-      fit.values <- fit$fit
-      par <- rbind(par,fit2)
-
-      results.summary.temp$calf.loc.x <- temp[which.min(abs(as.numeric(difftime(temp$time,results.summary.temp$calving.date,units = "secs"))))+1,
-                       c("x")][1]
-      results.summary.temp$calf.loc.y <- temp[which.min(abs(as.numeric(difftime(temp$time,results.summary.temp$calving.date,units = "secs"))))+1,
-                         c("y")][1]
+      fit.calf <- try(nll.calf(temp, BP = results$BPs[["BP1.calf"]], k = kcons), silent = TRUE)
+      if(!inherits(fit.calf, 'try-error')){
+      parcalf <- data.frame(alpha.mean1=fit.calf$par[["alpha.mean"]], beta.mean1=fit.calf$par[["beta.mean"]],
+                            alpha.calf1=fit.calf$par[["alpha.calf"]], beta.calf1=exp(fit.calf$par[["log.beta.calf"]]),
+                            BP.calf1 = results$BPs[["BP1.calf"]], calving.date1 = results$BPs[["date.BP1.calf"]], 
+                            recovery1=fit.calf$par[["recovery"]])
+      fit.values.calf <- fit.calf$fit } 
+      if (inherits(fit.calf, 'try-error')) {
+        parcalf <- data.frame(alpha.mean1=NA, beta.mean1=NA,
+                              alpha.calf1=NA, beta.calf1=NA,
+                              BP.calf1 = NA, calving.date1 = NA, 
+                              recovery1=NA)
+      }
     }
+    if(results.summary.temp$Best.Model == 'calf'){
+      results.summary.temp$calf.loc.x <- temp[which.min(abs(as.numeric(difftime(temp$time,results.summary.temp$calving.date,units = "secs"))))+1,
+                                              c("x")][1]
+      results.summary.temp$calf.loc.y <- temp[which.min(abs(as.numeric(difftime(temp$time,results.summary.temp$calving.date,units = "secs"))))+1,
+                                              c("y")][1]
+    }
+      
 
-    if (results.summary.temp$Best.Model == "calfdeath")
+    
     {
-      fit <- nll.calfdeath(temp, BP1 = results$BPs[["BP1.calfdeath"]], BP2 = results$BPs[["BP2.calfdeath"]], k = kcons)
-      fit2 <- data.frame(ID_Year=ID_Year, alpha.mean=fit$par[["alpha.mean"]], alpha.calf=fit$par[["alpha.calf"]],
-                         beta.mean=fit$par[["beta.mean"]],beta.calf=exp(fit$par[["log.beta.calf"]]),
-                         recovery=fit$par[["recovery"]])
-      fit.values <- fit$fit
-      par <- rbind(par,fit2)
+      fit.calfdeath <- try(nll.calfdeath(temp, BP1 = results$BPs[["BP1.calfdeath"]], BP2 = results$BPs[["BP2.calfdeath"]], k = kcons), silent = TRUE)
+      if(!inherits(fit.calfdeath, 'try-error')){
+      parcalfdeath <- data.frame(alpha.mean2=fit.calfdeath$par[["alpha.mean"]], beta.mean2=fit.calfdeath$par[["beta.mean"]],
+                                 alpha.calf2=fit.calfdeath$par[["alpha.calf"]], beta.calf2=exp(fit.calfdeath$par[["log.beta.calf"]]),
+                                 BP.calf2 = results$BPs[["BP1.calfdeath"]], calving.date2 = results$BPs[["date.BP1.calfdeath"]], 
+                                 BP.calfdeath2 = results$BPs[["BP2.calfdeath"]], calfdeath.date2 = results$BPs[["date.BP2.calfdeath"]], 
+                                 recovery2=fit.calfdeath$par[["recovery"]])
+      fit.values.calfdeath <- fit.calfdeath$fit } 
+      if (inherits(fit.calfdeath, "try-error")){
+        parcalfdeath <- data.frame(alpha.mean2=NA, beta.mean2=NA,
+                                   alpha.calf2=NA, beta.calf2=NA,
+                                   BP.calf2 = NA, calving.date2 = NA, 
+                                   BP.calfdeath2 = NA, calfdeath.date2 = NA, 
+                                   recovery2=NA)
+      }}
+    
+    if(results.summary.temp$Best.Model == 'calfdeath'){
       results.summary.temp$calf.loc.x <- temp[which.min(abs(as.numeric(difftime(temp$time,results.summary.temp$calving.date,units = "secs"))))+1,
                          c("x")][1]
       results.summary.temp$calf.loc.y <- temp[which.min(abs(as.numeric(difftime(temp$time,results.summary.temp$calving.date,units = "secs"))))+1,
                          c("y")][1]
     }
 
-
+    par <- rbind(par, cbind(parnocalf, parcalf, parcalfdeath))
     coeffs <- rbind(coeffs,results.data.temp[1,])
     results.summary=rbind(results.summary,results.summary.temp)
 
@@ -192,7 +212,7 @@ parturition.model <- function (df, int, kcons, PlotIt = FALSE, saveplot = FALSE,
         p1 <- ggplot(temp,aes(time.mid,speed,group=1)) +
           geom_line() +
           theme(panel.background = element_blank()) +  #Sets background to white
-          geom_hline(aes(yintercept=fit.values, group=1, colour=2), show.legend=FALSE, size=1) +
+          geom_hline(aes(yintercept=fit.values.nocalf, group=1, colour=2), show.legend=FALSE, size=1) +
           labs(x = "Date", y = "Speed (m.h-1)", title = paste("No calf model for",ID_Year, sep = " ")) +
           theme(axis.line.x = element_line(size = .5,colour = "black",linetype = "solid")) + #add axis lines
           theme(axis.line.y = element_line(size = .5,colour = "black",linetype = "solid")) + #add axis lines
@@ -220,7 +240,7 @@ parturition.model <- function (df, int, kcons, PlotIt = FALSE, saveplot = FALSE,
           theme(axis.line.y=element_line(size=.5,colour = "black",linetype = "solid")) + #add axis lines
           theme(plot.title=element_text(size=20,face="bold",margin = margin(10,0,10,0))) +
           ylim(c(0,2500)) +
-          geom_line(aes(as.POSIXct(temp$time.mid), fit.values, colour=1, group=1), show.legend=FALSE, size=1) #plots predicted values
+          geom_line(aes(as.POSIXct(temp$time.mid), fit.values.calf, colour=1, group=1), show.legend=FALSE, size=1) #plots predicted values
         if(saveplot)
           ggsave(plot= p2, filename=paste(ID_Year,"Calved.jpeg",sep="_"),width = 8,height = 4,device="jpg") else print(p2)
       } # END plot of the calf model
@@ -244,7 +264,7 @@ parturition.model <- function (df, int, kcons, PlotIt = FALSE, saveplot = FALSE,
           theme(axis.line.y=element_line(size=.5,colour = "black",linetype = "solid")) + #add axis lines
           theme(plot.title=element_text(size=20,face="bold",margin = margin(10,0,10,0))) +
           ylim(c(0,2500)) +
-          geom_line(aes(as.POSIXct(temp$time.mid), fit.values, colour=1, group=1), show.legend=FALSE, size=1) #plots predicted values
+          geom_line(aes(as.POSIXct(temp$time.mid), fit.values.calfdeath, colour=1, group=1), show.legend=FALSE, size=1) #plots predicted values
         if(saveplot)
           ggsave(plot = p3, filename=paste(ID_Year,"Calf_loss.jpeg",sep="_"),width = 8,height = 4,device="jpg") else print(p3)
       } # End Plot of the calf death model

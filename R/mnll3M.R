@@ -23,6 +23,7 @@
 mnll3M <- function(df, int, kcons){
 
   speed <- na.omit(df$speed)
+  speed[speed == 0] <- 1
   speedmean <- mean(speed)
   speedvar <- var(speed)
 
@@ -75,6 +76,7 @@ mnll3M <- function(df, int, kcons){
         return(fit$Log.Likelihood) else return(NA)}
 
     ll1s <- sapply(BP1s, trytogetbp)
+    ll1s[ll1s %in% c(-Inf, Inf)] <- NA
     MLL1 <- which.max(ll1s)
 
     if(length(MLL1)==0){
@@ -133,6 +135,7 @@ mnll3M <- function(df, int, kcons){
       BP2s <- cbind(BP2s,ll2s,recoveries)
       BP2s$recoveries <- BP2s$recoveries/24
       BP2s <- BP2s[(BP2s$BP2-BP2s$BP1)<BP2s$recoveries,]
+      BP2s$ll2s[BP2s$ll2s %in% c(-Inf, Inf)] <- NA
       MLL2 <- which.max(BP2s$ll2s)
 
       if(length(MLL2)==0){
@@ -157,7 +160,7 @@ mnll3M <- function(df, int, kcons){
   # Calculate AIC and compare models
   results[[1,"AIC.nocalf"]] <- 2*(-as.numeric(results[[1,"mnll.nocalf"]]) + 2)
   results[[1,"AIC.calf"]] <- ifelse(is.na(results[[1,"mnll.calf"]]) == FALSE & results[[1,"mnll.calf"]] != 0,2*(-as.numeric(results[[1,"mnll.calf"]]) + 4),NA)
-  results[[1,"AIC.calfdeath"]] <- ifelse(is.na(results[[1,"mnll.calfdeath"]])== FALSE & results[[1,"mnll.calfdeath"]] != 0,2*(-as.numeric(results[[1,"mnll.calfdeath"]]) + 5),NA)
+  results[[1,"AIC.calfdeath"]] <- ifelse(is.na(results[[1,"mnll.calfdeath"]])== FALSE & results[[1,"mnll.calfdeath"]] != 0, 2*(-as.numeric(results[[1,"mnll.calfdeath"]]) + 5),NA)
 
   results[[1,"Best.Model"]] <- substr(names(which.min(results[,5:7])),5,nchar(names(which.min(results[,5:7]))))
 

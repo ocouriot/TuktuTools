@@ -4,10 +4,12 @@
 \alias{getCrossingTime}
 \title{Get migration arrival from calving ground}
 \usage{
-getCrossingTime(df, percent, method)
+getCrossingTime(df, movedata, percent, method)
 }
 \arguments{
 \item{df}{a dataframe containing the ID_Year, the herd and lon and lat of the calving event (in WGS 84)}
+
+\item{movedata}{a simple feature containing the movement data for all individuals in df, in WGS84 (crs=4326) (with column ID_Year and DateTime of the relocation)}
 
 \item{percent}{the percent to be used to estimate the calving ground}
 
