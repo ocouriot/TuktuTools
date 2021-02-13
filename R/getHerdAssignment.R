@@ -17,16 +17,17 @@
 #' @references
 
 
-getHerdAssignment <- function(df, K, plotIt = TRUE){
+getHerdAssignment <- function(df, K, PlotIt = TRUE){
 
-  dfclust <- with(df, aggregate(list(x=x,y=y),list(ID_Year=ID_Year),mean))
+  dfclust <- with(df, aggregate(list(x=x,y=y),list(ID_Year=ID_Year),mean, na.rm = TRUE))
   input <- dfclust[,c("x","y")]
 
     clusters <- kmeans(input, centers = K, nstart = 100)
     dfclust$cluster <- clusters$cluster
+    if(PlotIt){
     plot(y~x, data = dfclust, main = paste(K, "herds", sep=" "), bty="l", type="n")
     points(y~x, data = dfclust, col = rainbow(K)[dfclust$cluster], pch=3)
-    legend("bottomleft", bty="n",  pch=3, col = rainbow(K), legend = 1:K, title = "Herd number")
+    legend("bottomleft", bty="n",  pch=3, col = rainbow(K), legend = 1:K, title = "Herd number") }
     keep <- merge(df, dfclust[,c("ID_Year", "cluster")], by = "ID_Year")
     return(keep)
 }

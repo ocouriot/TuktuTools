@@ -4,7 +4,7 @@
 \alias{getHerdAssignment}
 \title{Get herd assignment using spatial clustering}
 \usage{
-getHerdAssignment(df, K, plotIt = TRUE)
+getHerdAssignment(df, K, PlotIt = TRUE)
 }
 \arguments{
 \item{df}{a dataframe containing x and y coordinates and the ID_year
