@@ -64,7 +64,7 @@ getPairwiseDistances <- function(sf.list){
 
   sf <- sf.list %>% ldply %>% st_as_sf %>% getDailyMean
 
-  cat("Computing all pairwise distances\n")
+  #cat("Computing all pairwise distances\n")
   sf %>% group_by(Year, yday) %>% group_modify(~getDistances(.x), keep = TRUE) %>%
     mutate(Date = (ymd_hm(paste(Year - 1, "12-31 12:00")) + ddays(yday)) %>% as.POSIXct)
 }
