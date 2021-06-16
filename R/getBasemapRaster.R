@@ -19,9 +19,10 @@
 #' @param plotme whether or not to plot the raster with \code{\link{plotRGB}}. Note that high 
 #' resolution rasters are reduced in rendering within R by default ... this can be modified 
 #' with \code{\link{plotRGB}} options.  
+#' 
 #' @return An RGB raster, i.e. one with three levels for each of the colors. Note, the projection of the returned raster 
 #' is the Spherical Mercator (EPSG:3857) - used for global tiling and "native" to mapview (and leaflet). 
-#' @export
+#' 
 #' @examples
 #' # SE Alaska
 #' SEalaska.topo <- getBasemapRaster(-138,-130, 56, 60, "OpenTopoMap")
@@ -30,7 +31,8 @@
 #' # labeled DC map, high resolution
 #' dc.natgeo <- getBasemapRaster(-77.5,-76.5, 38.5, 39.25, map.types = "Esri.NatGeoWorldMap", 
 #' width = 1000, height = 1000, zoom = 8)
-
+#' 
+#' @export
 
 getBasemapRaster <- function(xmin, xmax, ymin, ymax, map.types = "Esri.WorldPhysical",
                              directory = ".", 
@@ -44,22 +46,22 @@ getBasemapRaster <- function(xmin, xmax, ymin, ymax, map.types = "Esri.WorldPhys
                lat = c(ymin, ymin, ymax, ymax, ymin))
   earthwithhole = st_polygon(list(outer, hole)) %>% st_sfc(crs = 4326)
   
-  basemap <- mapview(earthwithhole %>% st_transform(3857), map.types = map.types, alpha = 0.5,
+  basemap <- mapview::mapview(earthwithhole %>% st_transform(3857), map.types = map.types, alpha = 0.5,
                      col.regions = "white", alpha.regions = 1) 
-  basemap@map <- fitBounds(basemap@map, xmin, ymin, xmax, ymax)
+  basemap@map <- leaflet::fitBounds(basemap@map, xmin, ymin, xmax, ymax)
   
   mapurl <- paste0(directory, '/', filename, '.html')
   mappng <- paste0(directory, '/', filename, '.png')
   
   # create local html  
-  mapshot(basemap, url = mapurl)
+  mapview::mapshot(basemap, url = mapurl)
   # create png from local html
-  webshot(url = mapurl, file = mappng, vwidth = width*2, vheight = height*2, zoom = zoom)
+  webshot::webshot(url = mapurl, file = mappng, vwidth = width*2, vheight = height*2, zoom = zoom)
   #zoom = sqrt(width/1000))
-  m <- brick(paste0(directory, '/', filename, '.png'))
+  m <- satellite::brick(paste0(directory, '/', filename, '.png'))
   
   # trim off legend and other mapview text at bottom 
-  m <- crop(m, extent(0.1 * dim(m)[1],
+  m <- satellite::crop(m, extent(0.1 * dim(m)[1],
                       0.9 * dim(m)[1],
                       0.1 * dim(m)[2],
                       0.9 * dim(m)[2]))
@@ -68,7 +70,7 @@ getBasemapRaster <- function(xmin, xmax, ymin, ymax, map.types = "Esri.WorldPhys
   innercore[!innercore] <- NA
   trimextent <- trim(innercore) %>% extent
   
-  m2 <- crop(m, trimextent)
+  m2 <- satellite::crop(m, trimextent)
   
   # convert the desired bounding box to 3857
   xy.new <- c(st_point(c(xmin, ymin)), st_point(c(xmax, ymax))) %>% st_sfc(crs = 4326) %>% 
