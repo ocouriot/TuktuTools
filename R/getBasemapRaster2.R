@@ -8,7 +8,7 @@
 #' mapping option at:  http://leaflet-extras.github.io/leaflet-providers/preview/.  Note that it 
 #' creates a "png" and "html" and places it in a given directory, and does not delete them. 
 #'  
-#' @param {xmin,xmax,ymin,ymax} Limits (in longitude and latitude) of desired map raster.
+#' @param {xmax,ymin,ymax} Limits (in longitude and latitude) of desired map raster.
 #' @param map.types Character specification for the base maps. see http://leaflet-extras.github.io/leaflet-providers/preview/ for available options. Favorites include: \code{Esri.WorldPhysical} (default), \code{Esri.WorldTerrain}, \code{Esri.NatGeoWorldMap}
 #' @param filename name of png and html files
 #' @param directory directory to save the html and png files
@@ -27,12 +27,12 @@
 #' # SE Alaska
 #' bb <- st_bbox(c(xmin = -138, xmax = -130, ymax = 56, ymin = 60), crs = st_crs(4326))
 #' SEalaska.topo <- getBasemapRaster2(bb, "OpenTopoMap", plotme = TRUE)
+#' # with reprojection
+#' SEalaska.topo <- getBasemapRaster2(bb, "OpenTopoMap", output_crs = "+init=epsg:4326", 
+#' plotme = TRUE)
 #' # for a ggPlot use this function (from RStoolbox): 
 #' library(RStoolbox)
 #' ggRGB(SEalaska.topo, 1, 2, 3, coord_equal = FALSE)
-#' # labeled DC map, high resolution
-#' dc.natgeo <- getBasemapRaster(-77.5,-76.5, 38.5, 39.25, map.types = "Esri.NatGeoWorldMap", 
-#' width = 1000, height = 1000, zoom = 8)
 #' 
 #' @export
 
@@ -42,7 +42,8 @@ getBasemapRaster2 <- function(x,
                               directory = ".", 
                               filename = "basemap",
                               width = 1000, height = 1000, zoom = 1, 
-                              plotme = FALSE, ...)
+                              plotme = FALSE, 
+                              output_crs = "+init=epsg:3857", ...)
 {
   if(!is.na(st_bbox(x))) {
     x <- unname(x)
@@ -93,6 +94,8 @@ getBasemapRaster2 <- function(x,
   
   extent(m2) <- extent(t(xy.new[,1:2]))
   crs(m2) <- CRS("+init=epsg:3857")
+  
+  if(output_crs != "+init=epsg:3857") m2 <- raster::projectRaster(m2, crs = CRS(output_crs))
   
   if(plotme) raster::plotRGB(m2)
   return(m2)

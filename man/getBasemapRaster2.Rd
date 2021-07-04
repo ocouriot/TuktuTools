@@ -16,6 +16,7 @@ getBasemapRaster2(
   height = 1000,
   zoom = 1,
   plotme = FALSE,
+  output_crs = "+init=epsg:3857",
   ...
 )
 }
@@ -33,7 +34,7 @@ effect on the resolution of the final image.}
 resolution rasters are reduced in rendering within R by default ... this can be modified 
 with \code{\link{plotRGB}} options.}
 
-\item{{xmin, xmax, ymin, ymax}}{Limits (in longitude and latitude) of desired map raster.}
+\item{{xmax, ymin, ymax}}{Limits (in longitude and latitude) of desired map raster.}
 
 \item{{width, height}}{approximate width and height of final raster; this is VERY approximate 
 because the final raster is cropped around the desired limits and because there is some}
@@ -55,11 +56,11 @@ creates a "png" and "html" and places it in a given directory, and does not dele
 # SE Alaska
 bb <- st_bbox(c(xmin = -138, xmax = -130, ymax = 56, ymin = 60), crs = st_crs(4326))
 SEalaska.topo <- getBasemapRaster2(bb, "OpenTopoMap", plotme = TRUE)
+# with reprojection
+SEalaska.topo <- getBasemapRaster2(bb, "OpenTopoMap", output_crs = "+init=epsg:4326", 
+plotme = TRUE)
 # for a ggPlot use this function (from RStoolbox): 
 library(RStoolbox)
 ggRGB(SEalaska.topo, 1, 2, 3, coord_equal = FALSE)
-# labeled DC map, high resolution
-dc.natgeo <- getBasemapRaster(-77.5,-76.5, 38.5, 39.25, map.types = "Esri.NatGeoWorldMap", 
-width = 1000, height = 1000, zoom = 8)
 
 }
