@@ -1,4 +1,4 @@
-#' getBasemapRaster
+#' getBasemapRaster2
 #' 
 #' This function obtains an RGB raster from any of the available base maps in the (incredible!) 
 #' open source leaflet package.  It is meant to replace - in a way - the \code{\link{ggmap}} 
@@ -25,8 +25,10 @@
 #' 
 #' @examples
 #' # SE Alaska
-#' SEalaska.topo <- getBasemapRaster(-138,-130, 56, 60, "OpenTopoMap")
+#' bb <- st_bbox(c(xmin = -138, xmax = -130, ymax = 56, ymin = 60), crs = st_crs(4326))
+#' SEalaska.topo <- getBasemapRaster2(bb, "OpenTopoMap", plotme = TRUE)
 #' # for a ggPlot use this function (from RStoolbox): 
+#' library(RStoolbox)
 #' ggRGB(SEalaska.topo, 1, 2, 3, coord_equal = FALSE)
 #' # labeled DC map, high resolution
 #' dc.natgeo <- getBasemapRaster(-77.5,-76.5, 38.5, 39.25, map.types = "Esri.NatGeoWorldMap", 
@@ -34,19 +36,32 @@
 #' 
 #' @export
 
-getBasemapRaster <- function(xmin, xmax, ymin, ymax, map.types = "Esri.WorldPhysical",
-                             directory = ".", 
-                             filename = "basemap",
-                             width = 1000, height = 1000, zoom = 1, 
-                             plotme = TRUE, ...)
+getBasemapRaster2 <- function(x,
+                              xmax = NULL, ymin = NULL, ymax = NULL, 
+                              map.types = "Esri.WorldPhysical",
+                              directory = ".", 
+                              filename = "basemap",
+                              width = 1000, height = 1000, zoom = 1, 
+                              plotme = FALSE, ...)
 {
+  if(!is.na(st_bbox(x))) {
+    x <- unname(x)
+    xmin <- x[1]
+    xmax <- x[3]
+    ymin <- x[2]
+    ymax <- x[4]
+  } else {
+    xmin <- x
+  }
+  
   # creating a white rectangular donut
   outer = cbind(lon = c(-170,-170,170,170,-170), lat = c(-89,89,89,-89,-89))
   hole = cbind(lon = c(xmin, xmax, xmax, xmin, xmin), 
                lat = c(ymin, ymin, ymax, ymax, ymin))
   earthwithhole = st_polygon(list(outer, hole)) %>% st_sfc(crs = 4326)
   
-  basemap <- mapview::mapview(earthwithhole %>% st_transform(3857), map.types = map.types, alpha = 0.5,
+  basemap <- mapview::mapview(earthwithhole %>% st_transform(3857), 
+                              map.types = map.types, alpha = 0.5,
                      col.regions = "white", alpha.regions = 1) 
   basemap@map <- leaflet::fitBounds(basemap@map, xmin, ymin, xmax, ymax)
   
