@@ -21,6 +21,8 @@ getBasemapRaster2(
 )
 }
 \arguments{
+\item{x}{Either the xmin limit of longitude, or a bbox from a spatial object.}
+
 \item{map.types}{Character specification for the base maps. see http://leaflet-extras.github.io/leaflet-providers/preview/ for available options. Favorites include: \code{Esri.WorldPhysical} (default), \code{Esri.WorldTerrain}, \code{Esri.NatGeoWorldMap}}
 
 \item{directory}{directory to save the html and png files}
@@ -34,7 +36,10 @@ effect on the resolution of the final image.}
 resolution rasters are reduced in rendering within R by default ... this can be modified 
 with \code{\link{plotRGB}} options.}
 
-\item{{xmax, ymin, ymax}}{Limits (in longitude and latitude) of desired map raster.}
+\item{output_crs}{output coordinate reference system, defiend as a proj4string text.}
+
+\item{{xmax, ymin, ymax}}{Limits (in longitude and latitude) of desired map raster. Only used if
+`x` is not a bbox.}
 
 \item{{width, height}}{approximate width and height of final raster; this is VERY approximate 
 because the final raster is cropped around the desired limits and because there is some}
@@ -62,5 +67,9 @@ plotme = TRUE)
 # for a ggPlot use this function (from RStoolbox): 
 library(RStoolbox)
 ggRGB(SEalaska.topo, 1, 2, 3, coord_equal = FALSE)
+# using GPS data
+NWT_sat <- boreal_ss \%>\%
+  get_bbox(crs = 4326) \%>\% 
+  getBasemapRaster2("Esri.WorldImagery", plotme = T)
 
 }
