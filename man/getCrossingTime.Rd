@@ -4,7 +4,14 @@
 \alias{getCrossingTime}
 \title{Get migration arrival from calving ground}
 \usage{
-getCrossingTime(df, movedata, percent, method)
+getCrossingTime(
+  df,
+  movedata,
+  percent,
+  method,
+ 
+    CRS = "+proj=lcc +lat_1=50 +lat_2=70 +lat_0=65 +lon_0=-120 +x_0=0 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs"
+)
 }
 \arguments{
 \item{df}{a dataframe containing the ID_Year, the herd and lon and lat of the calving event (in WGS 84)}

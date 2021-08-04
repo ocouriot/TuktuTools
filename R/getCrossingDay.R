@@ -19,8 +19,9 @@
 #' @export
 
 
-getCrossingTime <- function(df, movedata, percent, method){
-  p.sf <- st_as_sf(df, coords = c("lon","lat"), crs = 4326) %>% st_transform(3857)
+getCrossingTime <- function(df, movedata, percent, method, 
+                            CRS='+proj=lcc +lat_1=50 +lat_2=70 +lat_0=65 +lon_0=-120 +x_0=0 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs'){
+  p.sf <- st_as_sf(df, coords = c("lon","lat"), crs = 4326) %>% st_transform(crs=CRS)
   p.xy <- st_coordinates(p.sf)
 
   # my.sf <- subset(p.sf, herd == "Bluenose West")
@@ -30,11 +31,9 @@ getCrossingTime <- function(df, movedata, percent, method){
                                                           h = method, percent = percent)
   }
 
-  c.df<-ldply(calvingrange) %>% st_sf
+  c.df<-ldply(calvingrange) %>% st_as_sf(crs = CRS)
 
   c.df$id <- levels(p.sf$herd)
-
-  c.df <- c.df %>% st_transform(4326)
 
   # intersect movement data with the calving ranges to
   # determine the arrival time for each female
@@ -43,9 +42,9 @@ getCrossingTime <- function(df, movedata, percent, method){
   tot <- subset(tot, ID_Year %in% unique(df$ID_Year)) %>%  subset(yday >= 91 & yday <= 188)
 
   tot <- merge(tot, df[,c('ID_Year','herd')], by = 'ID_Year', all.x = TRUE)
-
+  tot <- st_transform(tot, crs = CRS)
   head(tot)
-
+  
   arrival_dates <- data.frame()
   for (myherd in c.df$id){
     print(myherd)
