@@ -14,17 +14,16 @@
 #' @export
 
 getBasemap <- function (gg.ext, map_service = "osm", map_type = "terrain_bg", map_res, 
-                        m.crs, map_dir = "basemap", delete_tiles = TRUE) 
+                        m.crs = NULL, map_dir = "basemap", delete_tiles = TRUE) 
 {
   #if(dir.exists(map_dir)){
   #  warning("Please create a folder (by default: map_dir = 'basemap') to store downloaded files.")
   #  stop()
   #}
+  
+    gg.ext.ll <- st_bbox(st_transform(st_as_sfc(gg.ext), 
+                                      crs = st_crs("+init=epsg:4326")))
     
-  if (inherits(gg.ext, "bbox")) 
-    gg.ext <- list(gg.ext)
-  r <- lapply(gg.ext, function(y) {
-    gg.ext.ll <- st_bbox(st_transform(st_as_sfc(y), crs = st_crs("+init=epsg:4326")))
     tg <- bbox_to_tile_grid(gg.ext.ll, max_tiles = ceiling(map_res * 
                                                              20))
     images <- apply(tg$tiles, MARGIN = 1, function(x) {
@@ -55,25 +54,13 @@ getBasemap <- function (gg.ext, map_service = "osm", map_type = "terrain_bg", ma
       return(file)
     })
     r <- quiet(compose_tile_grid(tg, images))
-    #crop(projectRaster(r, crs = m.crs), extent(y[1], y[3], 
-    #                                           y[2], y[4]), snap = "out")
-  })
-  if (length(r) > 1) {
-    ext.both <- list(east = extent(r$east), west = extent(r$west))
-    rg <- c(east = diff(c(ext.both$east@xmin, ext.both$east@xmax)), 
-            west = diff(c(ext.both$west@xmin, ext.both$west@xmax)))
-    ext.both <- .expand_ext(ext.both, rg)
-    extent(r$east) <- ext.both$east
-    extent(r$west) <- ext.both$west
-    ext.combi <- .combine_ext(ext.both)
-    r[[which.min(rg)]] <- extend(r[[which.min(rg)]], ext.combi)
-    r[[which.max(rg)]] <- resample(r[[which.max(rg)]], r[[which.min(rg)]])
-    r <- list(merge(r[[1]], r[[2]]))
-  }
-  
+    if(!is.null(m.crs)){
+      r <- projectRaster(r, crs = m.crs) %>%
+      crop(c(gg.ext[[1]],gg.ext[[3]],gg.ext[[2]],gg.ext[[4]]))
+    }
   # delete tiles 
   if(delete_tiles){
-    files <- paste0(map_dir,list.files(map_dir))
+    files <- paste0(map_dir,"/",list.files(map_dir))
     files <- files[grepl(paste0(map_service, "_", map_type), files)]
     lapply(files, file.remove)
   }
