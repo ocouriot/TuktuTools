@@ -10,4 +10,4 @@ Encoding: UTF-8
 LazyData: false
 Depends: lubridate, magrittr, plyr, dplyr, ggplot2, ggpubr, adehabitatLT, sp, sf, move, stringr, cluster, adehabitatHR, NbClust
 Suggests: mapview
-RoxygenNote: 7.1.1
+RoxygenNote: 7.2.0

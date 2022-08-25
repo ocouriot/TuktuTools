@@ -55,6 +55,3 @@ with(distance.sps \%>\% subset(distance < 50),
      points(Date, jitter(distance),
      col = cols[match(pair, socialpairs)], pch = 19))
 }
-\seealso{
-
-}

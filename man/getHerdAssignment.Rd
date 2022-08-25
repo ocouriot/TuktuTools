@@ -22,6 +22,3 @@ a number comprised between 1 and K, corresponding to the herd assignment.
 Function to determine herd assignment using K-means analysis on GPS locations of individuals,
 using the average location for each individual and year.
 }
-\references{
-
-}
