@@ -67,9 +67,9 @@ getBasemapRaster2 <- function(x,
   outer = cbind(lon = c(-170,-170,170,170,-170), lat = c(-89,89,89,-89,-89))
   hole = cbind(lon = c(xmin, xmax, xmax, xmin, xmin), 
                lat = c(ymin, ymin, ymax, ymax, ymin))
-  earthwithhole = st_polygon(list(outer, hole)) %>% st_sfc(crs = 4326)
+  earthwithhole = st_polygon(list(outer, hole)) %>% st_sfc(crs = 4326)  %>% st_transform(3857)
   
-  basemap <- mapview::mapview(earthwithhole %>% st_transform(3857), 
+  basemap <- mapview::mapview(earthwithhole, 
                               map.types = map.types, alpha = 0.5,
                      col.regions = "white", alpha.regions = 1) 
   basemap@map <- leaflet::fitBounds(basemap@map, xmin, ymin, xmax, ymax)
