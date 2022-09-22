@@ -1,12 +1,14 @@
 ---
 title: "Vignette"
 author: "Ophélie Couriot"
-date: "8/4/2021"
-output: 
+date: "09/22/2022"
+output:
+  pdf_document:
+    toc: yes
   html_document:
-    toc: true
-    toc_float: true
-    number_sections: true
+    toc: yes
+    toc_float: yes
+    number_sections: yes
 ---
 
 ```{r setup, include=FALSE}
@@ -107,11 +109,10 @@ cutperiod(df, start,  end, nfixes, dayloss,
 The function returns a dataframe containing only concerned period and individuals that match the defined rules.
 
 
-# Estimate Calving
+## Get movement rate 
+
 
 After having processed, cleaned and cut timeseries to the period of interest and reassigned herds, we can process to the analysis of movement pattern and estimate calving (i.e. parturition) status, calving date and calf death date, if any.
-
-## Get speed from movement data
 
 As we adapted the method developped by DeMars et al. (2013), by analysing movement rate instead of step length, we first have to get the movement rate between subsequent relocations for each individual and each year.
 To do so, we use the `get.speed` function in this package.

@@ -8,7 +8,9 @@
 #' mapping option at:  http://leaflet-extras.github.io/leaflet-providers/preview/.  Note that it 
 #' creates a "png" and "html" and places it in a given directory, and does not delete them. 
 #'  
-#' @param {xmin,xmax,ymin,ymax} Limits (in longitude and latitude) of desired map raster.
+#' @param x Either the xmin limit of longitude, or a bbox from a spatial object.
+#' @param {xmax,ymin,ymax} Limits (in longitude and latitude) of desired map raster. Only used if
+#' `x` is not a bbox.
 #' @param map.types Character specification for the base maps. see http://leaflet-extras.github.io/leaflet-providers/preview/ for available options. Favorites include: \code{Esri.WorldPhysical} (default), \code{Esri.WorldTerrain}, \code{Esri.NatGeoWorldMap}
 #' @param filename name of png and html files
 #' @param directory directory to save the html and png files
@@ -18,35 +20,58 @@
 #' effect on the resolution of the final image.
 #' @param plotme whether or not to plot the raster with \code{\link{plotRGB}}. Note that high 
 #' resolution rasters are reduced in rendering within R by default ... this can be modified 
-#' with \code{\link{plotRGB}} options.  
+#' with \code{\link{plotRGB}} options.
+#' @param output_crs output coordinate reference system, defiend as a proj4string text.
 #' 
 #' @return An RGB raster, i.e. one with three levels for each of the colors. Note, the projection of the returned raster 
 #' is the Spherical Mercator (EPSG:3857) - used for global tiling and "native" to mapview (and leaflet). 
 #' 
 #' @examples
 #' # SE Alaska
-#' SEalaska.topo <- getBasemapRaster(-138,-130, 56, 60, "OpenTopoMap")
+#' bb <- st_bbox(c(xmin = -138, xmax = -130, ymax = 56, ymin = 60), crs = st_crs(4326))
+#' SEalaska.topo <- getBasemapRaster2(bb, "OpenTopoMap", plotme = TRUE)
+#' # with reprojection
+#' SEalaska.topo <- getBasemapRaster2(bb, "OpenTopoMap", output_crs = "+init=epsg:4326", 
+#' plotme = TRUE)
 #' # for a ggPlot use this function (from RStoolbox): 
+#' library(RStoolbox)
 #' ggRGB(SEalaska.topo, 1, 2, 3, coord_equal = FALSE)
-#' # labeled DC map, high resolution
-#' dc.natgeo <- getBasemapRaster(-77.5,-76.5, 38.5, 39.25, map.types = "Esri.NatGeoWorldMap", 
-#' width = 1000, height = 1000, zoom = 8)
+#' # using GPS data
+#' NWT_sat <- boreal_ss %>%
+#'   get_bbox(crs = 4326) %>% 
+#'   getBasemapRaster2("Esri.WorldImagery", plotme = T)
 #' 
 #' @export
 
-getBasemapRaster <- function(xmin, xmax, ymin, ymax, map.types = "Esri.WorldPhysical",
-                             directory = ".", 
-                             filename = "basemap",
-                             width = 1000, height = 1000, zoom = 1, 
-                             plotme = TRUE, ...)
+getBasemapRaster <- function(x,
+                              xmax = NULL, ymin = NULL, ymax = NULL, 
+                              map.types = "Esri.WorldPhysical",
+                              directory = ".", 
+                              filename = "basemap",
+                              width = 1000, height = 1000, zoom = 1, 
+                              plotme = FALSE, 
+                              output_crs = "+init=epsg:3857", ...)
 {
+  if(!is.na(st_bbox(x))) {
+    # we could still take the bbox of a spatial object, if we want.
+    x <- unname(x)
+    xmin <- x[1]
+    xmax <- x[3]
+    ymin <- x[2]
+    ymax <- x[4]
+  } else {
+    xmin <- x
+  }
+  
   # creating a white rectangular donut
   outer = cbind(lon = c(-170,-170,170,170,-170), lat = c(-89,89,89,-89,-89))
   hole = cbind(lon = c(xmin, xmax, xmax, xmin, xmin), 
                lat = c(ymin, ymin, ymax, ymax, ymin))
-  earthwithhole = st_polygon(list(outer, hole)) %>% st_sfc(crs = 4326)
+
+  earthwithhole = st_polygon(list(outer, hole)) %>% st_sfc(crs = 4326) %>% st_transform(3857)
   
-  basemap <- mapview::mapview(earthwithhole %>% st_transform(3857), map.types = map.types, alpha = 0.5,
+  basemap <- mapview::mapview(earthwithhole, 
+                              map.types = map.types, alpha = 0.5,
                      col.regions = "white", alpha.regions = 1) 
   basemap@map <- leaflet::fitBounds(basemap@map, xmin, ymin, xmax, ymax)
   
@@ -78,6 +103,8 @@ getBasemapRaster <- function(xmin, xmax, ymin, ymax, map.types = "Esri.WorldPhys
   
   extent(m2) <- extent(t(xy.new[,1:2]))
   crs(m2) <- CRS("+init=epsg:3857")
+  
+  if(output_crs != "+init=epsg:3857") m2 <- raster::projectRaster(m2, crs = CRS(output_crs))
   
   if(plotme) raster::plotRGB(m2)
   return(m2)

@@ -38,7 +38,7 @@ suitably for many of the analyses in this package.
 \examples{
 # to generate the bluenose data
 \dontrun{
-bluenose.move <- getMovebankData("ABoVE: NWT Sahtu Barren Ground Caribou: Bluenose-East",
+bluenose.move <- getMovebankData("GNWT Sahtu Barren Ground Caribou: Bluenose-East",
 login = mylogin, removeDuplicatedTimestamps=TRUE)
 bluenose <- process_moveNWT(bluenose.move)}
 }

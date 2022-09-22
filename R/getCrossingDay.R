@@ -1,9 +1,9 @@
 #' Get migration arrival from calving ground
 #'
 #' Function to determine migration arrival from the calving ground
-#' (estimated based on the individuals'calving locations).
+#' (estimated based on the individuals' calving locations).
 #'
-#' The function estimates the calving ground of each herd, based on calving locations sepecified given in df
+#' The function estimates the calving ground of each herd, based on calving locations specified given in df
 #' Then it determines the migration arrival time as the time at which a given individual crossed the boundaries of the herd
 #' calving ground (i.e. the first relocation inside the calving range)
 
