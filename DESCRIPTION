@@ -11,3 +11,4 @@ LazyData: false
 Depends: lubridate, magrittr, plyr, dplyr, ggplot2, adehabitatLT, sp, sf, move, stringr, cluster, adehabitatHR, NbClust
 Suggests: mapview
 RoxygenNote: 7.2.1
+
