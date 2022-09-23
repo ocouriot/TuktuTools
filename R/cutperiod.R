@@ -30,9 +30,11 @@
 #' (for example, if an individual has loss signal for more than 3 consecutive days, it will be excluded from the dataset)
 #' @param CRS the coordinates projection (default is Canada Lambert Conformal Conic centered on the area from the Western Arctic to the Hudson Bay:
 #' "+proj=lcc +lat_1=50 +lat_2=70 +lat_0=65 +lon_0=-120 +x_0=0 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs")
-
 #' @return a dataframe containing only concerned period and individuals that match the defined rules
-#'
+#' 
+#' @examples
+#' 
+#' 
 #' @export
 
 cutperiod <- function(df, start, end, nfixes, dayloss,

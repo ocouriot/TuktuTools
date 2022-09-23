@@ -36,7 +36,7 @@ clean.data <- function(dfa){
   newdata <- data.frame()
   outliers <- data.frame()
 
-    tempo.speed <- get.speed(dfa)
+    tempo.speed <- dlply(dfa, "ID_Year", get.speed) %>% ldply
     tempo.speed$dt.sec <- tempo.speed$dt * 24 * 60
 
     # relocations with high speed (>15km per hour) or small time interval (<= 2 minutes) or with high speed & small time interval (10km per hour and <10 minutes)
@@ -80,7 +80,7 @@ keep <- c1
 toremove <- data.frame()
 for(j in 1:steps){
 # look for potential "outliers"
-c1.speed <- get.speed(keep)
+c1.speed <- dlply(keep, "ID_Year", get.speed) %>% ldply
 
 # calculate the delta time in seconds
 c1.speed$dt.sec <- c1.speed$dt * 24 * 60

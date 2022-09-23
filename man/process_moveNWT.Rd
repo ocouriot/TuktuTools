@@ -6,8 +6,8 @@
 \usage{
 process_moveNWT(
   movedata,
- 
-    CRS = "+proj=lcc +lat_1=50 +lat_2=70 +lat_0=65 +lon_0=-120 +x_0=0 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs",
+  CRS =
+    "+proj=lcc +lat_1=50 +lat_2=70 +lat_0=65 +lon_0=-120 +x_0=0 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs",
   mylogin
 )
 }
@@ -38,7 +38,7 @@ suitably for many of the analyses in this package.
 \examples{
 # to generate the bluenose data
 \dontrun{
-bluenose.move <- getMovebankData("ABoVE: NWT Sahtu Barren Ground Caribou: Bluenose-East",
+bluenose.move <- getMovebankData("GNWT Sahtu Barren Ground Caribou: Bluenose-East",
 login = mylogin, removeDuplicatedTimestamps=TRUE)
 bluenose <- process_moveNWT(bluenose.move)}
 }
