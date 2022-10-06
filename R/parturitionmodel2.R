@@ -56,7 +56,6 @@
 #' Par, the estimated parameters of the best model based on AIC and
 #' a summary of the results with the best model based on AIC, the calving date if any,
 #' and the recovery time (in days, if any),
-#' a Z-score for the calving date, as a deviation from average calving date from Cameron et al. 2018
 #' and the x and y calving locations
 #'
 #'
@@ -67,8 +66,10 @@
 
 parturition.model2 <- function (df, int, kcons, method, PlotIt = FALSE, saveplot = FALSE,
                                CRS = "+proj=lcc +lat_1=50 +lat_2=70 +lat_0=65 +lon_0=-120 +x_0=0 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs") {
+  
+  df <- df %>% mutate(ID_Year = as.factor(paste(ID, year(Time), sep = "_")))
+  
   # create the returned dataframes
-
   coeffs <- data.frame()
   par <- data.frame()
   results.summary <- data.frame()
@@ -78,19 +79,21 @@ parturition.model2 <- function (df, int, kcons, method, PlotIt = FALSE, saveplot
     print(i)
 
     temp=droplevels(subset(df,ID_Year==i))
-    temp <- temp[order(temp$DateTime),]
+    temp <- temp[order(temp$Time),]
     int=int
     kcons=kcons
     ID_Year=unique(temp$ID_Year)
-
+    ID = unique(temp$ID)
+    Year = unique(year(temp$Time))
+    
     speed <- na.omit(temp$speed)
     speedmean <- mean(speed)
     speedvar <- var(speed)
 
-    # run the mnll3M function for the individual
+    # run the mnll2M function for the individual
     results <- mnll2M(temp, int, kcons)
     # exctract the parameters, AICs...
-    results.data.temp=data.frame(ID_Year=ID_Year,
+    results.data.temp=data.frame(ID_Year = ID_Year, ID=ID, Year = Year,
                                    Best.Model=as.factor(as.character(results$results[1,"Best.Model"])),
                                    M0.AIC=as.numeric(results$results[1,"AIC.nocalf"]),
                                    Mcalf.AIC=as.numeric(results$results[1,"AIC.calf"]),
@@ -98,34 +101,22 @@ parturition.model2 <- function (df, int, kcons, method, PlotIt = FALSE, saveplot
                                  Mcalf.mnll=as.numeric(results$results[1,"mnll.calf"]))
 
     ## results table
-    results.summary.temp <- data.frame(ID_Year=ID_Year, Best.Model=as.factor(as.character(results$results[1,"Best.Model"])),
+    results.summary.temp <- data.frame(ID_Year = ID_Year, ID=ID, Year = Year, Best.Model=as.factor(as.character(results$results[1,"Best.Model"])),
                                        calving.date=ifelse(as.character(results$results[1,"Best.Model"])=="calf",
                                                            as.POSIXct(results$BPs[["date.BP1.calf"]]), NA),
                                        Recovery=ifelse(as.character(results$results[1,"Best.Model"])=="calf",
-                                                       results$BPs[["recovery.calf"]], NA),
-                                       calving.date.score = NA)
+                                                       results$BPs[["recovery.calf"]], NA))
     results.summary.temp$calving.date <- as.POSIXct(results.summary.temp$calving.date,
                                                     origin="1970-01-01", tz="GMT")
     calving.date.julian <- yday(results.summary.temp$calving.date)
 
-    # calculating the z-score of the date (compared to the distribution of calving dates in Cameron et al. 2018)
-    z.score <- (calving.date.julian - 155.12) / 4.43
 
-    # # from this z-score calculating the probability for this value
-    # ## (associated to the percentage under the curve below this value)
-    # prob.z.score <- pnorm(z.score)
-    #
-    # # Now calculate a score of closeness to the mean of the distribution
-    # results.summary.temp$calving.date.score <- 1-abs(0.5-prob.z.score)/0.5
-
-    # Just keep the z-score
-    results.summary.temp$calving.date.score <- z.score
 
     # Estimated parameters (alpha.mean, beta.mean, alpha.calf, beta.calf and recovery time)
     {
       beta.0 <- speedmean / speedvar
       alpha.0 <- speedmean * beta.0
-      parnocalf <- data.frame(ID_Year = ID_Year, alpha.0 = alpha.0, beta.0 = beta.0)
+      parnocalf <- data.frame(ID = ID, Year = Year, alpha.0 = alpha.0, beta.0 = beta.0)
       fit.values.nocalf <- rep(alpha.0/beta.0, length(speed))
       results.summary.temp$calf.loc.x <- NA
       results.summary.temp$calf.loc.y <- NA
@@ -162,7 +153,7 @@ parturition.model2 <- function (df, int, kcons, method, PlotIt = FALSE, saveplot
     ####### Making plots of results ##########
 
     temp <- droplevels(subset(temp, is.na(speed)==FALSE))
-    temp <- temp[order(temp$DateTime),]
+    temp <- temp[order(temp$Time),]
     ### if PlotAIC = TRUE statement plots
     if(PlotIt){
 

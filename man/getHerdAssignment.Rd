@@ -7,8 +7,7 @@
 getHerdAssignment(df, K, PlotIt = TRUE)
 }
 \arguments{
-\item{df}{a dataframe containing x and y coordinates and the ID_year
-(Identifiant of individuals for each year of survey) of all datasets combined in one}
+\item{df}{a dataframe containing x and y coordinates (in a metric system) with Time and the ID of individuals}
 
 \item{K}{number of herds (can be determined using getKnumber function in this package)}
 
@@ -19,6 +18,6 @@ the dataframe with GPS location and a cluster column with
 a number comprised between 1 and K, corresponding to the herd assignment.
 }
 \description{
-Function to determine herd assignment using K-means analysis on GPS locations of individuals,
+Function to identify different herds/populations using K-means analysis on GPS locations of individuals,
 using the average location for each individual and year.
 }

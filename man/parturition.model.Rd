@@ -17,9 +17,9 @@ parturition.model(
 \arguments{
 \item{df}{a dataframe containing the speed between subsequent relocations of individuals,
 the coordinates of the relocations (in metric system)
-the date and time oh each speed value and the difference in hours 
+the date and time (Time) of each speed value and the difference in hours 
 between each speed value and the first one
-and a vector of the animal-year identifiant.
+and a vector of the animal identifiant (ID).
 See ?get.speed for more information on the Data requirements}
 
 \item{int}{integer value indicating the minimum number of days between
@@ -48,7 +48,6 @@ the best model based on AIC, the dates of calf and death if any Recovery time (i
 Par, the estimated parameters of the best model based on AIC and
 a summary of the results with the best model based on AIC, the calving date if any,
 the mortality date of the calf (if any), the recovery time (in days, if any),
-a Z-score for the calving date, as a deviation from average calving date from Cameron et al. 2018
 and the x and y calving locations
 }
 \description{

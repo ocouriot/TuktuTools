@@ -15,9 +15,9 @@ cutperiod(
 )
 }
 \arguments{
-\item{df}{a data frame containing columns: ID_Year as individual identifiant per year,
+\item{df}{a data frame containing columns: ID as individual identifiant,
 x and y: relocations of individuals (in N Canada Lambert Conformal Conic)
-DateTime: date and time vector (of class POSIXct)}
+Time: date and time vector of the relocation (of class POSIXct)}
 
 \item{start}{starting month and day of the period of interest as a vector c(mm,dd)
 (example for the 19th of May: c(05,19))}

@@ -14,7 +14,7 @@ removeOutliers(
 \arguments{
 \item{df}{a data frame containing columns: ID as individual identifiant,
 x and y: relocations of individuals (metric system specified in CRS)
-DateTime: vector (of class POSIXct)}
+Time: vector (of class POSIXct)}
 
 \item{steps}{if specified, the number of cleaning steps to be performed (default is 10)}
 

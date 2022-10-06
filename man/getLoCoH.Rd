@@ -2,7 +2,7 @@
 % Please edit documentation in R/getLoCoH.R
 \name{getLoCoH}
 \alias{getLoCoH}
-\title{get LoCoH}
+\title{get LoCoH and get Daily Range}
 \usage{
 getLoCoH(
   sf,
@@ -14,8 +14,8 @@ getLoCoH(
 )
 }
 \arguments{
-\item{sf}{a simple feature containing GPS coordinates of animals locations used to estimate 
-the ranging area}
+\item{sf}{a simple feature containing (daily) GPS coordinates used to estimate 
+the (daily) ranging area}
 
 \item{nn}{the number of nearest neighbors used to construct the local convex polygons}
 
@@ -27,7 +27,7 @@ the ranging area}
 The function returns a simple feature of the isopleth(s), with the area
 }
 \description{
-This function estimate Local Convex Hulls (LoCoH) by converting a simple feature into a LoCoH-xy
+This function estimate (daily) Local Convex Hulls (LoCoH) by converting a simple feature into a LoCoH-xy
 object, identifying the nearest neighbors, creating a LoCoH-hullset object by constructing the 
 local convex polygon using the nearest neighbors (nn) of each data point
 }

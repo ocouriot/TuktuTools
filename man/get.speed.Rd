@@ -11,9 +11,9 @@ get.speed(
 )
 }
 \arguments{
-\item{df}{a data frame containing columns: ID_Year as individual identifiant per year,
+\item{df}{a data frame containing columns: ID as individual identifiant,
 x and y: relocations of individuals (in N Canada Lambert Conformal Conic)
-DateTime: date and time vector (of class POSIXct)}
+Time: date and time vector (of class POSIXct)}
 
 \item{CRS}{the coordinates projection (default is Canada Lambert Conformal Conic:
 "+proj=lcc +lat_1=50 +lat_2=70 +lat_0=65 +lon_0=-120 +x_0=0 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs")}

@@ -14,24 +14,26 @@ getCrossingTime(
 )
 }
 \arguments{
-\item{df}{a dataframe containing the ID_Year, the herd and lon and lat of the calving event (in WGS 84)}
+\item{df}{a dataframe containing the coordinates (lon and lat: WGS84) of the calving events , the ID and the herd of the female and the Time of calving}
 
-\item{movedata}{a simple feature containing the movement data for all individuals in df, in WGS84 (crs=4326) (with column ID_Year and DateTime of the relocation)}
+\item{movedata}{a simple feature (in WGS84, crs = 4326) containing the original movement data used to identify calving (with column ID and Time of the relocation)}
 
 \item{percent}{the percent to be used to estimate the calving ground}
 
-\item{method}{the method to be used to estimate the calving ground of the herd (prefrerred 'LSCV')}
+\item{method}{the method to be used to estimate the calving ground of the herd (preferred 'LSCV')}
+
+\item{CRS}{the metric projection to be used, defaut is: '+proj=lcc +lat_1=50 +lat_2=70 +lat_0=65 +lon_0=-120 +x_0=0 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs')}
 }
 \value{
-a dataframe with the ID_Year and the day the individual crossed the boundaries
+a dataframe with the ID and the day the individual crossed the boundaries
 of the calving ground (estimated based on the method and percent defined in the parameters)
 }
 \description{
 Function to determine migration arrival from the calving ground
-(estimated based on the individuals'calving locations).
+(estimated based on the individuals' calving locations).
 }
 \details{
-The function estimates the calving ground of each herd, based on calving locations sepecified given in df
+The function estimates the calving ground of each herd, based on calving locations specified given in df
 Then it determines the migration arrival time as the time at which a given individual crossed the boundaries of the herd
 calving ground (i.e. the first relocation inside the calving range)
 }

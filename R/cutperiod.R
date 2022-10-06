@@ -17,9 +17,9 @@
 #' -exclude individuals that lost signal for more than 3 days
 #' -exclude individuals for which monitoring stopped before July 15 or began after May 19
 
-#' @param  df a data frame containing columns: ID_Year as individual identifiant per year,
+#' @param  df a data frame containing columns: ID as individual identifiant,
 #' x and y: relocations of individuals (in N Canada Lambert Conformal Conic)
-#' DateTime: date and time vector (of class POSIXct)
+#' Time: date and time vector of the relocation (of class POSIXct)
 #' @param start starting month and day of the period of interest as a vector c(mm,dd)
 #' (example for the 19th of May: c(05,19))
 #' @param end end month and day of the period of interest as a vector c(mm,dd)
@@ -43,17 +43,17 @@ cutperiod <- function(df, start, end, nfixes, dayloss,
   nbegin <- length(unique(df$ID))
 
 # just keep time series between defined start and end
-tempo <- droplevels(df %>% mutate(Month = month(DateTime)) %>% mutate(Day = day(DateTime)) %>%
+tempo <- droplevels(df %>% mutate(Year = year(Time), Month = month(Time), Day = day(Time)) %>% mutate(ID_Year = as.factor(paste(ID, Year, sep = "_"))) %>%
                          subset((Month == start[1] & Day >= start[2])| Month %in% months | (Month == end[1] & Day <= end[2])))
 
 
 # Remove individuals for which monitoring stopped before July 15th
 # or began after May 19th
 # calculate start and end date of the monitoring for each individual of each herd
-df <- merge(tempo,with(tempo, aggregate(list(start.date = DateTime),
+df <- merge(tempo,with(tempo, aggregate(list(start.date = Time),
                                                    list(ID_Year = ID_Year),min)),
                  by="ID_Year",all=T)
-df <- merge(df,with(tempo, aggregate(list(end.date = DateTime),
+df <- merge(df,with(tempo, aggregate(list(end.date = Time),
                                                   list(ID_Year = ID_Year),max)),
                  by="ID_Year",all=T)
 # filtrate
@@ -72,8 +72,8 @@ get.dt <- function(dfa){
   for (i in unique(dfa$ID_Year)){
 #    print(length(unique(dfa$ID_Year))-which(unique(dfa$ID_Year)==i))
     temp <- droplevels(subset(dfa,ID_Year == i))
-    temp$dt <- c(as.integer(difftime(temp$DateTime[2:length(temp$DateTime)],
-                                      temp$DateTime[1:(length(temp$DateTime)-1)],"hours")),NA)
+    temp$dt <- c(as.integer(difftime(temp$Time[2:length(temp$Time)],
+                                      temp$Time[1:(length(temp$Time)-1)],"hours")),NA)
     keep <- rbind(keep,temp)
   }
   return(keep)
@@ -84,7 +84,7 @@ df <- get.dt(df)
 
 
 # exclude individuals that do not have at least one fix per day
-df$yday <- yday(df$DateTime)
+df$yday <- yday(df$Time)
 df.freq.ind <- with(df,aggregate(list(freq=ID),
                                  list(ID_Year=ID_Year, yday = yday), length))
 mean.freq.ind <- with(df.freq.ind,aggregate(list(mean.freq=freq),
@@ -104,7 +104,7 @@ attr(df, "projection") <- CRS
 print(paste0("Period comprised between ", month(start[1],label=T)," ", start[2]," and ", month(end[1],label=T)," ", end[2]))
 print(paste0("Number of excluded individuals: ",nbegin-length(unique(df$ID))))
 
-return(df)
+return(df %>% mutate(ID_Year = NULL, Year = NULL, Mont = NULL, Day = NULL))
 }
 
 

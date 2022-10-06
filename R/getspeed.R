@@ -4,9 +4,9 @@
 #' in POSIXct format. This will calculate the speed between subsequent relocations (i.e. of each step), as well as the middle time
 #' of the step.
 #'
-#' @param  df a data frame containing columns: ID_Year as individual identifiant per year,
+#' @param  df a data frame containing columns: ID as individual identifiant,
 #' x and y: relocations of individuals (in N Canada Lambert Conformal Conic)
-#' DateTime: date and time vector (of class POSIXct)
+#' Time: date and time vector (of class POSIXct)
 #'@param CRS the coordinates projection (default is Canada Lambert Conformal Conic:
 #' "+proj=lcc +lat_1=50 +lat_2=70 +lat_0=65 +lon_0=-120 +x_0=0 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs")
 
@@ -18,16 +18,16 @@
 
 get.speed <- function(df,
                       CRS = "+proj=lcc +lat_1=50 +lat_2=70 +lat_0=65 +lon_0=-120 +x_0=0 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs"){
-  df <- as.data.frame(df)
+  df <- as.data.frame(df) %>% mutate(ID_Year = paste(ID, year(Time), sep = "_"))
   #table to be returned
   speed.df <- data.frame()
   for (i in unique(df$ID_Year)) {
 
     tempo <- droplevels(subset(as.data.frame(df), ID_Year == i))
-    tempo <- tempo[order(tempo$DateTime),]
+    tempo <- tempo[order(tempo$Time),]
     xn <- tempo$x
     yn <- tempo$y
-    timen <- tempo$DateTime
+    timen <- tempo$Time
     # calculate the step lengths between subsequent relocations
     sl <- Mod(diff(xn + 1i*yn))
     # calculate the timelags between subsequent relocations
@@ -49,7 +49,7 @@ get.speed <- function(df,
     attr(speed.df, "projection") <- CRS
   }
 
-  return(speed.df)
+  return(speed.df %>% mutate(ID_Year = NULL))
 }
 
 
