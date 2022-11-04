@@ -2,21 +2,18 @@
 #' 
 #' Important note - requires a column called "DateTime"
 #' 
-#' @param mysf a simple feature subseted to a single ID.  
-#' @return A simple feature with the same CRS containing daily mean locations. 
+#' @param df a data frame with the ID, the Time (as date and time), the x and y coordinates in metric system, 
+#' and the Lon and Lat coordinates in WGS84
+#' @return A data frame with the daily mean locations
+#' 
+#' @example examples/example_getDailyMean.R
 
-
-getDailyMean <- function(mysf){
-  df_mean <- mysf %>% mutate(x = st_coordinates(mysf)[,1],
-                             y = st_coordinates(mysf)[,2])  %>% 
-    data.frame %>% droplevels %>%
-    plyr::mutate(yday = lubridate::yday(DateTime)) %>%
-    group_by(Year, yday, add = TRUE) %>%
-    summarize(x = mean(x), y = mean(y), DateTime = mean(DateTime))
+getDailyMean <- function(df){
+  df_mean <- df %>%
+    plyr::mutate(yday = lubridate::yday(Time), Year = year(Time)) %>%
+    group_by(ID, Year, yday, add = TRUE) %>%
+    summarize(x = ifelse(is.null(x), NA, mean(x)), y = ifelse(is.null(y), NA, mean(y)), Time = mean(Time),
+              Lon = ifelse(is.null(Lon), NA, mean(Lon)), Lat = ifelse(is.null(Lat), NA, mean(Lat)))
   
-  sf_mean <- st_as_sf(df_mean, coords = c("x","y"), crs = st_crs(mysf)) %>%
-    plyr::mutate(x = df_mean$x, y = df_mean$y)
-  sf_mean
+  df_mean
 }
-
-
