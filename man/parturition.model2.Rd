@@ -48,7 +48,6 @@ the best model based on AIC, the dates of calf and death if any Recovery time (i
 Par, the estimated parameters of the best model based on AIC and
 a summary of the results with the best model based on AIC, the calving date if any,
 and the recovery time (in days, if any),
-a Z-score for the calving date, as a deviation from average calving date from Cameron et al. 2018
 and the x and y calving locations
 }
 \description{

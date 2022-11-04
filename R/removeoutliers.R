@@ -15,7 +15,7 @@
 
 #' @param df a data frame containing columns: ID as individual identifiant,
 #' x and y: relocations of individuals (metric system specified in CRS)
-#' DateTime: vector (of class POSIXct)
+#' Time: vector (of class POSIXct)
 #' @param steps if specified, the number of cleaning steps to be performed (default is 10)
 #' @param CRS the coordinates projection (default is Canada Lambert Conformal Conic:
 #' "+proj=lcc +lat_1=50 +lat_2=70 +lat_0=65 +lon_0=-120 +x_0=0 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs")
@@ -28,10 +28,11 @@
 removeOutliers <- function(df, steps = 10,
                            CRS = "+proj=lcc +lat_1=50 +lat_2=70 +lat_0=65 +lon_0=-120 +x_0=0 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs"){
 
-  df <- as.data.frame(df)
-# Function for Cleaning dataset
+  df <- as.data.frame(df) %>% mutate(ID_Year = as.factor(paste(ID, year(Time), sep = "_")))
+
+  # Function for Cleaning dataset
 clean.data <- function(dfa){
-  dfa <- dfa[order(dfa$ID_Year,dfa$DateTime),]
+  dfa <- dfa[order(dfa$ID_Year,dfa$Time),]
   row.names(dfa) <- 1:nrow(dfa)
   newdata <- data.frame()
   outliers <- data.frame()
@@ -65,7 +66,7 @@ clean.data <- function(dfa){
 
 
 # create Month, Day, Year variables
-df$Month <- month(df$DateTime);df$Day <- day(df$DateTime);df$Year <- year(df$DateTime)
+df$Month <- month(df$Time);df$Day <- day(df$Time);df$Year <- year(df$Time)
 
 head(df)
 
@@ -97,13 +98,13 @@ if(j < steps){
     keep <- dfb$newdata
     toremove <- rbind(toremove,dfb$outliers)
   } else if((dim(verif)==1 & names(verif)==FALSE)==TRUE){
-    no.outliers <- keep
+    no.outliers <- keep %>% mutate(ID_Year = NULL)
     attr(no.outliers, "projection") <- CRS
     return(toreturn=list(no.outliers=no.outliers,outliers=toremove))} else {
       print("Check data")}
   }
 if(j == steps){
-  no.outliers <- keep
+  no.outliers <- keep %>% mutate(ID_Year = NULL)
   attr(no.outliers, "projection") <- CRS
   return(toreturn=list(no.outliers=no.outliers,outliers=toremove))
 }

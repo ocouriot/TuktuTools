@@ -39,18 +39,17 @@ scan_tracks <- function(sf.list, cols = 1:length(sf.list),
 
   par.init <- par(no.readonly = TRUE)
   on.exit(par(par.init))
-
-  ids <- sapply(sf.list, function(sf) sf$ID[1]) %>% droplevels
+  ids <- sapply(sf.list, function(sf) sf$ID[[1]]) %>% droplevels
   names(sf.list) <- ids
   xy.df <- ldply(sf.list,
                  function(sf) cbind(as.data.frame(st_coordinates(sf)),
-                                    DateTime= sf$DateTime)) %>%
+                                    Time= sf$Time)) %>%
     plyr::rename(c(.id = "ID")) %>%
     mutate(col = cols[match(ID, ids)])
 
   xlim <- range(xy.df$X)
   ylim <- range(xy.df$Y)
-  tlim <- range(xy.df$DateTime)
+  tlim <- range(xy.df$Time)
 
 
   if(plotdistance){
@@ -64,7 +63,7 @@ scan_tracks <- function(sf.list, cols = 1:length(sf.list),
 
   plot(0,0,xlim = xlim, ylim = ylim, asp =1, type = "n", xlab = "X", ylab = "Y")
   d_ply(xy.df, "ID", function(xy) lines(xy$X, xy$Y, col = xy$col[1]))
-  if(legend) legend("topleft", cex = 0.75, col = cols, legend = unique(xy.df$ID), lty = 1)
+  if(legend) legend("topleft", cex = 0.75, col = cols, legend = paste(unique(xy.df$ID), unique(year(xy.df$Time)), sep =" - "), lty = 1)
 
   if(plotdistance){
     with(distance.df,
@@ -75,11 +74,11 @@ scan_tracks <- function(sf.list, cols = 1:length(sf.list),
            function(df) lines(df[,c("Date","distance")], col = d.col))
   }
 
-  plot(xy.df[,c("DateTime", "X")],xlim = tlim, ylim = xlim, type = "n", ylab = "X", xaxt = "n", xlab = "")
-  d_ply(xy.df, "ID", function(xy) lines(xy$DateTime, xy$X, col = xy$col[1]))
+  plot(xy.df[,"Time"], xy.df[,"X"], xlim = tlim, ylim = xlim, type = "n", ylab = "X", xaxt = "n", xlab = "")
+  d_ply(xy.df, "ID", function(xy) lines(xy$Time, xy$X, col = xy$col[1]))
 
-  plot(xy.df[,c("DateTime", "Y")],xlim = tlim, ylim = ylim, type = "n", ylab = "Y", xlab = "time")
-  d_ply(xy.df, "ID", function(xy) lines(xy$DateTime, xy$Y, col = xy$col[1]))
+  plot(xy.df[,c("Time", "Y")],xlim = tlim, ylim = ylim, type = "n", ylab = "Y", xlab = "time")
+  d_ply(xy.df, "ID", function(xy) lines(xy$Time, xy$Y, col = xy$col[1]))
 
   invisible(distance.df)
 }

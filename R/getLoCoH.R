@@ -1,11 +1,11 @@
-#' get LoCoH
+#' get LoCoH and get Daily Range
 #'
-#' This function estimate Local Convex Hulls (LoCoH) by converting a simple feature into a LoCoH-xy
+#' This function estimate (daily) Local Convex Hulls (LoCoH) by converting a simple feature into a LoCoH-xy
 #' object, identifying the nearest neighbors, creating a LoCoH-hullset object by constructing the 
 #' local convex polygon using the nearest neighbors (nn) of each data point
 #'
-#' @param  sf a simple feature containing GPS coordinates of animals locations used to estimate 
-#' the ranging area
+#' @param  sf a simple feature containing (daily) GPS coordinates used to estimate 
+#' the (daily) ranging area
 #'@param nn the number of nearest neighbors used to construct the local convex polygons
 #'@param level A numeric value of the level of the isopleths
 #'@param CRS the CRS of the simple feature (default is "+proj=lcc +lat_1=50 +lat_2=70 +lat_0=65 +lon_0=-120 +x_0=0 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs")
@@ -27,7 +27,7 @@ getLoCoH <- function(sf,  nn = 10, level = .90,
  return(tokeep)
 }
 
-get.dailyRange <- function(df){
+getDailyRange <- function(sf){
   daily.area <- list()
   for(doy in sort(unique(df$yday))){
     doy.loc <- subset(df, yday == doy)
