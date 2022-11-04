@@ -4,14 +4,23 @@
 \alias{getDailyMean}
 \title{Calculate Daily Mean}
 \usage{
-getDailyMean(mysf)
+getDailyMean(df)
 }
 \arguments{
-\item{mysf}{a simple feature subseted to a single ID.}
+\item{df}{a data frame with the ID, the Time (as date and time), the x and y coordinates in metric system, 
+and the Lon and Lat coordinates in WGS84}
 }
 \value{
-A simple feature with the same CRS containing daily mean locations.
+A data frame with the daily mean locations
 }
 \description{
-Calculate Daily Mean
+Important note - requires a column called "DateTime"
+}
+\examples{
+require(TuktuTools)
+
+data(barrenground)
+
+daily_mean <- getDailyMean(barrenground)
+head(daily_mean)
 }

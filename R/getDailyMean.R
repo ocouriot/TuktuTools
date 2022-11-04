@@ -1,11 +1,12 @@
 #' Calculate Daily Mean
 #' 
+#' Important note - requires a column called "DateTime"
+#' 
 #' @param df a data frame with the ID, the Time (as date and time), the x and y coordinates in metric system, 
 #' and the Lon and Lat coordinates in WGS84
 #' @return A data frame with the daily mean locations
 #' 
 #' @example examples/example_getDailyMean.R
-
 
 getDailyMean <- function(df){
   df_mean <- df %>%
