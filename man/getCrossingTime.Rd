@@ -9,8 +9,8 @@ getCrossingTime(
   movedata,
   percent,
   method,
-  CRS =
-    "+proj=lcc +lat_1=50 +lat_2=70 +lat_0=65 +lon_0=-120 +x_0=0 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs"
+ 
+    CRS = "+proj=lcc +lat_1=50 +lat_2=70 +lat_0=65 +lon_0=-120 +x_0=0 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs"
 )
 }
 \arguments{
@@ -28,10 +28,10 @@ of the calving ground (estimated based on the method and percent defined in the 
 }
 \description{
 Function to determine migration arrival from the calving ground
-(estimated based on the individuals'calving locations).
+(estimated based on the individuals' calving locations).
 }
 \details{
-The function estimates the calving ground of each herd, based on calving locations sepecified given in df
+The function estimates the calving ground of each herd, based on calving locations specified given in df
 Then it determines the migration arrival time as the time at which a given individual crossed the boundaries of the herd
 calving ground (i.e. the first relocation inside the calving range)
 }

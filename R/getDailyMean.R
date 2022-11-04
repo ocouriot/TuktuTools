@@ -1,5 +1,7 @@
 #' Calculate Daily Mean
 #' 
+#' Important note - requires a column called "DateTime"
+#' 
 #' @param mysf a simple feature subseted to a single ID.  
 #' @return A simple feature with the same CRS containing daily mean locations. 
 

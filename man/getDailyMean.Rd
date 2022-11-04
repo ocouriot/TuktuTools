@@ -13,5 +13,5 @@ getDailyMean(mysf)
 A simple feature with the same CRS containing daily mean locations.
 }
 \description{
-Calculate Daily Mean
+Important note - requires a column called "DateTime"
 }
