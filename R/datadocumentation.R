@@ -18,7 +18,7 @@
 #' and date and time (Time) of the GPS locations. These are real data courtesy of NWT
 #' but anonymized and shifted in time, longitude and latitude. 
 #' 
-#' @examples examples/example_caribou.R
+#' @example examples/example_caribou.R
 #'
 #' @source GNWT Department of Environment and Natural Resources
 #' @keywords data
