@@ -7,7 +7,10 @@
 #' @param percent percent kernel
 #' @param grid grid points (default 200, higher than adehabitat's)
 #' @param ... additional parameters to pass to \link{kernelUD}
+#' 
 #' @example examples/example_getKernelUD.R
+#' 
+#' @export
 
 getKernelUD <- function(my.sf, percent = 95, grid = 200, ...){
   ll <- st_coordinates(my.sf)

@@ -17,7 +17,6 @@
 #' of the calving ground (estimated based on the method and percent defined in the parameters)
 #'
 #'
-#' @export
 
 
 getCrossingTime <- function(df, movedata, percent, method, 

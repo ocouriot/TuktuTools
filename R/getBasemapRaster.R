@@ -28,7 +28,6 @@
 #' 
 #' @example examples/example_getBasemapRaster.R
 #' 
-#' @export
 
 getBasemapRaster <- function(x,
                               xmax = NULL, ymin = NULL, ymax = NULL, 

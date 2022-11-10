@@ -20,8 +20,6 @@
 #'
 #' @return Returns the negative log-likelihood of this model and the recovery time (in days)
 #'
-#'
-#' @export
 #' @references DeMars, C., M. Auger-Méthé, U. Schlägel, S. Boutin, (Published online) Inferring Parturition and Neonate Survival from Movement Patterns of Female Ungulates. Ecology and Evolution. DOI: 10.1002/ece3.785
 
 nll.calfdeath <- function(df, BP1, BP2, kcons, PlotMe = FALSE){

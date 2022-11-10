@@ -17,6 +17,8 @@
 #'
 #' @example examples/example_getSpeed.R
 #' 
+#' @export
+#' 
 getSpeed <- function(df,
                       CRS = "+proj=lcc +lat_1=50 +lat_2=70 +lat_0=65 +lon_0=-120 +x_0=0 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs"){
   df <- as.data.frame(df) %>% mutate(ID_Year = paste(ID, year(Time), sep = "_"))

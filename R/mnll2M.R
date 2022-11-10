@@ -15,8 +15,6 @@
 #' which contains the MLE values of all parameters and the mnll, AIC coefficient
 #' of the no calf or calf model
 #'
-#'
-#' @export
 #' @references DeMars, C., M. Auger-Méthé, U. Schlägel, S. Boutin, (Published online) Inferring Parturition and Neonate Survival from Movement Patterns of Female Ungulates. Ecology and Evolution. DOI: 10.1002/ece3.785
 
 mnll2M <- function(df, int, kcons){

@@ -11,7 +11,6 @@
 #' 
 #' @example examples/example_getBasemap.R
 #' 
-#' @export
 
 getBasemap <- function (gg.ext, map_service = "osm", map_type = "terrain_bg", map_res, 
                         m.crs = NULL, map_dir = "basemap", delete_tiles = TRUE) 

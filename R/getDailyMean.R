@@ -7,6 +7,8 @@
 #' @return A data frame with the daily mean locations
 #' 
 #' @example examples/example_getDailyMean.R
+#' 
+#' @export
 
 getDailyMean <- function(df){
   df_mean <- df %>%

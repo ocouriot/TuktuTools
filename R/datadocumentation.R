@@ -7,15 +7,15 @@
 #' 
 #' @format data frame with the following columns: 
 #' #' \describe{
-#'   \item{id}{ID of animal}
-#'   \item{start}{Date of beginning of collaring}
-#'   \item{end}{Date of death or censoring}
-#'   \item{fate}{One of "dead", or "censored"}
+#'   \item{ID}{ID of animal}
+#'   \item{sex}{Sex of the animal}
+#'   \item{Time}{Date and time of each GPS location}
+#'   \item{Year}{Year of the GPS location}
+#'   \item{Lon,Lat}{Coordinates of the GOS locations in WGS84}
+#'   \item{x,y}{Coordinates of the GOS locations in Canada Lambert Conformal Conic (crs = "+proj=lcc +lat_1=50 +lat_2=70 +lat_0=65 +lon_0=-120 +x_0=0 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs")}
 #' }
 #' 
-#' name of 4 individuals (ID), the sex, the coordinates 
-#' of the GPS locations (Lon,Lat in WGS84 and x,y in Canada Lambert Conformal Conic) 
-#' and date and time (Time) of the GPS locations. These are real data courtesy of NWT
+#' These are real data courtesy of NWT Department of Environment and Natural Resources
 #' but anonymized and shifted in time, longitude and latitude. 
 #' 
 #' @example examples/example_caribou.R

@@ -14,6 +14,7 @@
 #' }
 #'
 #' @example examples/example_addBioYear.R
+#' @export
 
 addBioYear <- function(df, bioStart){
   bioYear = ifelse(yday(df$Time) < bioStart, year(df$Time) -1, year(df$Time))

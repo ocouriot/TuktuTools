@@ -10,6 +10,8 @@
 #' @seealso
 #'
 #' @example examples/example_getPairwiseDistance.R
+#' 
+#' @export
 
 
 getPairwiseDistances <- function(sf.list){

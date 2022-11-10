@@ -13,7 +13,6 @@
 #' 
 #' @example examples/example_getHerdAssignment.R
 #'
-#' @export
 #' @references
 
 
