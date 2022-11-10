@@ -14,7 +14,23 @@ and the Lon and Lat coordinates in WGS84}
 A data frame with the daily mean locations
 }
 \description{
-Calculate Daily Mean
+Important note - requires a column called "DateTime"
+}
+\examples{
+require(TuktuTools)
+
+data(barrenground)
+
+daily_mean <- getDailyMean(barrenground)
+head(daily_mean)
+}
+\examples{
+require(TuktuTools)
+
+data(barrenground)
+
+daily_mean <- getDailyMean(barrenground)
+head(daily_mean)
 }
 \examples{
 require(TuktuTools)
