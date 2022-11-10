@@ -20,11 +20,12 @@ This function adds a column designating biological year starting on a user-desig
 e.g. 1 June (day of year 152) for caribou
 }
 \examples{
-data("barrenground")
+data("caribou")
 
-head(barrenground)
+head(caribou)
 
 # bioStart is yday 152 (01 June)
 
-barrenground <- addBioYear(barrenground, bioStart = 152)
+caribou <- addBioYear(caribou, bioStart = 152)
+head(caribou)
 }

@@ -58,18 +58,24 @@ mapping option at:  http://leaflet-extras.github.io/leaflet-providers/preview/. 
 creates a "png" and "html" and places it in a given directory, and does not delete them.
 }
 \examples{
-# SE Alaska
-bb <- st_bbox(c(xmin = -138, xmax = -130, ymax = 56, ymin = 60), crs = st_crs(4326))
-SEalaska.topo <- getBasemapRaster2(bb, "OpenTopoMap", plotme = TRUE)
-# with reprojection
-SEalaska.topo <- getBasemapRaster2(bb, "OpenTopoMap", output_crs = "+init=epsg:4326", 
-plotme = TRUE)
-# for a ggPlot use this function (from RStoolbox): 
-library(RStoolbox)
-ggRGB(SEalaska.topo, 1, 2, 3, coord_equal = FALSE)
-# using GPS data
-NWT_sat <- boreal_ss \%>\%
-  get_bbox(crs = 4326) \%>\% 
-  getBasemapRaster2("Esri.WorldImagery", plotme = T)
+require(moveVis)
+require(TuktuTools)
+require(slippymath)
+require(pbapply)
+require(curl)
+require(magick)
 
+data("caribou")
+b <- caribou \%>\% st_as_sf(coords=c("Lon", "Lat"), crs = 4326)
+
+gg.ext <- st_bbox(b)
+dir.create("basemap")
+
+a <- getBasemapRaster(gg.ext)
+
+b_lines <- b \%>\% group_by(ID, Year) \%>\%
+  summarize(do_union=FALSE) \%>\% st_cast("LINESTRING")
+
+plotRGB(a)
+plot(st_geometry(b_lines \%>\% st_transform(crs(a[[1]]))), add = TRUE, col = 1:nrow(b), cex = 2)
 }

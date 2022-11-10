@@ -15,8 +15,9 @@
 #' dhours which is an index of the cumulative hours of each speed values from the first speed value,
 #' dt the time lags between subsequent relocations (in hour)
 #'
-
-get.speed <- function(df,
+#' @example examples/example_getSpeed.R
+#' 
+getSpeed <- function(df,
                       CRS = "+proj=lcc +lat_1=50 +lat_2=70 +lat_0=65 +lon_0=-120 +x_0=0 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs"){
   df <- as.data.frame(df) %>% mutate(ID_Year = paste(ID, year(Time), sep = "_"))
   #table to be returned

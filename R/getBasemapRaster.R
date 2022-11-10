@@ -26,20 +26,7 @@
 #' @return An RGB raster, i.e. one with three levels for each of the colors. Note, the projection of the returned raster 
 #' is the Spherical Mercator (EPSG:3857) - used for global tiling and "native" to mapview (and leaflet). 
 #' 
-#' @examples
-#' # SE Alaska
-#' bb <- st_bbox(c(xmin = -138, xmax = -130, ymax = 56, ymin = 60), crs = st_crs(4326))
-#' SEalaska.topo <- getBasemapRaster2(bb, "OpenTopoMap", plotme = TRUE)
-#' # with reprojection
-#' SEalaska.topo <- getBasemapRaster2(bb, "OpenTopoMap", output_crs = "+init=epsg:4326", 
-#' plotme = TRUE)
-#' # for a ggPlot use this function (from RStoolbox): 
-#' library(RStoolbox)
-#' ggRGB(SEalaska.topo, 1, 2, 3, coord_equal = FALSE)
-#' # using GPS data
-#' NWT_sat <- boreal_ss %>%
-#'   get_bbox(crs = 4326) %>% 
-#'   getBasemapRaster2("Esri.WorldImagery", plotme = T)
+#' @example examples/example_getBasemapRaster.R
 #' 
 #' @export
 

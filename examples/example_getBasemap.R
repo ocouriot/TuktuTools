@@ -5,8 +5,9 @@ require(pbapply)
 require(curl)
 require(magick)
 
-data("bathurst_lines")
-b <- bathurst_lines
+data("caribou")
+b <- caribou %>% group_by(ID) %>% st_as_sf(coords=c("Lon", "Lat"), crs=4326) %>%
+  summarize(do_union=FALSE) %>% st_cast("LINESTRING")
 
 gg.ext <- st_bbox(b)
 dir.create("basemap")

@@ -56,3 +56,12 @@ For example:
 -exclude individuals that lost signal for more than 3 days
 -exclude individuals for which monitoring stopped before July 15 or began after May 19
 }
+\examples{
+require(TuktuTools)
+
+data(caribou)
+
+# keep data during calving period (i.e., May 19 to July 7), no more than 3 consecutive days of missing data
+# and at least 1 fix per day
+b <- cutperiod(caribou, start = c(05,19), end = c(07,07), nfixes = 1, dayloss = 3)
+}

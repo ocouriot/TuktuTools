@@ -21,7 +21,7 @@ getHerdAssignment <- function(df, K, PlotIt = TRUE){
   dfclust <- with(df, aggregate(list(X=x,Y=y),list(ID = ID, Year = Year),mean, na.rm = TRUE))
   input <- dfclust[,c("X","Y")]
 
-    clusters <- kmeans(input, centers = K, nstart = 100)
+    clusters <- kmeans(input, centers = K, nstart = 1, algorithm = "Lloyd")
     dfclust$cluster <- clusters$cluster
     if(PlotIt){
     plot(Y~X, data = dfclust, main = paste(K, "herds", sep=" "), bty="l", type="n")

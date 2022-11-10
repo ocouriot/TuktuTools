@@ -5,7 +5,7 @@
 #'
 #' @param df a dataframe with columns:
 #' \describe{
-#'   \item{DateTime}{Date and time in POSIXct}
+#'   \item{Time}{Date and time in POSIXct}
 #' @param bioStart biological year start date, in day of year format \code{\link{yday}}
 #'
 #' @return a dataframe with columns:
@@ -16,7 +16,7 @@
 #' @example examples/example_addBioYear.R
 
 addBioYear <- function(df, bioStart){
-  bioYear = ifelse(yday(df$DateTime) < bioStart, year(df$DateTime) -1, year(df$DateTime))
+  bioYear = ifelse(yday(df$Time) < bioStart, year(df$Time) -1, year(df$Time))
   df1 <- mutate(df,
                 bioYear = bioYear)
   return(df1)

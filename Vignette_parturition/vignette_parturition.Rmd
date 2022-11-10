@@ -68,7 +68,7 @@ removeOutliers(df, steps = 10,
 
 ### Arguments
 
-`df`   a data frame containing columns: ID as individual identifiant, x and y: relocations of individuals (metric system specified in CRS) DateTime: vector (of class POSIXct)
+`df`   a data frame containing columns: ID as individual identifiant, x and y: relocations of individuals (metric system specified in CRS) Time: vector (of class POSIXct)
 
 `steps`   if specified, the number of cleaning steps to be performed (default is 10)
 
@@ -92,7 +92,7 @@ cutperiod(df, start,  end, nfixes, dayloss,
 
 ### Arguments
 
-`df`   a data frame containing columns: ID_Year as individual identifiant per year, x and y: relocations of individuals (in NAD83 utm zone 19N) DateTime: date and time vector (of class POSIXct)
+`df`   a data frame containing columns: ID as individual identifiant, Year, x and y: relocations of individuals (in NAD83 utm zone 19N) Time: date and time vector (of class POSIXct)
 
 `start`   starting month and day of the period of interest as a vector c(mm,dd) (example for the 19th of May: c(19,05))
 
@@ -109,22 +109,31 @@ cutperiod(df, start,  end, nfixes, dayloss,
 The function returns a dataframe containing only concerned period and individuals that match the defined rules.
 
 
+```{r CleanCutData, echo = TRUE, eval = TRUE}
+data("caribou")
+b <- caribou %>% removeOutliers
+b <- b$no.outliers
+
+c <- b %>% cutperiod(start=c(05,19), end = c(07,07), nfixes=1, dayloss = 10)
+```
+
+
 ## Get movement rate 
 
 
 After having processed, cleaned and cut timeseries to the period of interest and reassigned herds, we can process to the analysis of movement pattern and estimate calving (i.e. parturition) status, calving date and calf death date, if any.
 
 As we adapted the method developped by DeMars et al. (2013), by analysing movement rate instead of step length, we first have to get the movement rate between subsequent relocations for each individual and each year.
-To do so, we use the `get.speed` function in this package.
+To do so, we use the `getSpeed` function in this package.
 
 ### Usage
 
 ```{r, eval = FALSE, echo = TRUE}
-get.speed(df, CRS = "+proj=lcc +lat_1=50 +lat_2=70 +lat_0=65 +lon_0=-120 +x_0=0 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs")
+getSpeed(df, CRS = "+proj=lcc +lat_1=50 +lat_2=70 +lat_0=65 +lon_0=-120 +x_0=0 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs")
 ```
 
 ### Arguments
-`df` a data frame containing columns: ID_Year as individual identifiant per year, x and y: relocations of individuals (in N Canada Lambert Conformal Conic), DateTime: date and time vector (of class POSIXct)
+`df` a data frame containing columns: ID as individual identifiant, Year, x and y: relocations of individuals (in N Canada Lambert Conformal Conic), Time: date and time vector (of class POSIXct)
 
 `CRS`   the coordinates projection (default is Canada Lambert Conformal Conic: "+proj=lcc +lat_1=50 +lat_2=70 +lat_0=65 +lon_0=-120 +x_0=0 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs")
 
@@ -134,13 +143,11 @@ The function returns a data frame with columns speed, which is the movement rate
 
 ### Get movement rate for all herds during the calving period
 
-The data *`barrenground`* conmtains movement data during the calving period for 5 barren-ground caribou females from the Bathurst herd.
+The data *`caribou`* contains movement data during the calving period for 4 barren-ground caribou females.
 
 ```{r getSpeed, echo = TRUE}
-data(barrenground)
-kable_styling(kable(head(barrenground)))
-c1 <- get.speed(barrenground)
-kable_styling(kable(head(c1)))
+c1 <- getSpeed(c)
+head(c1)
 ```
 
 ## Estimate calving status and timing
@@ -181,7 +188,7 @@ parturition.model2(df, int, kcons, PlotIt = FALSE,  saveplot = FALSE,
 
 
 ### Arguments
-`df`   a dataframe containing the speed between subsequent relocations of an individual, the coordinates of the relocations (in metric system) the date and time oh each speed value and t he difference in hours between each speed value and the first one and a vector of the animal-year identifiant. See ?get.speed for more information on the Data requirements
+`df`   a dataframe containing the speed between subsequent relocations of an individual, the coordinates of the relocations (in metric system) the date and time oh each speed value and t he difference in hours between each speed value and the first one and a vector of the animal-year identifiant. See ?getSpeed for more information on the Data requirements
 
 `int`   integer value indicating the minimum number of days between the beginning of the time series and the first BP (calf birth), the last BP (calf death) and the end of the time series, and between the two BPs. The main reason for this constraint is that a minimum number of data points are required in each section of the time-series to be able to estimate model parameters. We recomanded 9 relocations, thereby 3 days.
 
@@ -224,5 +231,5 @@ The object *`part`* is a list of 4 data frames:
   + the calving location coordinates (x, y) (in the same project than provided)
 
 ```{r ShowParturitionResults}
-kable_styling(kable(head(part)))
+head(part)
 ```

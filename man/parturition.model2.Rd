@@ -61,6 +61,21 @@ However, we adapted this method to be able to infer parturition based on the fem
 \details{
 
 }
+\examples{
+require(TuktuTools)
+
+data(caribou)
+
+# keep data during calving period (i.e., May 19 to July 7), no more than 3 consecutive days of missing data
+# and at least 1 fix per day
+b <- cutperiod(caribou, start = c(05,19), end = c(07,07), nfixes = 1, dayloss = 3)
+
+# get daily rate for the females
+c <- getSpeed(b)
+
+# run the parturition model with the no calf and calf model
+parturitions <- parturition.model2(c, int=3, kcons =c(5,21), PlotIt = TRUE)
+}
 \references{
 DeMars, C., M. Auger-Méthé, U. Schlägel, S. Boutin, (Published online) Inferring Parturition and Neonate Survival from Movement Patterns of Female Ungulates. Ecology and Evolution. DOI: 10.1002/ece3.785
 Cameron, M.D., Joly, K., Breed, G.A., et al. (2018). Movement-based methods to infer parturition events in migratory ungulates. Canadian Journal of Zoology. 96:1187–1195. https://doi.org/10.1139/cjz-2017-0314

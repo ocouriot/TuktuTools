@@ -17,11 +17,12 @@ This function (rather quickly) computes pairwise distances between daily mean lo
 of animals.
 }
 \examples{
-data(barrenground)
+data(caribou)
 
-b.subset <- barrenground \%>\% plyr::mutate(yday = yday(DateTime)) \%>\% 
-  arrange(ID, DateTime) \%>\% subset(Year == 2017) \%>\%
-  st_as_sf(coords = c("Lon","Lat")) \%>\% st_set_crs(4326)
+b.subset <- caribou \%>\% plyr::mutate(yday = yday(Time)) \%>\% 
+  arrange(ID, Time) \%>\% subset(Year == 2007) \%>\%
+  st_as_sf(coords = c("Lon","Lat")) \%>\% st_set_crs(4326) \%>\%
+  mutate(Lon = st_coordinates(.)[,1], Lat = st_coordinates(.)[,2])
 
 b.list <- dlply(b.subset, "ID", st_as_sf)
 
@@ -39,12 +40,12 @@ boxplot(I(distance/1000)~yday, data = distance.df,
         pch = 19, cex = 0.3, lty = 1,
         col = "grey", border = "darkgrey", varwidth = TRUE)
 
-# all proximities less than 50 m
-subset(distance.df, distance < 200)
+# all proximities less than 10 km
+subset(distance.df, distance < 10000)
 
 # list of "social" individuals
-socialanimals <- with(subset(distance.df, distance < 200), unique(c(ID1, ID2)))
-socialpairs <- with(subset(distance.df, distance < 200), unique(pair))
+socialanimals <- with(subset(distance.df, distance < 10000), unique(c(ID1, ID2)))
+socialpairs <- with(subset(distance.df, distance < 10000), unique(pair))
 
 n.pairs <- length(socialpairs)
 cols <- rich.colors(n.pairs)
@@ -55,7 +56,7 @@ d_ply(distance.sps, "pair",
       function(df) lines(df[,c("Date","distance")],
                          col = cols[match(df$pair[1], socialpairs)] \%>\% alpha(0.5)))
 
-with(distance.sps \%>\% subset(distance < 50),
+with(distance.sps \%>\% subset(distance < 10000),
      points(Date, jitter(distance),
      col = cols[match(pair, socialpairs)], pch = 19))
 }

@@ -20,9 +20,10 @@ wrapper for \link{kernelUD} in adehabitatLT that returns a given UD
 as a simple feature polygon from a simple feature point collection
 }
 \examples{
-data("barrenground")
+require(TuktuTools)
+data("caribou")
 
-b <- subset(barrenground, ID == ID[1]) \%>\% arrange(DateTime)
+b <- subset(caribou, ID == ID[1]) \%>\% arrange(Time)
 with(b, plot(x,y, type = "o"))
 
 # convert to simple feature
@@ -30,6 +31,8 @@ with(b, plot(x,y, type = "o"))
 b.sf <- st_as_sf(b, coords = c("Lon","Lat")) \%>\% st_set_crs(4326)
 b.ud.95 <- getKernelUD(b.sf)
 b.ud.50 <- getKernelUD(b.sf, 50)
+
+require(mapview)
 m1 <- mapview(b.sf)
 m2 <- mapview(b.ud.95, map = m1@map, col.regions = "red")
 mapview(b.ud.50, map = m2@map, col.regions = "red")

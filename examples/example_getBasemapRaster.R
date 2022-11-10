@@ -5,8 +5,8 @@ require(pbapply)
 require(curl)
 require(magick)
 
-data("barrenground")
-b <- barrenground %>% st_as_sf(coords=c("Lon", "Lat"), crs = 4326)
+data("caribou")
+b <- caribou %>% st_as_sf(coords=c("Lon", "Lat"), crs = 4326)
 
 gg.ext <- st_bbox(b)
 dir.create("basemap")

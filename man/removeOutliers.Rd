@@ -39,3 +39,12 @@ to be 'outliers'.
 I noted that sometimes there could be several subsequent "outliers"
 thus the cleaning function is repeated several times until there are no "outliers" anymore
 }
+\examples{
+require(TuktuTools)
+
+data(caribou)
+
+b <- removeOutliers(caribou)
+
+head(b)
+}
