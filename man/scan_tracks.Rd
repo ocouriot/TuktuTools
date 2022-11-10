@@ -37,19 +37,18 @@ Useful, e.g., for comparing proximity of animals. Includes a feature which compu
 and plots the distance between daily mean locations.
 }
 \examples{
-data(bathurst)
-b.subset <- bathurst \%>\% subset(Year == 2014)
-b.list <- dlply(b.subset, "ID", st_as_sf)
+data(barrenground)
+unique(barrenground$ID_Year)
+b.subset <- barrenground \%>\% subset(Year == 2017) 
+b.list <- dlply(b.subset, "ID", st_as_sf, coords = c("Lon", "Lat"))
 
-
-# basic quicky implementation
 require(gplots)
 palette(rich.colors(length(b.list)))
 scan_tracks(b.list)
 
-# with pairwise distances of a subset of indviduals
-b.distances <- scan_tracks(b.list[1:6], cols = rich.colors(6), legend = TRUE,
-            plotdistance = TRUE, threshold = 1e3)
+b.distances <- scan_tracks(b.list, #cols = rich.colors(4), 
+                           legend = TRUE,
+                           plotdistance = TRUE, threshold = 1e3)
 
 head(b.distances)
 }

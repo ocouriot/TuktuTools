@@ -19,22 +19,6 @@ Important note - requires a column called "DateTime"
 \examples{
 require(TuktuTools)
 
-data(barrenground)
-
-daily_mean <- getDailyMean(barrenground)
-head(daily_mean)
-}
-\examples{
-require(TuktuTools)
-
-data(barrenground)
-
-daily_mean <- getDailyMean(barrenground)
-head(daily_mean)
-}
-\examples{
-require(TuktuTools)
-
 data(caribou)
 
 daily_mean <- getDailyMean(caribou)
