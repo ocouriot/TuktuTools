@@ -17,13 +17,14 @@
 
 
 getHerdAssignment <- function(df, K, PlotIt = TRUE){
-  dfclust <- with(df, aggregate(list(X=x,Y=y),list(ID = ID, Year = Year),mean, na.rm = TRUE))
+  dfclust <- df %>% group_by(ID, Year) %>% summarize(X = mean(x, na.rm = TRUE), Y = mean(y, na.rm=TRUE)) %>% ungroup %>% as.data.frame
+    # with(df, aggregate(list(X=x,Y=y),list(ID = ID, Year = Year),mean, na.rm = TRUE))
   input <- dfclust[,c("X","Y")]
 
-    clusters <- kmeans(input, centers = K, nstart = 1, algorithm = "Lloyd")
+    clusters <- kmeans(input, centers = K, nstart = 10)#, algorithm = "Lloyd")
     dfclust$cluster <- clusters$cluster
     if(PlotIt){
-    plot(Y~X, data = dfclust, main = paste(K, "herds", sep=" "), bty="l", type="n")
+    plot(Y~X, data = dfclust, main = paste(paste(K, "herds", sep=" "), paste("day", unique(dfclust$yday), sep = " "), sep = " : "), bty="l", type="n")
     points(Y~X, data = dfclust, col = rainbow(K)[dfclust$cluster], pch=3)
     legend("bottomleft", bty="n",  pch=3, col = rainbow(K), legend = 1:K, title = "Herd number") }
     keep <- merge(df, dfclust[,c("ID", "Year", "cluster")], by = c("ID", "Year"))

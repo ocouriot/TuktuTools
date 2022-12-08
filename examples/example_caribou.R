@@ -14,3 +14,7 @@ caribou.sf <- st_as_sf(caribou %>% mutate(Lat = Lat, Lon = Lon),
 mapview::mapview(caribou.sf[,"ID"])
 
 # converting to lines
+lines <- caribou.sf %>% group_by(ID) %>% 
+  summarize(do_union=FALSE) %>% 
+  st_cast("LINESTRING")
+mapview::mapview(lines[,"ID"])

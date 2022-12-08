@@ -4,10 +4,10 @@
 \alias{getKernelUD}
 \title{get Kernel UD}
 \usage{
-getKernelUD(my.sf, percent = 95, grid = 200, ...)
+getKernelUD(sf, percent = 95, grid = 200, ...)
 }
 \arguments{
-\item{my.sf}{a simple feature point collection}
+\item{sf}{a simple feature point collection}
 
 \item{percent}{percent kernel}
 
@@ -24,16 +24,64 @@ require(TuktuTools)
 data("caribou")
 
 b <- subset(caribou, ID == ID[1]) \%>\% arrange(Time)
-with(b, plot(x,y, type = "o"))
+with(b, range(Time))
 
-# convert to simple feature
 
-b.sf <- st_as_sf(b, coords = c("Lon","Lat")) \%>\% st_set_crs(4326)
-b.ud.95 <- getKernelUD(b.sf)
-b.ud.50 <- getKernelUD(b.sf, 50)
+# keep summer and winter from 2003 to 2004 and draw the ranging areas for those seasons for this animal
 
+# summer (June 1 to September 15)
+summerpoints <- subset(b, (month(Time) \%in\% c(6,8) | 
+                             (mday(Time) < 16 & month(Time) == 9)) & 
+                         Year == 2003) \%>\% droplevels
+
+# aggregate to keep one point per week to avoid autocorrelation
+summerpoints <- summerpoints \%>\% mutate(week = week(Time)) \%>\% group_by(week) \%>\%
+  summarize(x = mean(x), y = mean(y), ID = unique(ID)) \%>\% ungroup \%>\% as.data.frame
+
+# Winter (December 1 to March 15)
+winterpoints <- subset(b, (month(Time) == 12 & Year == 2003) | 
+                         (month(Time) \%in\% c(1,2) & Year == 2004) |
+                         (mday(Time) < 16 & month(Time) == 2 & Year == 2004)) \%>\% droplevels
+
+# aggregate to keep one point per week to avoid autocorrelation
+winterpoints <- winterpoints \%>\% mutate(week = week(Time)) \%>\% group_by(week) \%>\%
+  summarize(x = mean(x), y = mean(y), ID = unique(ID)) \%>\% ungroup \%>\% as.data.frame
+
+# convert to simple features in metric system
+CRS = CRS = "+proj=lcc +lat_1=50 +lat_2=70 +lat_0=65 +lon_0=-120 +x_0=0 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs"
+summer.sf <- st_as_sf(summerpoints, coords = c("x","y"), crs=CRS)
+winter.sf <- st_as_sf(winterpoints, coords = c("x","y"), crs=CRS)
+
+# estimate KernelUD 95\% and 50\%
+summer.ud.95 <- getKernelUD(summer.sf)
+summer.ud.50 <- getKernelUD(summer.sf,percent =  50)
+
+winter.ud.95 <- getKernelUD(winter.sf, extent = 10)
+winter.ud.50 <- getKernelUD(winter.sf,percent =  50)
+
+# estimate LoCoH 95\% and 50\%
+summer.locoh.95 <- getLoCoH(summer.sf, nn = 8)
+summer.locoh.50 <- getLoCoH(summer.sf, nn = 8, level = .5)
+
+winter.locoh.95 <- getLoCoH(winter.sf, nn = 8)
+winter.locoh.50 <- getLoCoH(winter.sf, nn = 8, level = .5)
+
+
+# Visualize ranging areas
 require(mapview)
-m1 <- mapview(b.sf)
-m2 <- mapview(b.ud.95, map = m1@map, col.regions = "red")
-mapview(b.ud.50, map = m2@map, col.regions = "red")
+
+# kernelUD
+summer.map <- mapview(summer.sf)
+winter.map <- mapview(winter.sf)
+m2 <- mapview(summer.ud.95, map = summer.map@map, col.regions = "red")
+m3 <- mapview(winter.ud.95, map = winter.map@map, col.regions = "blue")
+mapview(summer.ud.50, map = m2@map, col.regions = "darkred") +
+  mapview(winter.ud.50, map = m3@map, col.regions = "darkblue")
+
+#LoCoH
+m4 <- mapview(summer.locoh.95, map = summer.map@map, col.regions = "red")
+m5 <- mapview(winter.locoh.95, map = winter.map@map, col.regions = "blue")
+mapview(summer.locoh.50, map = m4@map, col.regions = "darkred") +
+  mapview(winter.locoh.50, map = m5@map, col.regions = "darkblue")
+
 }
