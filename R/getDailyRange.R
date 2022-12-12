@@ -19,7 +19,8 @@
 #' 
 #' @example examples/example_getDailyRange.R
 
-getDailyRange <- function(sf, method = c("LoCoH", "KernelUD"), ...){
+getDailyRange <- function(sf, crs, method = c("LoCoH", "KernelUD"), ...){
+  sf <- sf %>% st_as_sf(crs=crs)
   daily.area <- list()
   for(doy in sort(unique(sf$yday))){
     doy.loc <- subset(sf, yday == doy)

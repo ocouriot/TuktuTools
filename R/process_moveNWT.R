@@ -19,6 +19,8 @@
 #'   \item{study.site}{Individual's herd assignment}
 #' }
 #'
+#' @export
+#' 
 #' @examples
 #' # to generate the bluenose data
 #' \dontrun{
@@ -33,7 +35,7 @@ process_moveNWT <- function(movedata,
   df <-  as(movedata, "data.frame")
   df.new <- data.frame(ID = df$trackId,
                        nickname = df$nick_name,
-                       DateTime = df$timestamp,
+                       Time = df$timestamp,
                        Lon = df$location_long,
                        Lat = df$location_lat,
                        sex = df$sex,
