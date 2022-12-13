@@ -8,7 +8,7 @@ Description: TuktuTools is a package to analyse spatial pattern in Barren-ground
 License: What license is it under?
 Encoding: UTF-8
 LazyData: false
-Depends: lubridate, magrittr, plyr, dplyr, ggplot2, adehabitatLT, sp, sf, move, stringr, cluster, adehabitatHR, NbClust, tlocoh, segclust2d
-Suggests: mapview
+Depends: lubridate, magrittr, plyr, dplyr, ggplot2, sp, sf
+Suggests: mapview, cluster, move, stringr,  NbClust, tlocoh, segclust2d, adehabitatLT, adehabitatHR
 RoxygenNote: 7.2.1
 
