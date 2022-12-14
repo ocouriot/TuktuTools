@@ -2,25 +2,38 @@
 #'
 #' nll.calfdeath calculates the negative log-likelihood of a female with a calf that died
 #'
-#' This model assumes that the mean speed is constant prior to the birth of a calf and after calf's death
+#' This model assumes that the mean speed is constant prior to the birth of a 
+#' calf and after calf's death
 #'
 #' Once the calf is born the speed decrease close to 0.
 #' Then the speed increases slowly until the calf dies,
-#' then increases imediatly to reach the initial speed before parturition after the calf is dead
+#' then increases imediatly to reach the initial speed before parturition after 
+#' the calf is dead
 #'
 #' Once the mean speed reaches the value from before the birth of the calf,
 #' it remains at this value.
 #'
 #' @param df dataframe from get.speed function
-#' @param BP1 Break point corresponding to calf birth (in days from the begining of the dataset)
-#' @param BP2 Break point corresponding to calf death (in days from the begining of the dataset)
-#' @param kcons vector of the minimum and maximum time it takes the female to recover normal speed (in days)
-#' @param PlotMe if PlotMe = TRUE, a plot of the speed in function to the date and time will be drawn
-#' for each individual with the line of the speed estimated by the function with depending of BP1, BP2 and k
+#' @param BP1 Break point corresponding to calf birth (in days from the begining 
+#' of the dataset)
+#' @param BP2 Break point corresponding to calf death (in days from the begining 
+#' of the dataset)
+#' @param kcons vector of the minimum and maximum time it takes the female to 
+#' recover normal speed (in days)
+#' @param PlotMe if PlotMe = TRUE, a plot of the speed in function to the date 
+#' and time will be drawn
+#' for each individual with the line of the speed estimated by the function with 
+#' depending of BP1, BP2 and k
 #'
-#' @return Returns the negative log-likelihood of this model and the recovery time (in days)
+#' @return Returns the negative log-likelihood of this model and the recovery
+#'  time (in days)
 #'
-#' @references DeMars, C., M. Auger-Méthé, U. Schlägel, S. Boutin, (Published online) Inferring Parturition and Neonate Survival from Movement Patterns of Female Ungulates. Ecology and Evolution. DOI: 10.1002/ece3.785
+#' @references DeMars, C., M. Auger-Méthé, U. Schlägel, S. Boutin, 
+#' (2013) Inferring Parturition and Neonate Survival from Movement 
+#' Patterns of Female Ungulates. Ecology and Evolution. DOI: 10.1002/ece3.785
+#' 
+#' @rdname nll.calf
+#' @rdname nll.post
 
 nll.calfdeath <- function(df, BP1, BP2, kcons, PlotMe = FALSE){
 

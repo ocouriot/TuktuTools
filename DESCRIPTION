@@ -4,8 +4,8 @@ Title: Analyse spatial pattern for caribou
 Version: 1.0.0
 Author: Ophélie Couriot, Eliezer Gurarie and Bernardo Brandão Niebuhr
 Maintainer: The package maintainer <yourself@somewhere.net>
-Description: TuktuTools is a package to analyse spatial pattern in Barren-ground caribou (Rangifer tarandus). The package contains functions analyse spatial pattern and ecology of caribou, such as functions to calculate movement rate between subsequent relocations, estimate calving based on movement rate, calculate parwise distances between pairs of individuals from a dataset, for example.
-License: What license is it under?
+Description: TuktuTools is a package for analyzing spatial and movement patterns in barren-ground caribou (Rangifer tarandus), including mapping, data processing, estimating parturitions times and calving areas. 
+License: GNU General Public License
 Encoding: UTF-8
 LazyData: false
 Depends: lubridate, magrittr, plyr, dplyr, ggplot2, sp, sf

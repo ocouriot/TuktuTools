@@ -1,22 +1,12 @@
 #' Cut a timeseries for the period of interest
 #'
-#' Function to prepare and clean the data by keeping the period of interest.
-#' We first have to keep GPS locations for the period of interest:
-#' for example, for the calving period:
-#' Following Cameron et al. 2018, we defined the calving period from
-#' May 19 to July 7
-#' In addition, the parturition model seems quite accurate, but if some individuals
-#' have lost signal for several days it could lead to a undetermination
-#' of the calving event.
-#'
-#' Before running the parturition model, we have to establish rules
-#' to determine the individuals that will be included in the analysis
-#' and the ones that will be excluded
-#' For example:
-#' -exclude individuals with less than 1 fix per day
-#' -exclude individuals that lost signal for more than 3 days
-#' -exclude individuals for which monitoring stopped before July 15 or began after May 19
-
+#' Processes and filters caribou movement data by 
+#' (a) trimming to analysis period of interest; for example, in the parturition analysis
+#' dates were limited to May 19 to July 7 ; 
+#' (b) guaranteeing a minimum number of location fixes a day (e.g. 1 for the parturiton analysis), and removing 
+#' individuals that have too few; and 
+#' (c) removing individuals with a data gap greater than some minimum threshold (e.g. 3 days for the parturiton analysis). 
+#' 
 #' @param  df a data frame containing columns: ID as individual identifiant,
 #' x and y: relocations of individuals (in N Canada Lambert Conformal Conic)
 #' Time: date and time vector of the relocation (of class POSIXct)
@@ -28,8 +18,6 @@
 #' (taking the average number of fixes per day for each individual across the period of interest)
 #' @param dayloss maximum number of days with missing locations
 #' (for example, if an individual has loss signal for more than 3 consecutive days, it will be excluded from the dataset)
-#' @param CRS the coordinates projection (default is Canada Lambert Conformal Conic centered on the area from the Western Arctic to the Hudson Bay:
-#' "+proj=lcc +lat_1=50 +lat_2=70 +lat_0=65 +lon_0=-120 +x_0=0 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs")
 #' @return a dataframe containing only concerned period and individuals that match the defined rules
 #' 
 #' @example examples/example_cutperiod.R
@@ -37,7 +25,7 @@
 #' 
 #' @export
 
-cutperiod <- function(df, start, end, nfixes, dayloss,
+prepData <- function(df, start, end, nfixes, dayloss,
                       CRS = "+proj=lcc +lat_1=50 +lat_2=70 +lat_0=65 +lon_0=-120 +x_0=0 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs"){
   months <- (start[1]+1):(end[1]-1)
   nbegin <- length(unique(df$ID))

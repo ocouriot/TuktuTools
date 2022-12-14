@@ -67,6 +67,7 @@
 
 
 parturition.model <- function (df, int, kcons, PlotIt = FALSE, saveplot = FALSE,
+                               models = c("full","calfonly"), 
                                CRS = "+proj=lcc +lat_1=50 +lat_2=70 +lat_0=65 +lon_0=-120 +x_0=0 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs") {
   
   df <- df %>% mutate(ID_Year = as.factor(paste(ID, year(Time), sep = "_")))
