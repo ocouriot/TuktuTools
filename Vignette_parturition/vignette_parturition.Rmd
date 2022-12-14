@@ -1,7 +1,7 @@
 ---
 title: "Vignette"
 author: "Ophélie Couriot"
-date: "09/22/2022"
+date: "12/14/2022"
 output:
   pdf_document:
     toc: yes
@@ -209,7 +209,7 @@ The function returns a list with the AIC of the 2 or 3 models (i.e. no calf mode
 Here is an example on two females
 ```{r estimateParturitions, eval = TRUE, echo = TRUE}
 # Will generate a sample of two different individuals each time
-part <- parturition.model2(df = c1, int=3, kcons=c(5,21), PlotIt=T, saveplot=F)
+part <- parturition.model2(df = c1, int=3, kcons=c(5,21), PlotIt=TRUE, saveplot=FALSE)
 ```
 
 The object *`part`* is a list of 4 data frames:
