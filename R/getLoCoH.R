@@ -20,12 +20,12 @@ getLoCoH <- function(sf,  nn = 10, level = .95,
                      ...){
     xy <- sf %>% st_coordinates()
     
-    my.lxy <- xyt.lxy(xy=xy,  
+    my.lxy <- tlocoh::xyt.lxy(xy=xy,  
                       id=1,
-                      proj4string=CRS(projection(sf)))
-    my.lhs <- my.lxy %>% lxy.nn.add(k = nn, ...) %>% 
-      lxy.lhs(k = nn) %>% 
-      lhs.iso.add(k = nn, iso.levels = c(0,level), iso.add = FALSE, status = FALSE, ...)
+                      proj4string=CRS(raster::projection(sf)))
+    my.lhs <- my.lxy %>% tlocoh::lxy.nn.add(k = nn) %>% 
+      tlocoh::lxy.lhs(k = nn) %>% 
+      tlocoh::lhs.iso.add(k = nn, iso.levels = c(0,level), iso.add = FALSE, status = FALSE, ...)
     tokeep <- (my.lhs[[1]]$isos[[1]]$polys[2,] %>% st_as_sf(crs=st_crs(sf)))
  return(tokeep)
 }

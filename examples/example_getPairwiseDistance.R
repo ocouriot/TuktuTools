@@ -1,42 +1,23 @@
 data(caribou)
 
+# subset on the two individuals which have monitoring the same year (Vixen and Comet, in 2007)
+# and transform into Simple Feature object
 b.subset <- caribou %>% plyr::mutate(yday = yday(Time)) %>% 
   arrange(ID, Time) %>% subset(Year == 2007) %>%
   st_as_sf(coords = c("Lon","Lat")) %>% st_set_crs(4326) %>%
   mutate(Lon = st_coordinates(.)[,1], Lat = st_coordinates(.)[,2])
 
-b.list <- dlply(b.subset, "ID", st_as_sf)
+b.list <- dlply(b.subset, "ID", st_as_sf) # create a list of the sf by individual
 
+# estimate the pairwise distances
 distance.df <- getPairwiseDistances(b.list)
 
-# plotting
-require(gplots)
-palette(rich.colors(length(b.list)))
-scan_tracks(b.list, plotdistance = TRUE, distance.df = distance.df, legend = TRUE)
+# Figure of the distance between the two individuals over time
+plot(distance/1000~Date, data = distance.df, type = "l", ylab = "Distance between individuals (km)",
+     xlab ="Date")
 
-# plotting median distances over time
+# Figure of the distance between the two individuals with the moments they were less than 5km apart
+plot(distance/1000~Date, data = distance.df, type = "l", ylab = "Distance between individuals (km)",
+     xlab ="Date")
+points(distance/1000~Date, data = distance.df[distance.df$distance<5000,], pch = 19, col = "red")
 
-boxplot(I(distance/1000)~yday, data = distance.df,
-        at = sort(unique(distance.df$yday)),
-        pch = 19, cex = 0.3, lty = 1,
-        col = "grey", border = "darkgrey", varwidth = TRUE)
-
-# all proximities less than 10 km
-subset(distance.df, distance < 10000)
-
-# list of "social" individuals
-socialanimals <- with(subset(distance.df, distance < 10000), unique(c(ID1, ID2)))
-socialpairs <- with(subset(distance.df, distance < 10000), unique(pair))
-
-n.pairs <- length(socialpairs)
-cols <- rich.colors(n.pairs)
-
-distance.sps <- distance.df %>% subset(pair %in% socialpairs)
-plot(distance~Date, data = distance.sps, type = "n")
-d_ply(distance.sps, "pair",
-      function(df) lines(df[,c("Date","distance")],
-                         col = cols[match(df$pair[1], socialpairs)] %>% alpha(0.5)))
-
-with(distance.sps %>% subset(distance < 10000),
-     points(Date, jitter(distance),
-     col = cols[match(pair, socialpairs)], pch = 19))

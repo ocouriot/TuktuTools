@@ -21,6 +21,7 @@ as a simple feature polygon from a simple feature point collection
 }
 \examples{
 require(TuktuTools)
+
 data("caribou")
 
 b <- subset(caribou, ID == ID[1]) \%>\% arrange(Time)
@@ -53,6 +54,7 @@ summer.sf <- st_as_sf(summerpoints, coords = c("x","y"), crs=CRS)
 winter.sf <- st_as_sf(winterpoints, coords = c("x","y"), crs=CRS)
 
 # estimate KernelUD 95\% and 50\%
+require(adehabitatHR)
 summer.ud.95 <- getKernelUD(summer.sf)
 summer.ud.50 <- getKernelUD(summer.sf,percent =  50)
 
@@ -60,6 +62,7 @@ winter.ud.95 <- getKernelUD(winter.sf, extent = 10)
 winter.ud.50 <- getKernelUD(winter.sf,percent =  50)
 
 # estimate LoCoH 95\% and 50\%
+require(tlocoh)
 summer.locoh.95 <- getLoCoH(summer.sf, nn = 8)
 summer.locoh.50 <- getLoCoH(summer.sf, nn = 8, level = .5)
 

@@ -4,6 +4,7 @@ require(slippymath)
 require(pbapply)
 require(curl)
 require(magick)
+require(raster)
 
 data("caribou")
 b <- caribou %>% group_by(ID) %>% st_as_sf(coords=c("Lon", "Lat"), crs=4326) %>%

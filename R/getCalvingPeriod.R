@@ -71,11 +71,11 @@ plotWithStates <- function(df, cols = 1:3, v1.lab = "x", v2.lab = "y",
 
 getCalvingPeriod <- function(df, PlotIt = TRUE){
   daily_area_movement_clustered <- df %>% 
-    mutate(sqrtarea = sqrt(area)) %>% segclust(Kmax = 3, lmin = 7, ncluster = 3, #type = "behavior",
+    mutate(sqrtarea = sqrt(area)) %>% segclust2d::segclust(Kmax = 3, lmin = 7, ncluster = 3, #type = "behavior",
           scale.variable = FALSE, seg.var = c("speed","sqrtarea"))
   
   # M4_states <- ldply(daily_area_movement_clustered, states)
-  daily_area_movement_withstate <- augment(daily_area_movement_clustered) %>% 
+  daily_area_movement_withstate <- segclust2d::augment(daily_area_movement_clustered) %>% 
     mutate(state = (1:3)[match(state, unique(state))])
   
   calving_season <- daily_area_movement_withstate[,c("yday","Date","state")] %>% 

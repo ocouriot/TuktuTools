@@ -17,7 +17,8 @@
 #' @export
 
 addBioYear <- function(df, bioStart){
-  bioYear = ifelse(yday(df$Time) < bioStart, year(df$Time) -1, year(df$Time))
+  bioYear = ifelse(leap_year(df$Time) == FALSE & (yday(df$Time) < bioStart), year(df$Time) -1, 
+                   ifelse(leap_year(df$Time) & (yday(df$Time) < bioStart+1), year(df$Time) -1, year(df$Time)))
   df1 <- mutate(df,
                 bioYear = bioYear)
   return(df1)

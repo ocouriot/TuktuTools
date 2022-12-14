@@ -16,7 +16,7 @@ getPairwiseOverlaps <- function(sf.list, column = "ID", method = "VI", ...){
   col <- eval(parse(text = paste0("sp.df$", column)))
   eval(parse(text = paste0("sp.df$", column, "<- as.character(col)")))
 
-  o1 <- kerneloverlap(sp.df[,column], method = method, ...)
+  o1 <- adehabitatHR::kerneloverlap(sp.df[,column], method = method, ...)
   n <- nrow(o1)
 
   ID1.matrix <- matrix(rep(row.names(o1), n), ncol = n)

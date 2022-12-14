@@ -14,6 +14,8 @@
 #' @example examples/example_getHerdAssignment.R
 #'
 #' @references
+#' 
+#' @export
 
 
 getHerdAssignment <- function(df, K, PlotIt = TRUE){

@@ -12,7 +12,8 @@
 #' @param legend whether or not to add a legend
 #'
 #' @return If plotdistance = TRUE, returns the pairwise distance data frame.
-#'
+
+
 scan_tracks <- function(sf.list, cols = 1:length(sf.list),
                         distance.df = NULL,
                         plotdistance = FALSE,

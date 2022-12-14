@@ -38,6 +38,11 @@ data(caribou)
 # and at least 1 fix per day
 b <- cutperiod(caribou, start = c(05,19), end = c(07,07), nfixes = 1, dayloss = 3)
 
-# get daily rate for the females
-c <- getSpeed(b)
+# get movement rate
+c <- getSpeed(b) \%>\% mutate(Year = year(Time))
+
+# visualize movement rate
+
+ggplot2::ggplot(data=c, aes(x=time.mid, y = speed, group = ID, color = ID)) + geom_path() + 
+  facet_wrap(~Year, scales = "free")
 }
