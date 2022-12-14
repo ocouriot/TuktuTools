@@ -1,5 +1,5 @@
 ---
-title: "Vignette"
+title: "Estimate parturition in caribou using the TuktuTools Package"
 author: "Ophélie Couriot"
 date: "12/14/2022"
 output:
@@ -14,9 +14,6 @@ output:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(cache = TRUE, warning = FALSE, message = FALSE, echo = FALSE)
 ```
-
-
-# Estimate parturition in caribou using the TuktuTools Package
 
 The TuktuTools Package has been developed to analyse caribou movement data. 
 This package contains several functions allowing to:
