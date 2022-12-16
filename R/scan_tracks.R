@@ -12,24 +12,7 @@
 #' @param legend whether or not to add a legend
 #'
 #' @return If plotdistance = TRUE, returns the pairwise distance data frame.
-#'
-#' @examples
-#' data(barrenground)
-#' unique(barrenground$ID_Year)
-#' b.subset <- barrenground %>% subset(Year == 2017) 
-#' b.list <- dlply(b.subset, "ID", st_as_sf, coords = c("Lon", "Lat"))
-#' 
-# basic quicky implementation
-#' require(gplots)
-#' palette(rich.colors(length(b.list)))
-#' scan_tracks(b.list)
-#' 
-# with pairwise distances of a subset of indviduals
-#' b.distances <- scan_tracks(b.list, #cols = rich.colors(4), 
-#'                            legend = TRUE,
-#'                            plotdistance = TRUE, threshold = 1e3)
-#' 
-#' head(b.distances)
+
 
 scan_tracks <- function(sf.list, cols = 1:length(sf.list),
                         distance.df = NULL,

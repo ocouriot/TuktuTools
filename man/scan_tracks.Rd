@@ -36,20 +36,3 @@ Takes list of individual (simple feature) tracks, and plots their tracks.
 Useful, e.g., for comparing proximity of animals. Includes a feature which computes
 and plots the distance between daily mean locations.
 }
-\examples{
-data(bathurst)
-b.subset <- bathurst \%>\% subset(Year == 2014)
-b.list <- dlply(b.subset, "ID", st_as_sf)
-
-
-# basic quicky implementation
-require(gplots)
-palette(rich.colors(length(b.list)))
-scan_tracks(b.list)
-
-# with pairwise distances of a subset of indviduals
-b.distances <- scan_tracks(b.list[1:6], cols = rich.colors(6), legend = TRUE,
-            plotdistance = TRUE, threshold = 1e3)
-
-head(b.distances)
-}

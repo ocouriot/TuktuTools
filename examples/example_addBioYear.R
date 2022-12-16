@@ -1,7 +1,8 @@
-data("barrenground")
+data("caribou")
 
-head(barrenground)
+head(caribou)
 
 # bioStart is yday 152 (01 June)
 
-barrenground <- addBioYear(barrenground, bioStart = 152)
+caribou <- addBioYear(caribou, bioStart = 152)
+head(caribou)

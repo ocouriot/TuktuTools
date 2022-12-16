@@ -1,19 +1,25 @@
-#' Example of movement data for 4 Barren-ground caribou individuals
-#'
-#' 
+#' Movement data of barren-ground caribou
 #'
 #' @usage 
-#' data(barrenground)
+#' data(caribou)
 #' 
-#' @format data frame containing the ID, the time of the location, the Lon and Lat coordinates (WGS84), 
-#' the x and y coordinates (in Lambert Conformal Conic as: "+proj=lcc +lat_1=50 +lat_2=70 +lat_0=65 +lon_0=-120 +x_0=0 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs")
+#' @name caribou
 #' 
-#' @examples 
-#' data(barrenground)
+#' @format data frame with the following columns: 
+#' #' \describe{
+#'   \item{ID}{ID of animal}
+#'   \item{sex}{Sex of the animal}
+#'   \item{Time}{Date and time of each GPS location}
+#'   \item{Year}{Year of the GPS location}
+#'   \item{Lon,Lat}{Coordinates of the GOS locations in WGS84}
+#'   \item{x,y}{Coordinates of the GOS locations in Canada Lambert Conformal Conic (crs = "+proj=lcc +lat_1=50 +lat_2=70 +lat_0=65 +lon_0=-120 +x_0=0 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs")}
+#' }
 #' 
+#' These are real data courtesy of NWT Department of Environment and Natural Resources
+#' but anonymized and shifted in time, longitude and latitude. 
+#' 
+#' @example examples/example_caribou.R
 #'
-#' @source GNWT
+#' @source GNWT Department of Environment and Natural Resources
 #' @keywords data
-"barrenground"
-
-
+"caribou"

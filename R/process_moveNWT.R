@@ -19,6 +19,8 @@
 #'   \item{study.site}{Individual's herd assignment}
 #' }
 #'
+#' @export
+#' 
 #' @examples
 #' # to generate the bluenose data
 #' \dontrun{
@@ -33,7 +35,7 @@ process_moveNWT <- function(movedata,
   df <-  as(movedata, "data.frame")
   df.new <- data.frame(ID = df$trackId,
                        nickname = df$nick_name,
-                       DateTime = df$timestamp,
+                       Time = df$timestamp,
                        Lon = df$location_long,
                        Lat = df$location_lat,
                        sex = df$sex,
@@ -41,7 +43,7 @@ process_moveNWT <- function(movedata,
     mutate(x = st_coordinates(sf)[,1], y =  st_coordinates(sf)[,2])
   df.new$ID_temp <- str_replace(df.new$ID,"X","")
 
-  references <- getMovebankReferenceTable(slot(movedata,"study"), login = mylogin, allAttributes = FALSE)
+  references <- move::getMovebankReferenceTable(slot(movedata,"study"), login = mylogin, allAttributes = FALSE)
   references <- with(references, aggregate(list(study_site = study_site),list(ID_temp=animal_local_identifier),unique))
 
   df.new <- merge(df.new, references, by="ID_temp", all.x=T) %>% mutate(ID_temp = NULL)
