@@ -20,14 +20,13 @@
 
 #' @return Returns the negative log-likelihood of this model given the data SL
 #'
-#' @export
 #' @references DeMars, C., M. Auger-Méthé, U. Schlägel, S. Boutin, (Published online) Inferring Parturition and Neonate Survival from Movement Patterns of Female Ungulates. Ecology and Evolution. DOI: 10.1002/ece3.785
 
 
 
 
 # function that calculate the negative likelihood after parturition
-nll.post <- function(par = c(log.beta.calf = NA, recovery = NA), alpha.mean, beta.mean, alpha.calf, dhours.b, speed.b){
+nllPost <- function(par = c(log.beta.calf = NA, recovery = NA), alpha.mean, beta.mean, alpha.calf, dhours.b, speed.b){
 
   beta.calf <-  exp(par["log.beta.calf"])
   recovery <- par["recovery"]

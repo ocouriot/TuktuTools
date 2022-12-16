@@ -7,7 +7,7 @@
 getPairwiseDistances(sf.list)
 }
 \arguments{
-\item{sf.list}{list of simple feature tracks}
+\item{sf.list}{list of simple feature tracks containing the ID}
 }
 \value{
 data frame with (among others) ID, nickname, distance, date

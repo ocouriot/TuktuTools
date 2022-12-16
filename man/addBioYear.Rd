@@ -7,13 +7,13 @@
 addBioYear(df, bioStart)
 }
 \arguments{
+\item{df}{a dataframe with columns:
+`Time` Date and time in POSIXct}
+
 \item{bioStart}{biological year start date, in day of year format \code{\link{yday}}}
 }
 \value{
-a dataframe with columns:
-\describe{
-  \item{bioYear}{Biological year corresponding to user-defined start day}
-}
+
 }
 \description{
 This function adds a column designating biological year starting on a user-designated date 

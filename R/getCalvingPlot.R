@@ -7,11 +7,8 @@
 #'
 #' The visualization portion of this code is adapted directly from the supplementary materials in Cameron et al. 2018.
 #'
-#' @param df a dataframe containing the speed between subsequent relocations of an individual,
-#' the coordinates of the relocations (in metric system)
-#' the date and time oh each speed value and t
-#' he difference in hours between each speed value and the first one
-#' and a vector of the animal-year identifiant.
+#' @param df a dataframe containing the speed between subsequent relocation of ONE individual,
+#' obtained using `getSpeed`. 
 #' See ?get.speed for more information on the Data requirements
 #' @param int integer value indicating the minimum number of days between
 #'     the beginning of the time series and the first BP (calf birth),
@@ -27,21 +24,22 @@
 #' @return The function returns a plot of the speed pattern and the fit of the model specified by bestmodel
 #' as well as the plot of the track of the individual with the calving location (if bestmodel is equal to calf or calfdeath)
 #'
-#'
-#' @export
 #' @references DeMars, C., M. Auger-Méthé, U. Schlägel, S. Boutin, (Published online) Inferring Parturition and Neonate Survival from Movement Patterns of Female Ungulates. Ecology and Evolution. DOI: 10.1002/ece3.785
 #' Cameron, M.D., Joly, K., Breed, G.A., et al. (2018). Movement-based methods to infer parturition events in migratory ungulates. Canadian Journal of Zoology. 96:1187–1195. https://doi.org/10.1139/cjz-2017-0314
+#' 
+#' @example examples/example_estimateCalving.R
+#' 
+#' @export
 
-
-parturition.plot <- function (df, int, kcons, bestmodel, method) {
+getCalvingPlot <- function (df, int, kcons, bestmodel) {
 
 
   # run the mnll3 for each individual to obtain MLE, AIC for the 3 models
     temp=droplevels(df)
-    temp <- temp[order(temp$time),]
+    temp <- temp[order(temp$Time),]
     ID=unique(temp$ID)
     Year <- unique(temp$Year)
-    temp$yday <- yday(temp$time)
+    temp$yday <- yday(temp$Time)
     speed <- na.omit(temp$speed)
     speedmean <- mean(speed)
     speedvar <- var(speed)
@@ -57,12 +55,12 @@ parturition.plot <- function (df, int, kcons, bestmodel, method) {
     }
 
     if (bestmodel == "calf"){
-      fit <- nll.calf(temp, BP = results$BPs[["BP1.calf"]], k = kcons)
+      fit <- nllCalf(temp, BP = results$BPs[["BP1.calf"]], k = kcons)
       fit.values <- fit$fit
     }
 
     if (bestmodel == "calfdeath"){
-      fit <- nll.calfdeath(temp, BP1 = results$BPs[["BP1.calfdeath"]], BP2 = results$BPs[["BP2.calfdeath"]], k = kcons)
+      fit <- nllCalfDeath(temp, BP1 = results$BPs[["BP1.calfdeath"]], BP2 = results$BPs[["BP2.calfdeath"]], k = kcons)
       fit.values <- fit$fit
     }
 
@@ -71,7 +69,7 @@ parturition.plot <- function (df, int, kcons, bestmodel, method) {
       temp <- droplevels(subset(temp, is.na(speed)==FALSE))
     if (bestmodel == "nocalf") {   #if the best model is the "didn't calve model", plot a flat line
 
-        p1 <- ggplot(temp,aes(time.mid,speed, color = yday),show.legend = FALSE) +
+        p1 <- ggplot(temp,aes(Time,speed, color = yday),show.legend = FALSE) +
           geom_line(show.legend = FALSE) + scale_color_gradientn(colours = rainbow(5)) +
           theme(panel.background = element_blank()) +  #Sets background to white
           geom_hline(aes(yintercept=fit.values, group=1), colour= 'darkblue', show.legend=FALSE, size=1) +
@@ -98,7 +96,7 @@ parturition.plot <- function (df, int, kcons, bestmodel, method) {
         calve=as.POSIXct(results$BPs[["date.BP1.calf"]])
 
         ## Plotting ##
-        p1 <- ggplot(temp,aes(time.mid,speed, color = yday),show.legend = FALSE) +
+        p1 <- ggplot(temp,aes(Time,speed, color = yday),show.legend = FALSE) +
           geom_line(show.legend = FALSE) + scale_color_gradientn(colours = rainbow(5)) +
           theme(panel.background=element_blank()) +  #Sets background to white
           geom_vline(xintercept=as.numeric(calve),linetype=4,colour="black") + #break point at calving event
@@ -108,15 +106,15 @@ parturition.plot <- function (df, int, kcons, bestmodel, method) {
           theme(axis.line.y=element_line(size=.5,colour = "black",linetype = "solid")) + #add axis lines
           theme(plot.title=element_text(size=16,face="bold",margin = margin(10,0,10,0))) +
           ylim(c(0,2500)) +
-          geom_line(aes(x=as.POSIXct(temp$time.mid), y=fit.values, group=1), colour = 'darkblue', show.legend=FALSE, size=1) #plots predicted values
+          geom_line(aes(x=as.POSIXct(Time), y=fit.values, group=1), colour = 'darkblue', show.legend=FALSE, size=1) #plots predicted values
 
         # plot the individual track
         p2 <- ggplot(temp,aes(x,y, color = yday)) +
           geom_path(show.legend = FALSE) + coord_fixed() +
           scale_color_gradientn(colours = rainbow(5)) +
           theme(panel.background=element_blank()) +  #Sets background to white
-          geom_point(aes(x = na.omit(temp[temp$time.mid == calve,]$x),
-                         y = na.omit(temp[temp$time.mid == calve,]$y)),
+          geom_point(aes(x = na.omit(temp[temp$Time == calve,]$x),
+                         y = na.omit(temp[temp$Time == calve,]$y)),
                      shape=24, fill = 'red', color = 'red', size = 2) + # point at calving event
           labs(x = "X coordinates",
                y = "Y coordinates") +
@@ -131,7 +129,7 @@ parturition.plot <- function (df, int, kcons, bestmodel, method) {
         calf.loss=as.POSIXct(results$BPs[["date.BP2.calfdeath"]])
 
         ## Plotting ##
-        p1 <- ggplot(temp,aes(time.mid,speed,color = yday)) +
+        p1 <- ggplot(temp,aes(Time,speed,color = yday)) +
           geom_line(show.legend = FALSE) +
           scale_color_gradientn(colours = rainbow(5)) +
           theme(panel.background=element_blank()) +  #Sets background to white
@@ -144,18 +142,18 @@ parturition.plot <- function (df, int, kcons, bestmodel, method) {
           theme(axis.line.y=element_line(size=.5,colour = "black",linetype = "solid")) + #add axis lines
           theme(plot.title=element_text(size=16,face="bold",margin = margin(10,0,10,0))) +
           ylim(c(0,2500)) +
-          geom_line(aes(as.POSIXct(temp$time.mid), fit.values, group=1), colour= 'darkblue', show.legend=FALSE, size=1) #plots predicted values
+          geom_line(aes(as.POSIXct(Time), fit.values, group=1), colour= 'darkblue', show.legend=FALSE, size=1) #plots predicted values
 
         # plot the individual track
         p2 <- ggplot(temp,aes(x,y, color = yday)) +
           geom_path(show.legend = FALSE) + coord_fixed() +
           scale_color_gradientn(colours = rainbow(5)) +
           theme(panel.background=element_blank()) +  #Sets background to white
-          geom_point(aes(x = na.omit(temp[temp$time.mid == calve,]$x),
-                         y = na.omit(temp[temp$time.mid == calve,]$y)),
+          geom_point(aes(x = na.omit(temp[temp$Time == calve,]$x),
+                         y = na.omit(temp[temp$Time == calve,]$y)),
                      shape=24, fill = 'red', color = 'red', size = 2) + # point at calving event
-          geom_point(aes(x = na.omit(temp[temp$time.mid == calf.loss,]$x),
-                         y = na.omit(temp[temp$time.mid == calf.loss,]$y)),
+          geom_point(aes(x = na.omit(temp[temp$Time == calf.loss,]$x),
+                         y = na.omit(temp[temp$Time == calf.loss,]$y)),
                      shape=25, fill = 'black', color = 'black', size = 2) + # point at calf death event
           labs(x = "X coordinates",
                y = "Y coordinates") +
@@ -163,6 +161,6 @@ parturition.plot <- function (df, int, kcons, bestmodel, method) {
           theme(axis.line.y=element_line(size=.5,colour = "darkgrey",linetype = "solid")) #add axis lines
       } # end if calf death statement
 
-    ggarrange(p1, p2, ncol = 2)
+    ggpubr::ggarrange(p1, p2, ncol = 2)
 
 }

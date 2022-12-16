@@ -9,7 +9,7 @@ License: GNU General Public License
 Encoding: UTF-8
 LazyData: false
 Depends: lubridate, magrittr, plyr, dplyr, ggplot2, sp, sf
-Suggests: mapview, cluster, move, stringr,  NbClust, tlocoh, segclust2d, adehabitatLT, adehabitatHR
+Suggests: mapview, cluster, move, stringr,  NbClust, tlocoh, segclust2d, adehabitatLT, adehabitatHR, knitr, rmarkdown
 RoxygenNote: 7.2.1
 VignetteBuilder: knitr
 
