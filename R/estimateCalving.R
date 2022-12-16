@@ -262,7 +262,7 @@ estimateCalving <- function (df, int, kcons, models = c("full","calfonly"),
           labs(x = "Date", y = "Speed (m.h-1)", title = paste("No calf model for",ID_Year, sep = " ")) +
           theme(axis.line.x = element_line(size = .5,colour = "black",linetype = "solid")) + #add axis lines
           theme(axis.line.y = element_line(size = .5,colour = "black",linetype = "solid")) + #add axis lines
-          theme(plot.title = element_text(size = 20,face = "bold",margin = margin(10,0,10,0))) +
+          theme(plot.title = element_text(size = 12,face = "bold",margin = margin(10,0,10,0))) +
           ylim(c(0,2500))
         
         if(saveplot)
@@ -285,7 +285,7 @@ estimateCalving <- function (df, int, kcons, models = c("full","calfonly"),
           labs(x="Date",y="Speed (m.h-1)",title=paste("Calf model for",ID_Year,sep = " " )) +
           theme(axis.line.x=element_line(size=.5,colour = "black",linetype = "solid")) + #add axis lines
           theme(axis.line.y=element_line(size=.5,colour = "black",linetype = "solid")) + #add axis lines
-          theme(plot.title=element_text(size=20,face="bold",margin = margin(10,0,10,0))) +
+          theme(plot.title=element_text(size=12,face="bold",margin = margin(10,0,10,0))) +
           ylim(c(0,2500)) +
           geom_line(aes(as.POSIXct(Time), fit.values.calf, colour=1, group=1), show.legend=FALSE, size=1) #plots predicted values
         if(saveplot)
@@ -310,7 +310,7 @@ estimateCalving <- function (df, int, kcons, models = c("full","calfonly"),
           labs(x="Date",y="Speed (m.h-1)",title=paste("Calf death model for",ID_Year,sep = " " )) +
           theme(axis.line.x=element_line(size=.5,colour = "black",linetype = "solid")) + #add axis lines
           theme(axis.line.y=element_line(size=.5,colour = "black",linetype = "solid")) + #add axis lines
-          theme(plot.title=element_text(size=20,face="bold",margin = margin(10,0,10,0))) +
+          theme(plot.title=element_text(size=12,face="bold",margin = margin(10,0,10,0))) +
           ylim(c(0,2500)) +
           geom_line(aes(as.POSIXct(Time), fit.values.calfdeath, colour=1, group=1), show.legend=FALSE, size=1) #plots predicted values
         if(saveplot)
