@@ -7,8 +7,8 @@
 addBioYear(df, bioStart)
 }
 \arguments{
-\item{df}{a dataframe with columns:
-`Time` Date and time in POSIXct}
+\item{df}{a data frame with columns:
+Time: Date and time in POSIXct}
 
 \item{bioStart}{biological year start date, in day of year format \code{\link{yday}}}
 }

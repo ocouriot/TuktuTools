@@ -13,7 +13,37 @@
 #' 
 #' @return a dataframe with the dates of the calving period for the year
 #'
-#' @export getCalvingPeriod
+#' @export
+#' 
+#' @references Patin, R., Etienne, M., Lebarbier, E., Chamaillé‐Jammes, S., & Benhamou, S. (2020). 
+#' Identifying stationary phases in multivariate time series for highlighting behavioural modes and 
+#' home range settlements. Journal of Animal Ecology, 89(1), 44–56. https://doi.org/10.1111/1365-2656.13105
+
+getCalvingPeriod <- function(df, PlotIt = TRUE){
+  daily_area_movement_clustered <- df %>% 
+    mutate(sqrtarea = sqrt(area)) %>% segclust2d::segclust(Kmax = 3, lmin = 5, ncluster = 3, #type = "behavior",
+                                                           scale.variable = FALSE, seg.var = c("speed","sqrtarea"))
+  
+  # M4_states <- ldply(daily_area_movement_clustered, states)
+  daily_area_movement_withstate <- segclust2d::augment(daily_area_movement_clustered) %>% 
+    mutate(state = (1:3)[match(state, unique(state))])
+  
+  calving_season <- daily_area_movement_withstate[,c("yday","Date","state")] %>% 
+    subset(state == 2) %>% mutate(start = min(yday), end = max(yday), 
+                                  date.start= min(Date), 
+                                  date.end = max(Date))
+  
+  if(PlotIt){
+    par(mar = c(0,4,0,0), oma = c(4,0,4,2), tck = 0.01, xpd = NA, 
+        mgp = c(1.5,.25,0), cex.lab = 1.25, bty = "l")
+    print(plotWithStates(daily_area_movement_withstate %>% mutate(y = sqrt(area)),
+                         cols = c("blue","tomato","forestgreen"), 
+                         v2.lab = expression(sqrt(area)),
+                         v1.lab = "daily displacement (m)"))
+  }
+  
+  return(calving_season)
+}
 
 plotWithStates <- function(df, cols = 1:3, v1.lab = "x", v2.lab = "y", 
                            main = df$Year[1]){
@@ -69,30 +99,6 @@ plotWithStates <- function(df, cols = 1:3, v1.lab = "x", v2.lab = "y",
 }
 
 
-getCalvingPeriod <- function(df, PlotIt = TRUE){
-  daily_area_movement_clustered <- df %>% 
-    mutate(sqrtarea = sqrt(area)) %>% segclust2d::segclust(Kmax = 3, lmin = 7, ncluster = 3, #type = "behavior",
-          scale.variable = FALSE, seg.var = c("speed","sqrtarea"))
-  
-  # M4_states <- ldply(daily_area_movement_clustered, states)
-  daily_area_movement_withstate <- segclust2d::augment(daily_area_movement_clustered) %>% 
-    mutate(state = (1:3)[match(state, unique(state))])
-  
-  calving_season <- daily_area_movement_withstate[,c("yday","Date","state")] %>% 
-    subset(state == 2) %>% mutate(start = min(yday), end = max(yday), 
-                                  date.start= min(Date), 
-                                  date.end = max(Date))
-  
-  if(PlotIt){
-      par(mar = c(0,4,0,0), oma = c(4,0,4,2), tck = 0.01, xpd = NA, 
-          mgp = c(1.5,.25,0), cex.lab = 1.25, bty = "l")
-      print(plotWithStates(daily_area_movement_withstate %>% mutate(y = sqrt(area)),
-                     cols = c("blue","tomato","forestgreen"), 
-                     v2.lab = expression(sqrt(area)),
-                     v1.lab = "daily displacement (m)"))
-  }
-  
-  return(calving_season)
-}
+
 
 

@@ -6,6 +6,7 @@
 #'
 #' @param  sf a simple feature containing (daily) GPS coordinates used to estimate 
 #' the (daily) ranging area
+#' @param crs the crs of the coordinates in sf
 #' @param method either "LocoH" or "KernelUD", the method used to estimate the daily ranging area (see getLoCoH and getKernelUD for more details)
 #' @param nn (if method is "LoCoH") the number of nearest neighbors used to construct the local convex polygons
 #' @param level (if method is "LoCoH") A numeric value of the level of the isopleths (value comprised between .05 and 1, default is .95)
