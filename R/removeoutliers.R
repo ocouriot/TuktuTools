@@ -18,6 +18,9 @@
 #' x and y: relocations of individuals (in a metric system)
 #' Time: vector (of class POSIXct)
 #' @param steps if specified, the number of cleaning steps to be performed (default is 10)
+#' @param max.speed threshold (in km/hour) for removing outliers.  Default: 50 km/hr
+#' @param min.interval threshold (in minutes) for mininum intervals between location. Default: 2 min.
+#' 
 #'
 #' @return The function returns adds a column "outlier". If TRUE, it means that 
 #' the location has been identified as an outlier.
@@ -25,25 +28,27 @@
 #'
 #' @export
 
-removeOutliers <- function(df, steps = 10){
+removeOutliers <- function(df, steps = 10, max.speed = 50, min.interval = 2){
 
   # Function for Cleaning dataset
 cleanData <- function(dfa){
   
   dfa <- dfa %>% arrange(ID, Time)
+  if(!("Year" %in% names(dfa))) dfa$Year = lubridate::year(Time)
   row.names(dfa) <- 1:nrow(dfa)
 
     tempo.speed <- ddply(dfa, c("ID", "Year"), getSpeed) %>% mutate(dt.sec = dt*24*60)
     
-    # relocations with high speed (>50km per hour) or small time interval (<= 2 minutes) or with high speed & small time interval (20km per hour and dt<10 minutes)
-    table(tempo.speed$speed > 50000 | tempo.speed$dt.sec <= 120 | 
-            (tempo.speed$speed > 20000 & tempo.speed$dt.sec <= 600))
-    flagged <- which(tempo.speed$speed > 50000 | tempo.speed$dt.sec <= 120 | 
+    # relocations with high speed (>50km per hour) or small time interval 
+    # (<= 2 minutes) or with high speed & small time interval 
+    # (20km per hour and dt<10 minutes)
+    
+    flagged <- which(tempo.speed$speed > max.speed*1e3  | tempo.speed$dt.sec <= min.interval*60 | 
                        (tempo.speed$speed > 20000 & tempo.speed$dt.sec <= 600))
     
     # flag outliers
     if(length(flagged) != 0){
-      dfa$outlier[flagged] <- "TRUE"
+      dfa$outlier[flagged] <- TRUE
     }
 
     return(dfa)
@@ -54,14 +59,14 @@ cleanData <- function(dfa){
 
 # create a unique identifier for each individual per Year
 c1 <- subset(df %>% as.data.frame, ! ID %in% names(which(table(df$ID)<3)))
-keep <- c1 %>% mutate(outlier = "FALSE")
+keep <- c1 %>% mutate(outlier = FALSE)
 
 # Loop to clean data in several steps, once there are no outliers left,
 # the loop stop and return the dataframe without outliers
 toremove <- data.frame()
 for(j in 1:steps){
   # look for potential "outliers"
-  c1.speed <- keep %>% subset(outlier == "FALSE") %>% ddply(c("ID","Year"), getSpeed) %>% 
+  c1.speed <- keep %>% subset(!outlier) %>% ddply(c("ID","Year"), getSpeed) %>% 
     mutate(dt.sec = dt * 24 * 60)
   
   
@@ -71,11 +76,10 @@ for(j in 1:steps){
   if(j < steps){
     if(dim(verif)==2){
       ### CLEAN DATA
-      print(paste0("Cleaning Step ",j))
-      dfb <- keep %>% subset(outlier == "FALSE") %>% ddply(c("ID", "Year"), cleanData)
-      print(paste0("Number of 'outliers' detected: ", length(dfb$outlier[dfb$outlier == "TRUE"])))
-      print(" ")
-      keep$outlier[as.numeric(row.names(dfb[dfb$outlier =="TRUE",]))] <- "TRUE"
+      cat(paste0("Cleaning Step ",j, "\n"))
+      dfb <- keep %>% subset(!outlier) %>% ddply(c("ID", "Year"), cleanData)
+      cat(paste0("Number of 'outliers' detected: ", length(dfb$outlier[dfb$outlier]), "\n"))
+      keep$outlier[as.numeric(row.names(dfb[dfb$outlier,]))] <- TRUE
     } else if((dim(verif)==1 & names(verif)==FALSE)==TRUE){
       if(class(df)[1] == "sf"){
         keep <- st_as_sf(keep, crs = st_crs(df))
@@ -83,11 +87,11 @@ for(j in 1:steps){
       return(keep)}
     } # END IF j < steps
   if(j == steps){
-    print(paste0("Cleaning Step ",j))
-    dfb <- keep %>% subset(outlier == "FALSE") %>% ddply(c("ID", "Year"), cleanData)
-    print(paste0("Number of 'outliers' detected: ", length(dfb$outlier[dfb$outlier == "TRUE"])))
-    print(" ")
-    keep$outlier[as.numeric(row.names(dfb[dfb$outlier =="TRUE",]))] <- "TRUE"
+    cat(paste0("Cleaning Step ",j, "\n"))
+    dfb <- keep %>% subset(!outlier) %>% ddply(c("ID", "Year"), cleanData)
+    cat(paste0("Number of 'outliers' detected: ", length(dfb$outlier[dfb$outlier]), "\n"))
+    
+    keep$outlier[as.numeric(row.names(dfb[dfb$outlier,]))] <- TRUE
     if(class(df)[1] == "sf"){
       keep <- st_as_sf(keep, crs = st_crs(df))
     }

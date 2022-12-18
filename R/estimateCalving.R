@@ -46,13 +46,13 @@
 #' @param kcons vector of the minimum and maximum time it takes the female to recover normal speed (in days)
 #' @param models either "full" to fit all three models (i.e., no calf, calf and calf death models), or 
 #' "calfonly" to fit only the no calf and calf models.
-#' @param PlotIt if TRUE, the function will draw a plot of the movement rate in function to the date
+#' @param drawplot if TRUE, the function will draw a plot of the movement rate in function to the date
 #' with the prediction line of the best model selected by AIC
 #' @param saveplot if TRUE, the plot of the best model will be 
 #' @param dir the directory used to save the plot (e.g., "C://Users/Documents/")
 #'
 #' @return returns list of 3 dataframes:
-#' `coeffs` containing the best model for each female, selected based on AIC, the AIC of the 3 models 
+#' `statistics` containing the best model for each female, selected based on AIC, the AIC of the 3 models 
 #' (i.e. no calf model, calf model and calf death model) and the negative likelihood 
 #' of each model.
 #' `Par` containing the estimated parameters of all the models (0: no calf, 1: calf, 2: calf death)
@@ -68,7 +68,7 @@
 #' @export
 
 estimateCalving <- function (df, int, kcons, models = c("full","calfonly"),
-                               PlotIt = FALSE, saveplot = FALSE) {
+                               drawplot = FALSE, saveplot = FALSE) {
   
   df2 <- df %>% as.data.frame %>% mutate(ID_Year = as.factor(paste(ID, year(Time), sep = "_")))
   
@@ -251,7 +251,7 @@ estimateCalving <- function (df, int, kcons, models = c("full","calfonly"),
     ####### Making plots of results ##########
     temp <- droplevels(subset(temp, is.na(speed)==FALSE))
     temp <- temp[order(temp$Time),]
-    if(PlotIt){
+    if(drawplot){
       
       if (coeffs$Best.Model[coeffs$ID_Year == i] == "nocalf") {   #if the best model is the "didn't calve model", plot a flat line
         
@@ -318,10 +318,10 @@ estimateCalving <- function (df, int, kcons, models = c("full","calfonly"),
                  width = 8,height = 4,device="jpg") else print(p3)
       } # End Plot of the calf death model
       
-    } # End if PlotIt == T
+    } # End if drawplot == T
     
   } # END for loop for each individual
 
-  return(list(coeffs = coeffs, par = par, results = results.summary))
+  return(list(statistics = coeffs, par = par, results = results.summary))
   
 }
