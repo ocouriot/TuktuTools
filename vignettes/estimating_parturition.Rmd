@@ -4,7 +4,7 @@ author: "Ophélie Couriot and Eliezer Gurarie"
 date: "12/14/2022"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{vignette_parturition}
+  %\VignetteIndexEntry{estimating_parturition}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
 editor_options: 
