@@ -41,7 +41,7 @@ process_moveNWT <- function(movedata,
                        sex = df$sex,
                        Year = lubridate::year(df$timestamp)) %>%
     mutate(x = st_coordinates(sf)[,1], y =  st_coordinates(sf)[,2])
-  df.new$ID_temp <- str_replace(df.new$ID,"X","")
+  df.new$ID_temp <- stringr::str_replace(df.new$ID,"X","")
 
   references <- move::getMovebankReferenceTable(slot(movedata,"study"), login = mylogin, allAttributes = FALSE)
   references <- with(references, aggregate(list(study_site = study_site),list(ID_temp=animal_local_identifier),unique))
