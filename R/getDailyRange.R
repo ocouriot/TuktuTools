@@ -42,6 +42,6 @@ getDailyRange <- function(sf, crs, method = c("LoCoH", "KernelUD"), ...){
       }
     }
   }
-  daily.area <- daily.area %>% ldply(st_as_sf, crs=st_crs(sf))
-  return(daily.area %>% st_as_sf(crs = st_crs(sf)))
+  daily.area <- daily.area %>% ldply #(st_as_sf, crs=st_crs(sf))
+  return(daily.area) #%>% st_as_sf(crs = st_crs(sf)))
 }
