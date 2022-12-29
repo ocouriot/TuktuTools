@@ -18,6 +18,8 @@
 #' @param dayloss maximum number of consecutive days with missing locations
 #' (for example, if an individual has loss signal for more than 3 consecutive days, 
 #' it will be excluded from the dataset)
+#' @param restrictive if TRUE, only individuals having monitoring for the entire period 
+#' are kept
 #' @return a processed dataframe
 #' 
 #' @example examples/example_prepData.R
