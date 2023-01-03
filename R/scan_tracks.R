@@ -4,14 +4,15 @@
 #' Useful, e.g., for comparing proximity of animals. Includes a feature which computes
 #' and plots the distance between daily mean locations.
 #'
-#' @param sf.list list of simple feature tracks
-#' @param cols vector of colors
-#' @param plotdistance whether to plot pairwise distances (only works for list of length 2)
-#' @param distance.df distance data frame (output of \code{\link{getPairwiseDistances}})
-#' @param d.col col of distances
+#' @param x data frame, simple feature, or list of simple feature tracks
+#' @param id.col name ID column
+#' @param time.col name of POSIX time column
+#' @param colors vector of colors
+#' @param plotdistance whether to plot pairwise distances (only works for list of length 2) [COULD BE TRUNCATED]
+#' @param distance.df distance data frame (output of \code{\link{getPairwiseDistances}}) [COULD BE TRUNCATED]
+#' @param d.col color for distances [COULD BE TRUNCATED]
 #' @param legend whether or not to add a legend
-#' @param id.col  name of ID column
-#' @param time.col name of Time column
+#' @param legend.pos location of legend
 #' @param ... additional parameters to pass to legend function
 #'
 #' @return If plotdistance = TRUE, returns the pairwise distance data frame.

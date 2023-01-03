@@ -12,6 +12,7 @@
 #' @param level (if method is "LoCoH") A numeric value of the level of the isopleths (value comprised between .05 and 1, default is .95)
 #' @param percent (if method is "KernelUD") percent kernel (value comprised between 5 and 100, default is 95)
 #' @param grid (if method is "KernelUD") grid points (default 200, higher than adehabitat's)
+#' @param verbose whether or not to output warnings and errors
 #' @param ... additional parameters to pass to \link{kernelUD} for the "KernelUD" method or \link{lhs.iso.add} for the "LoCoH" method
 #' 
 #' @return The function returns a simple feature of the isopleth(s), with the area
@@ -27,14 +28,14 @@ getDailyRange <- function(sf, crs, method = c("LoCoH", "KernelUD"), ...){
     doy.loc <- subset(sf, yday == doy)
     if(dim(doy.loc)[1] > 5){
       if(method == "LoCoH"){
-        ddayarea <- try(getLoCoH(doy.loc, ...), silent=TRUE)
+        ddayarea <- try(getLoCoH(doy.loc, ...), silent = verbose)
         if(!inherits(ddayarea, 'try-error')){
           ddayarea <- ddayarea %>% mutate(Year = unique(sf$Year), yday = doy)
           daily.area[[length(daily.area)+1]] <- ddayarea
         }
       }
       if(method == "KernelUD"){
-        ddayarea <- try(getKernelUD(doy.loc, ...), silent=TRUE)
+        ddayarea <- try(getKernelUD(doy.loc, ...), silent = verbose)
         if(!inherits(ddayarea, 'try-error')){
           ddayarea <- ddayarea %>% mutate(Year = unique(sf$Year), yday = doy)
           daily.area[[length(daily.area)+1]] <- ddayarea
