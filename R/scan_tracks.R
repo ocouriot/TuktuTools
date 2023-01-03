@@ -10,33 +10,57 @@
 #' @param distance.df distance data frame (output of \code{\link{getPairwiseDistances}})
 #' @param d.col col of distances
 #' @param legend whether or not to add a legend
+#' @param id.col  name of ID column
+#' @param time.col name of Time column
+#' @param ... additional parameters to pass to legend function
 #'
 #' @return If plotdistance = TRUE, returns the pairwise distance data frame.
+#' @export
 
 
-scan_tracks <- function(sf.list, cols = 1:length(sf.list),
+scan_tracks <- function(x, 
+                        id.col  = "ID",
+                        time.col = "Time",
+                        colors = NULL,
                         distance.df = NULL,
                         plotdistance = FALSE,
                         d.col = "darkgrey",
                         legend = FALSE,
-                        threshold = 1e3, ...){
+                        threshold = 1e3, 
+                        legend.pos = "bottomleft", 
+                        ...){
 
   par.init <- par(no.readonly = TRUE)
   on.exit(par(par.init))
-  ids <- sapply(sf.list, function(sf) sf$ID[[1]]) %>% droplevels
-  names(sf.list) <- ids
-  xy.df <- ldply(sf.list,
-                 function(sf) cbind(as.data.frame(st_coordinates(sf)),
-                                    Time= sf$DateTime)) %>%
-    plyr::rename(c(.id = "ID")) %>%
-    arrange(ID, Time) %>%
-    mutate(col = cols[match(ID, ids)])
+  
+  if(is(x)[[1]] == "list") {
+    sf.list <- x
+    ids <- sapply(sf.list, function(sf) data.frame(sf)[1,id.col]) %>% droplevels
+    names(sf.list) <- ids
+    xy.df <- ldply(sf.list,
+                   function(sf) cbind(as.data.frame(st_coordinates(sf)),
+                                      Time= data.frame(sf)[,time.col])) 
+    names(attr(sf.list,"split_labels")) <- "ID"
+    xy.df <- plyr::arrange(xy.df, ID, Time) 
+  } else if(inherits(x, "sf")){
+    xy.df <- cbind(ID = data.frame(x)[,id.col],
+                   Time= data.frame(x)[,time.col],
+                   as.data.frame(st_coordinates(x)))
+    sf.list <- dlply(xy.df, "ID", st_as_sf, coords = c("X","Y"), crs = st_crs(x))
+  } else if(is(x)[[1]] == "data.frame"){
+    xy.df <-  mutate(x, Time = get(time.col), ID = get(id.col))
+    if(time.col != "Time") xy.df[,time.col] <- NULL
+    if(id.col != "ID") xy.df[,id.col] <- NULL
+  }
+  xy.df <- droplevels(xy.df)
+  ids <- levels(xy.df$ID)
+  if(is.null(colors)) colors <- 1:length(ids)
+  xy.df$color = colors[match(xy.df$ID, ids)]
 
   xlim <- range(xy.df$X)
   ylim <- range(xy.df$Y)
   tlim <- range(xy.df$Time)
-
-
+  
   if(plotdistance){
     if(is.null(distance.df))
       distance.df <- getPairwiseDistances(sf.list)
@@ -44,11 +68,13 @@ scan_tracks <- function(sf.list, cols = 1:length(sf.list),
     } else layout(rbind(1:2, c(1,3)))
 
   par(mar = c(0,4,0,0), oma = c(4,0,4,4), xpd = NA, bty = "l",
-      mgp = c(1.5,.5,0), tck = 0.01, cex.lab = 1.2)
+      mgp = c(1.5,.5,0), tck = 0.01, cex.lab = 1, cex.axis = 0.8)
 
   plot(0,0,xlim = xlim, ylim = ylim, asp =1, type = "n", xlab = "X", ylab = "Y")
   d_ply(xy.df, "ID", function(xy) lines(xy$X, xy$Y, col = xy$col[1]))
-  if(legend) legend("topleft", cex = 0.75, col = cols, legend = paste(unique(xy.df$ID), unique(year(xy.df$Time)), sep =" - "), lty = 1)
+  if(legend) legend(legend.pos, 
+                    col = colors, 
+                    legend = levels(xy.df$ID), lty = 1, ...)
 
   if(plotdistance){
     with(distance.df,
@@ -64,6 +90,6 @@ scan_tracks <- function(sf.list, cols = 1:length(sf.list),
 
   plot(xy.df[,c("Time", "Y")],xlim = tlim, ylim = ylim, type = "n", ylab = "Y", xlab = "time")
   d_ply(xy.df, "ID", function(xy) lines(xy$Time, xy$Y, col = xy$col[1]))
-
+  par(par.init)
   invisible(distance.df)
 }

@@ -5,20 +5,23 @@
 \title{Scan Multiple Tracks at a Glance}
 \usage{
 scan_tracks(
-  sf.list,
-  cols = 1:length(sf.list),
+  x,
+  id.col = "ID",
+  time.col = "Time",
+  colors = NULL,
   distance.df = NULL,
   plotdistance = FALSE,
   d.col = "darkgrey",
   legend = FALSE,
   threshold = 1000,
+  legend.pos = "bottomleft",
   ...
 )
 }
 \arguments{
-\item{sf.list}{list of simple feature tracks}
+\item{id.col}{name of ID column}
 
-\item{cols}{vector of colors}
+\item{time.col}{name of Time column}
 
 \item{distance.df}{distance data frame (output of \code{\link{getPairwiseDistances}})}
 
@@ -27,6 +30,12 @@ scan_tracks(
 \item{d.col}{col of distances}
 
 \item{legend}{whether or not to add a legend}
+
+\item{...}{additional parameters to pass to legend function}
+
+\item{sf.list}{list of simple feature tracks}
+
+\item{cols}{vector of colors}
 }
 \value{
 If plotdistance = TRUE, returns the pairwise distance data frame.

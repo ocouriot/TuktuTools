@@ -36,9 +36,9 @@ of all no calf, calf and calf death models models
 }
 \section{Functions}{
 \itemize{
-\item \code{mnll3M()}: minimize the negative log-likelihood of all the three models
-
+\item \code{mnll3M}: minimize the negative log-likelihood of all the three models
 }}
+
 \references{
 DeMars, C., M. Auger-Méthé, U. Schlägel, S. Boutin, (Published online) Inferring Parturition and Neonate Survival from Movement Patterns of Female Ungulates. Ecology and Evolution. DOI: 10.1002/ece3.785
 }
