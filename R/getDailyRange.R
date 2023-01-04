@@ -21,7 +21,7 @@
 #' 
 #' @example examples/example_getDailyRange.R
 
-getDailyRange <- function(sf, crs, method = c("LoCoH", "KernelUD"), ...){
+getDailyRange <- function(sf, crs, method = c("LoCoH", "KernelUD"), verbose = FALSE, ...){
   sf <- sf %>% st_as_sf(crs=crs)
   daily.area <- list()
   for(doy in sort(unique(sf$yday))){

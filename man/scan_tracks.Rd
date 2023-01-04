@@ -2,7 +2,7 @@
 % Please edit documentation in R/scan_tracks.R
 \name{scan_tracks}
 \alias{scan_tracks}
-\title{Scan Multiple Tracks at a Glance}
+\title{Scan Multiple Movement Tracks at a Glance}
 \usage{
 scan_tracks(
   x,
@@ -19,23 +19,25 @@ scan_tracks(
 )
 }
 \arguments{
-\item{id.col}{name of ID column}
+\item{x}{data frame, simple feature, or list of simple feature tracks}
 
-\item{time.col}{name of Time column}
+\item{id.col}{name ID column}
 
-\item{distance.df}{distance data frame (output of \code{\link{getPairwiseDistances}})}
+\item{time.col}{name of POSIX time column}
 
-\item{plotdistance}{whether to plot pairwise distances (only works for list of length 2)}
+\item{colors}{vector of colors}
 
-\item{d.col}{col of distances}
+\item{distance.df}{distance data frame (output of \code{\link{getPairwiseDistances}}) [COULD BE TRUNCATED]}
+
+\item{plotdistance}{whether to plot pairwise distances (only works for list of length 2) [COULD BE TRUNCATED]}
+
+\item{d.col}{color for distances [COULD BE TRUNCATED]}
 
 \item{legend}{whether or not to add a legend}
 
+\item{legend.pos}{location of legend}
+
 \item{...}{additional parameters to pass to legend function}
-
-\item{sf.list}{list of simple feature tracks}
-
-\item{cols}{vector of colors}
 }
 \value{
 If plotdistance = TRUE, returns the pairwise distance data frame.
@@ -44,4 +46,17 @@ If plotdistance = TRUE, returns the pairwise distance data frame.
 Takes list of individual (simple feature) tracks, and plots their tracks.
 Useful, e.g., for comparing proximity of animals. Includes a feature which computes
 and plots the distance between daily mean locations.
+}
+\examples{
+require(TuktuTools)
+data(simulated_migrations)
+
+# latitude longitude
+scan_tracks(simulated_migrations, legend  = TRUE)
+
+# Use the simple feature version, with names in the legend
+simulated_migrations.sf \%>\% 
+  scan_tracks(id.col = "Name", colors = rainbow(18),
+              legend= TRUE, legend.pos = "topleft")
+
 }

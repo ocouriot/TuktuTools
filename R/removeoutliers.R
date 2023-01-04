@@ -1,18 +1,10 @@
-#' Remove almost duplicated timestamp
+#' Remove (near) duplicated timestamp
 #'
-#' Function to remove almost duplicated timestamp.
-#' It appears that sometimes, the GPS device relocate at 1 or 2
-#' minute interval. However, the GPS devices are configured to
-#' relocate every day, 8-hours or every hour for some
-#' individuals, at fix hours (e.g. 0:00 am, 8:00 am or 4:00 pm).
-#' In addition, it is biologically impossible that the animal
-#' moves several kilometers in one minute. Thus, the relocations
-#' having a time interval in the order of minutes or very high
-#' movement rates are more prone
-#' to be 'outliers'.
-#'
-#' I noted that sometimes there could be several subsequent "outliers"
-#' thus the cleaning function is repeated several times until there are no "outliers" anymore
+#' Function to remove almost duplicated timestamps. Occasionally the GPS device 
+#' transmits locations at 1 or 2 minute intervals despite the duty cycle being 
+#' set to 1 day, 8 hours, or - at most - 2 hours.  This leads notably to highly 
+#' unrealistic speeds (e.g. several kilometers in one minute). This function 
+#' flags locations with very short intervals or unrealistic speeds as outliers.  
 
 #' @param df a data frame containing columns: ID as individual identifiant,
 #' x and y: relocations of individuals (in a metric system)
@@ -21,9 +13,7 @@
 #' @param max.speed threshold (in km/hour) for removing outliers.  Default: 50 km/hr
 #' @param min.interval threshold (in minutes) for mininum intervals between location. Default: 2 min.
 #' 
-#'
-#' @return The function returns adds a column "outlier". If TRUE, it means that 
-#' the location has been identified as an outlier.
+#' @return The original data frame with an additional column labeled "outlier". 
 #' @example examples/example_removeOutliers.R
 #'
 #' @export

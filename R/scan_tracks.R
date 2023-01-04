@@ -1,4 +1,4 @@
-#' Scan Multiple Tracks at a Glance
+#' Scan Multiple Movement Tracks at a Glance
 #'
 #' Takes list of individual (simple feature) tracks, and plots their tracks.
 #' Useful, e.g., for comparing proximity of animals. Includes a feature which computes
@@ -14,7 +14,7 @@
 #' @param legend whether or not to add a legend
 #' @param legend.pos location of legend
 #' @param ... additional parameters to pass to legend function
-#'
+#' @example examples/example_scan_tracks.R
 #' @return If plotdistance = TRUE, returns the pairwise distance data frame.
 #' @export
 
@@ -53,6 +53,7 @@ scan_tracks <- function(x,
     if(time.col != "Time") xy.df[,time.col] <- NULL
     if(id.col != "ID") xy.df[,id.col] <- NULL
   }
+  xy.df$ID <- factor(xy.df$ID)
   xy.df <- droplevels(xy.df)
   ids <- levels(xy.df$ID)
   if(is.null(colors)) colors <- 1:length(ids)

@@ -9,9 +9,9 @@
 #' on 3 different periods: pre-calving, calving, post-recovery.
 
 #' @param df a data frame containing columns: the daily ranging area (area), movement rate (speed), day of year (yday) and date (Date)
-#' @param PlotIt to visualize the segmentation
+#' @param drawplot whether to visualize the segmentation
 #' 
-#' @return a dataframe with the dates of the calving period for the year
+#' @return a data frame with the dates of the calving period for the year
 #'
 #' @export
 #' 
@@ -19,10 +19,12 @@
 #' Identifying stationary phases in multivariate time series for highlighting behavioural modes and 
 #' home range settlements. Journal of Animal Ecology, 89(1), 44–56. https://doi.org/10.1111/1365-2656.13105
 
-getCalvingPeriod <- function(df, PlotIt = TRUE){
+getCalvingPeriod <- function(df, drawplot = TRUE){
   daily_area_movement_clustered <- df %>% 
-    mutate(sqrtarea = sqrt(area)) %>% segclust2d::segclust(Kmax = 3, lmin = 5, ncluster = 3, #type = "behavior",
-                                                           scale.variable = FALSE, seg.var = c("speed","sqrtarea"))
+    mutate(sqrtarea = sqrt(area)) %>% 
+    segclust2d::segclust(Kmax = 3, lmin = 5, ncluster = 3, 
+                         scale.variable = FALSE, 
+                         seg.var = c("speed","sqrtarea"))
   
   # M4_states <- ldply(daily_area_movement_clustered, states)
   daily_area_movement_withstate <- segclust2d::augment(daily_area_movement_clustered) %>% 
@@ -33,7 +35,7 @@ getCalvingPeriod <- function(df, PlotIt = TRUE){
                                   date.start= min(Date), 
                                   date.end = max(Date))
   
-  if(PlotIt){
+  if(drawplot){
     par(mar = c(0,4,0,0), oma = c(4,0,4,2), tck = 0.01, xpd = NA, 
         mgp = c(1.5,.25,0), cex.lab = 1.25, bty = "l")
     print(plotWithStates(daily_area_movement_withstate %>% mutate(y = sqrt(area)),
@@ -56,7 +58,7 @@ plotWithStates <- function(df, cols = 1:3, v1.lab = "x", v2.lab = "y",
   })
   
   require(mixtools)
-  ddply(df, "state", function(mydf){
+  d_ply(df, "state", function(mydf){
     mye <- with(mydf[1,], 
                 mixtools::ellipse(mu = c(mu.speed, mu.sqrtarea), 
                                   sigma = diag(c(sd.speed, sd.sqrtarea)^2), 
@@ -71,7 +73,7 @@ plotWithStates <- function(df, cols = 1:3, v1.lab = "x", v2.lab = "y",
     points(yday, y, col = cols[state], pch = 19)}
   )
   
-  ddply(df, "state", function(mydf){
+  d_ply(df, "state", function(mydf){
     n <- nrow(mydf)
     with(mydf,{
       polygon(c(yday, yday[n:1]), 
@@ -87,7 +89,7 @@ plotWithStates <- function(df, cols = 1:3, v1.lab = "x", v2.lab = "y",
     points(yday, speed, col = cols[state], pch = 19)
   })
   
-  ddply(df, "state", function(mydf){
+  d_ply(df, "state", function(mydf){
     n <- nrow(mydf)
     with(mydf,{
       polygon(c(yday, yday[n:1]), 

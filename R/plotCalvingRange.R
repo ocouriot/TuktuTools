@@ -1,4 +1,4 @@
-#' Parturition model plot function
+#' Plotting calving range
 #'
 #' Function to plot speed pattern of a female with the fitted values estimated by
 #' the parturition.model given the chosen bestmodel.
@@ -31,8 +31,7 @@
 #' 
 #' @export
 
-getCalvingPlot <- function (df, int, kcons, bestmodel) {
-
+plotCalvingRange <- function (df, int, kcons, bestmodel) {
 
   # run the mnll3 for each individual to obtain MLE, AIC for the 3 models
     temp=droplevels(df)
@@ -66,7 +65,7 @@ getCalvingPlot <- function (df, int, kcons, bestmodel) {
 
 
     ####### Making plots of results ##########
-      temp <- droplevels(subset(temp, is.na(speed)==FALSE))
+    temp <- droplevels(subset(temp, is.na(speed)==FALSE))
     if (bestmodel == "nocalf") {   #if the best model is the "didn't calve model", plot a flat line
 
         p1 <- ggplot(temp,aes(Time,speed, color = yday),show.legend = FALSE) +
@@ -162,5 +161,4 @@ getCalvingPlot <- function (df, int, kcons, bestmodel) {
       } # end if calf death statement
 
     ggpubr::ggarrange(p1, p2, ncol = 2)
-
 }

@@ -1,17 +1,11 @@
 require(TuktuTools)
 data(simulated_migrations)
-# contains a data frame (simulated_migrations) and a POINTS simple features
-# (simulated_migrations.sf)
 
-ids <- levels(unique(simulated_migrations$ID))
-n.ids <- length(ids)
+# latitude longitude
+scan_tracks(simulated_migrations, legend  = TRUE)
 
-require(viridis)
-palette(viridis(n.ids))
-scan_tracks(simulated_migrations.sf, legend = TRUE)
-scan_tracks(simulated_migrations %>% mutate(Time = yday(Time)))
+# Use the simple feature version, with names in the legend
+simulated_migrations.sf %>% 
+  scan_tracks(id.col = "Name", colors = rainbow(18),
+              legend= TRUE, legend.pos = "topleft")
 
-
-x <- bathurst_clipped %>% subset(Year == 2018)
-  
-scan_tracks()
