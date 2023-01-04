@@ -10,7 +10,8 @@
 
 #' @param df a data frame containing columns: the daily ranging area (area), movement rate (speed), day of year (yday) and date (Date)
 #' @param drawplot whether to visualize the segmentation
-#' 
+#' @param min.duration minimum duration of segment
+#' @param ... additional parameters to pass to plot function (e.g. xlim and ylim)
 #' @return a data frame with the dates of the calving period for the year
 #'
 #' @export
@@ -19,14 +20,14 @@
 #' Identifying stationary phases in multivariate time series for highlighting behavioural modes and 
 #' home range settlements. Journal of Animal Ecology, 89(1), 44–56. https://doi.org/10.1111/1365-2656.13105
 
-getCalvingPeriod <- function(df, drawplot = TRUE){
+getCalvingPeriod <- function(df, drawplot = TRUE, min.duration = 5, ...){
   daily_area_movement_clustered <- df %>% 
     mutate(sqrtarea = sqrt(area)) %>% 
-    segclust2d::segclust(Kmax = 3, lmin = 5, ncluster = 3, 
-                         scale.variable = FALSE, 
+    segclust2d::segclust(Kmax = 3, lmin = min.duration, ncluster = 3, 
+                         scale.variable = TRUE,
+                         sameSigma = FALSE, 
                          seg.var = c("speed","sqrtarea"))
   
-  # M4_states <- ldply(daily_area_movement_clustered, states)
   daily_area_movement_withstate <- segclust2d::augment(daily_area_movement_clustered) %>% 
     mutate(state = (1:3)[match(state, unique(state))])
   
@@ -38,21 +39,21 @@ getCalvingPeriod <- function(df, drawplot = TRUE){
   if(drawplot){
     par(mar = c(0,4,0,0), oma = c(4,0,4,2), tck = 0.01, xpd = NA, 
         mgp = c(1.5,.25,0), cex.lab = 1.25, bty = "l")
-    print(plotWithStates(daily_area_movement_withstate %>% mutate(y = sqrt(area)),
+    plotWithStates(daily_area_movement_withstate %>% mutate(y = sqrt(area)),
                          cols = c("blue","tomato","forestgreen"), 
                          v2.lab = expression(sqrt(area)),
-                         v1.lab = "daily displacement (m)"))
+                         v1.lab = "daily displacement (m)",  ...)
   }
   
   return(calving_season)
 }
 
 plotWithStates <- function(df, cols = 1:3, v1.lab = "x", v2.lab = "y", 
-                           main = df$Year[1]){
+                           main = df$Year[1], xlim =  c(-10,1400), ylim = c(-10,550)){
   layout(rbind(1:2,c(1,3)))
   with(df,{ 
     plot(speed, y, type = "o", col = "grey", xlab = v1.lab, ylab = v2.lab,
-         ylim = c(-10,550), xlim = c(-10,1400))
+         ylim = ylim, xlim = xlim)
     points(speed, y, col = cols[state], pch = 19)
     mtext(main, side = 3, at = min(speed), cex = 1.5, line = .5)
   })
@@ -69,7 +70,7 @@ plotWithStates <- function(df, cols = 1:3, v1.lab = "x", v2.lab = "y",
   
   with(df, {
     plot(yday, y, type = "o", col = "grey", xlab = "", 
-         ylab = v2.lab, xaxt ="n",ylim = c(0,500))
+         ylab = v2.lab, xaxt ="n", ylim = ylim)
     points(yday, y, col = cols[state], pch = 19)}
   )
   
@@ -85,7 +86,7 @@ plotWithStates <- function(df, cols = 1:3, v1.lab = "x", v2.lab = "y",
   
   with(df, {
     plot(yday, speed, type = "o", col = "grey", 
-         xlab = "day of year", ylab = v1.lab, ylim = c(0,1300))
+         xlab = "day of year", ylab = v1.lab, ylim = xlim)
     points(yday, speed, col = cols[state], pch = 19)
   })
   
