@@ -6,27 +6,23 @@ This package containing tools for studying Tuktu (caribou) movement ecology and 
 devtools::install_github("ocouriot/TuktuTools", build_vignettes = TRUE)
 ```
 
-To date, this package contains sets of functions to process and filter data:
+To date, this package contains sets of functions that process, prep, filter and movement data by:
 
-- process data from MoveBank
-- filter data to a specific period of time
-- filter data to a minimum number of fixes per day
-- remove "outliers" fixes (i.e., fixes that are not biologicaly likely for the species)
+- processing data from MoveBank; 
+- filtering data to a specific period of time and/or a minimum number of fixes per day; 
+- removing outliers;
+- `scan_tracks` - visualizes individual paths through time
 
-To analyze spatial patterns, such as:
-- identifying different populations (herds)
-- computing individual movement rates, displacements, speeds
-- estimate individual mean daily location (i.e., the mean x and y coordinates of all the daily locations for a given individual)
-- estimating ranging areas with Local Convex Hulls (LoCoH) or Kernel Utilization Distributions (KUD))
-- estimating daily pairwise distance or pairwise overlap between pairs of individuals
-- identify calving status (non-calving or calving, calving with survival or calving with calf death), as well as calving timing and location for given females. 
+The package also contains functinos that analyze spatial patterns, including:
+- identifying different populations (herds);
+- computing individual movement rates, displacements, speeds;
+- `getDailyMean` - estimates individual mean daily location (i.e., the mean x and y coordinates of all the daily locations for a given individual);
+- estimating ranging areas with Local Convex Hulls (LoCoH) or Kernel Utilization Distributions (KUD));
+- estimating daily pairwise distance or pairwise overlap between pairs of individuals;
+- identifying calving status (non-calving or calving, calving with survival or calving with calf death), calving timing, and calving location for given females (see vignette link below); 
+- identifying calving ranges from herd-level statistics.  
 
-
-The package also contains functions to visualize movement data:
-- a function to visualize individual paths through time
-- a function to download the map of a defined area as a raster
-
-Finally, the package contains data for 4 individual caribou as well as a vignette (the first in a series), on estimating parturition dates. See
+Finally, the package contains anonymized data for 4 individual caribou as well as a vignette (the first in a series), on [estimating parturition dates](https://htmlpreview.github.io/?https://github.com/ocouriot/TuktuTools/blob/main/doc/estimating_parturition.html). 
 
 ```
 require(TuktuTools)
