@@ -1,11 +1,12 @@
-#' Plotting calving range
+#' Plotting calving
 #'
 #' Function to plot speed pattern of a female with the fitted values estimated by
 #' the parturition.model given the chosen bestmodel.
 #' among 'nocalf', 'calf', 'calfdeath'
-#' See ?parturition.model for more information about the method
+#' See ?estimateCalving for more information about the method
 #'
-#' The visualization portion of this code is adapted directly from the supplementary materials in Cameron et al. 2018.
+#' The visualization portion of this code is adapted directly from the 
+#' supplementary materials in Cameron et al. 2018.
 #'
 #' @param df a dataframe containing the speed between subsequent relocation of ONE individual,
 #' obtained using `getSpeed`. 
@@ -31,7 +32,7 @@
 #' 
 #' @export
 
-plotCalvingRange <- function (df, int, kcons, bestmodel) {
+plotCalving <- function (df, int, kcons, bestmodel) {
 
   # run the mnll3 for each individual to obtain MLE, AIC for the 3 models
     temp=droplevels(df)
