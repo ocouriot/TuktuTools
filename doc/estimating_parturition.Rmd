@@ -1,0 +1,261 @@
+---
+title: "Estimating caribou calving dates and locations using the TuktuTools Package"
+author: "Ophélie Couriot and Eliezer Gurarie"
+date: "12/14/2022"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{estimating_parturition}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, echo = TRUE, cache  = FALSE,  rmarkdown.html_vignette.check_title = FALSE)
+```
+
+
+# Introduction
+
+This document provides steps to estimate calving (i.e., parturition) status, timing and location, for female barren-ground caribou (*Rangifer tarandus spp.*), by analyzing their movement patterns using functions from the `TuktuTools` package. 
+
+This tool is a refinement of the the "individual-based method" (IBM) developed by DeMars et al (2013) to infer calving status. This method assumes that a female's movement rate drops rapidly when she calves, and that displacements remain low for several days or weeks if the calf survives, since neonates are not able to move as quickly as adults. Calving events are identifiable by a sudden and marked change – or break point – in a female's mean step length (i.e. the distance between two successive relocations). Conversely, if the female loses her calf during the neonatal period, a second break point would occur in the female movement pattern, since the female would recover her pre-calving movement rate abruptly. The method also assumes that non-calving females maintian a constant mean movement rate throughout the entire calving period. 
+
+The DeMars method assumes a regularly sampled time series of observations, since the analysis is performed on step lengths. We adapt the method to account for variability in sample schedules and missing data by performing analyses on movement *rates* (i.e. the distance traveled divided by the interval between observations) instead of on step length. More details on this method can be found in Couriot et al. (*in press*), and users are encouraged to read the paper for a deeper understanding of the methodology. 
+
+
+# TuktuTools
+
+This **preliminary beta version** of the  `TuktuTools` package contains a selection of tools to:
+
+* Clean and process movement data
+* Visualize movement data
+* Analyze spatial patterns
+    + Estimate individual movement rate
+    + Calculate euclidean distance between pairs of individuals
+    + Estimate ranges of an individual or all individuals during a given period using two different methods (LoCoH or KUD)
+    + Discriminate between parturient and non parturient individuals and identify parturition timing and location
+
+In this document, we focus on the `estimateCalving` function, which estimates calving status, timing and location, using an individual based method. We provide the required steps to estimate calving, from data processing and cleaning to identifying calving timing and location. In order to provide concrete examples, the package includes movement data from four females of barren-ground caribou, provided by the Government of the Northwest Territories under agreement *8515-05 DR #607*.
+
+# Estimate calving
+
+```{r LoadLibraries, echo = FALSE, eval = TRUE, results = 'hide'}
+require(TuktuTools)
+require(kableExtra)
+require(ggplot2)
+require(ggthemes)
+require(ggpubr)
+require(ggrepel)
+require(mapview)
+```
+
+The package, currently, can be installed from GitHub and loaded via:
+
+```{r, eval = FALSE}
+devtools::install_github("https://github.com/ocouriot/TuktuTools")
+require(TuktuTools)
+```
+
+The example data are loaded as follows:
+
+```{r}
+data(caribou)
+head(caribou)
+```
+
+Note that the data frame contains a Time column (as POSIX) and ID column, as well as coordinates (Longitude - Latitude) and projected coordinates (x, y). 
+
+## Clean data
+
+The GPS devices are configured to relocate daily, every 8-hours, or hourly for some individuals (e.g. 0:00 am, 8:00 am or 4:00 pm). However, it appears that sometimes the GPS devices relocate at 1 or 2 minute intervals not fitting with the hourly schedule. In addition, it is biologically impossible for an animal to move several kilometers in one minute. Thus, the relocations with a time interval in the order of minutes are more prone to be 'outliers'.
+
+The `removeOutliers` function in this package allows users to clean data prior to analyses. The function flags relocations that are not biologically probable, using the following rules:
+
+* if speed between the fixes is higher than 50 km per hour
+* if time interval between fixes is less than 2 minutes
+* if speed is higher than 20 km per hour and the time interval is less than 10 minutes
+
+### Usage
+
+```{r, eval = FALSE}
+removeOutliers(df, steps = 10)
+```
+
+### Arguments
+
+`df`   a data frame containing columns: ID - individual identifier, x and y coordinates (in a metric system), DateTime - date and time vector (of class POSIXct)
+
+`steps`   if specified, the number of cleaning steps to be performed (default is 10)
+
+
+### Value
+
+The function adds a column "outlier". If TRUE, it means that the location has been identified as an outlier.
+
+### Example
+
+```{r removeOutliers, eval = TRUE}
+# load data
+data(caribou)
+
+# remove potential outliers and keep only females
+caribou.cleaned <- removeOutliers(caribou) %>% subset(!outlier & sex == "f")
+```
+
+
+## Focus on the calving period
+
+After removing potential outliers, we censored and trimmed our data to focus on the calving period, to avoid detecting behaviors other than calving. The calving period has been described to occur between May 19 and July 07 for barren-ground caribou (Cameron et al. 2018). 
+The convenient function `prepData` allows trimming the timeseries to a given period, guaranteeing a minimum number of location fixes a day, and removing individuals with gaps in the data greater than a threshold.
+
+### Usage
+```{r, eval = FALSE}
+prepData(df, start, end, nfixes, dayloss)
+```
+
+### Arguments
+
+`df`   a data frame containing columns: ID_Year - individual identifier per year, x and y coordinates (in a metric system), DateTime - date and time vector (of class POSIXct)
+
+`start`,`end` period of interest start and end dates, formated as character strings in the form "mm-dd" (e.g. "05-19" and  "07-07" for the parturition analysis)
+
+`nfixes`   individuals with fewer than nfixes observations per day over the period of of interest are removed
+
+`dayloss`   individuals with this meany consecutive days with missing locations are removed. 
+
+### Value
+
+A filtered and processed data frame containing movement data for the desired period.
+
+### Example
+
+We focused our analysis on the period between May 19 to July 7, with at least 1 fix per day, and no more that 3 consecutive days of missing data.
+
+```{r prepData, eval = TRUE}
+caribou.prepped <- prepData(caribou.cleaned, 
+                            start = "05-19", end = "07-07", 
+                            nfixes = 1, dayloss = 3)
+```
+
+## Get movement rate 
+
+After we processed, cleaned and filtered movement data, we can analyze movement patterns and estimate calving (i.e. parturition) status, date, location and calf death date and location, if any.
+
+As we adapted the method developed by DeMars et al. (2013), by analyzing movement rate instead of step length. We first calculate the movement rate between subsequent relocation for each individual and each year using the `getSpeed` function.
+
+### Usage
+
+```{r, eval = FALSE}
+getSpeed(df)
+```
+
+### Arguments
+`df` a data frame containing columns: ID - individual identifier, x and y coordinates (in a metric system), Time - date and time vector (of class POSIXct)
+
+### Value
+
+The function adds the following columns to the dataframe:
+* `speed` movement rate between subsequent locations (in meters per hour) 
+* `sl` step length between subsequent locations
+* `dhours` an index of the cumulative time (in hours) from the first to the nth relocation
+* `dt` time lag between subsequent relocation (in hours).
+
+### Example
+
+To obtain the movement rates for the 4 barren-ground caribou females: 
+
+```{r getSpeed, eval = TRUE}
+caribou.mr <- getSpeed(caribou.prepped)
+head(caribou.mr)
+```
+
+The displacements, intervals and speeds all correspond to the step moving towards a given location, hence the `NA` value for the first of the respective rows. 
+
+## Estimate calving status and timing
+
+We can now estimate calving status, calving date, and calf death date, if any, using the `estimateCalving` function. This function determines calving status of a female (no calf, with a calf or lost her calf), calving date and location, and the calf death date and location. 
+
+As stated previously, we adapted the individual based method developed by Demars et al. (2013) with the main change beting that we model movement *rates* (i.e. speeds) rather than step lengths.  Thus, all models assume that speed follows a Gamma distribution and differ in two parameters: shape and scale.  
+
+For the model representing:
+
+1. females that do not calve: the mean movement rate remains constant through the entire calving period;
+2. females that had a calf who survived at least 4 weeks after birth: the mean movement rate is constant before calving, then abruptly drops for calving, creating a break point. After calving, the mean movement rate increases progressively following:
+$(shape_{calving} * (\frac{\overline{shape} - shape_{calving}}{k}) * time) * (scale_{calving} * (\frac{\overline{scale} - scale_{calving}}{k}) * time)$
+where *k* is the number of days required for the calf to achieve adult movement rates. 
+3. females that lose calves: there is an abrupt change in the slope of the post-calving increase, creating a second break point after which the mean speed immediately recovers its pre-calving value. 
+
+The models therefore differ in their number of parameters to estimate: the no calf model has two – shape and scale; the calf model has five – shape and scale before calving, scale at calving, k, and calving date; and the calf death model has six – shape and scale before calving, scale at calving, k, and calving and calf death dates. We used Akaike’s Information Criterion (AIC) model selection and identified the top performing model with the lowest AIC value.
+
+In practice, separating the calf survived vs. calf died models can be challenging, 
+
+### Usage
+```{r, eval = FALSE, echo = TRUE}
+estimateCalving(df, int, kcons, models = c("full", "calfonly"), PlotIt = FALSE, saveplot = FALSE)
+```
+
+### Arguments
+`df`   a dataframe containing the movement rate between subsequent relocation of individuals, as obtained using 'getSpeed'. See ?get.speed for more information on the Data requirements
+
+`int`   integer value indicating the minimum number of days between the beginning of the time series and the first BP (calf birth), the last BP (calf death) and the end of the time series, and between the two BPs. The main reason for this constraint is that a minimum number of data points are required in each section of the time-series to be able to estimate model parameters. We recommend 9 relocations (e.g. 3 days at 3 locations / day).
+
+`kcons` constraints on the recovery parameter *k*, as a vector of the minimum and maximum time it takes the female to recover normal movement rate (in days).  
+
+`models`  either `full` to fit all three models (i.e., no calf, calf and calf death models), or `calfonly` to fit only the no calf and calf models
+
+`drawplot`  if TRUE the function will draw a plot of the movement rate against date with the prediction line of the best model selected (by 'AIC'), among no-calf, calf, calf death based on the actual speed of the female in function of the date
+
+`saveplot` if TRUE, the plot of the best model will be saved (as ggplot objects). 
+
+
+### Value
+
+The function returns a list of 3 data frames:
+`coeffs` containing the best model for each female, selected based on AIC, the AIC of the 3 models (i.e. no calf model, calf model and calf death model) and the negative likelihood of each model.
+`Par` containing the estimated parameters of all the models (0: no calf, 1: calf, 2: calf death)
+`results` containing the best model, for each female, based on AIC, the calving timing and location (if the calf model is the best model), and the mortality timing and location of the calf (if the calf death is the best model).
+
+### Application
+
+Note, the function will analyze all of the caribou separately as below. At the bottom of this vignette, we produce the complete compacted code (just 5 lines) to run the entire analysis. 
+
+```{r estimateParturitions, eval = TRUE, fig.width = 8}
+# Will generate a sample of two different individuals each time
+part <- estimateCalving(df = caribou.mr, int=3, kcons=c(5,21), 
+                        models = "calfonly", drawplot=TRUE, saveplot=FALSE)
+```
+
+The object *`part`* is a list of 3 data frames which show the estimates, summaries and statistics of calving:
+
+Statistics: 
+```{r}
+part$statistics
+```
+
+
+Estimated parameters: 
+```{r}
+part$par
+``` 
+
+Summary of results:
+
+```{r}
+part$results
+```
+
+## Compact R code
+
+In summary, the complete analysis can be forformed with the following few lines of code:
+
+```{r, eval = FALSE}
+require(TuktuTools)
+data(caribou)
+caribou_prepped <- caribou %>% removeOutliers %>% 
+  prepData(start = "05-19", end = "07-07", nfixes = 1, dayloss = 3) %>% getSpeed
+estimateCalving(caribou_prepped, int=3, kcons=c(5,21), models = "calfonly")
+```
+
