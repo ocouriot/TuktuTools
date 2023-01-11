@@ -22,7 +22,7 @@ The package also contains functinos that analyze spatial patterns, including:
 - identifying calving status (non-calving or calving, calving with survival or calving with calf death), calving timing, and calving location for given females (see vignette link below); 
 - identifying calving ranges from herd-level statistics.  
 
-Finally, the package contains anonymized data for 4 individual caribou as well as a vignette (the first in a series), on [estimating parturition dates](https://htmlpreview.github.io/?https://github.com/ocouriot/TuktuTools/blob/main/doc/estimating_parturition.html). 
+Finally, the package contains anonymized data for 4 individual caribou as well as a vignette (the first in a series), on [estimating parturition dates](https://htmlpreview.github.io/?https://github.com/ocouriot/TuktuTools/blob/main/doc/estimating_parturition.html) or by running the following code: 
 
 ```
 require(TuktuTools)
