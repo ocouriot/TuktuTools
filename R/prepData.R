@@ -52,17 +52,20 @@ prepData <- function(df, start, end, nfixes = Inf, dayloss = Inf, restrictive = 
   # those with less fixes per day than nfixes (e.g., 1 for parturition) and missing data for more than
   # dayloss (e.g., 3 for parturition) consecutive days
   
-  tempo2 <- tempo %>% 
+  tempo2 <- tempo %>% droplevels %>%
     ddply(c("ID", "Year"), 
           function(x) x %>% 
             arrange(Time) %>% 
-            mutate(dt = c(NA, as.integer(difftime(Time[2:length(Time)],Time[1:(length(Time)-1)],"hours"))))) %>%
+            mutate(n = length(Time),
+              dt = ifelse(n < 3, NA,
+                               c(NA, as.integer(difftime(Time[2:length(Time)],Time[1:(length(Time)-1)],"hours")))),
+              n = NULL)) %>%
     ddply(c("ID", "Year"), 
           function(x) x %>% 
             mutate(meandt = mean(.$dt, na.rm = TRUE), maxdt = max(.$dt, na.rm = TRUE))) %>% 
       subset(meandt < nfixes*24 & maxdt < dayloss*24) %>% droplevels %>% 
     mutate(start = NULL, end = NULL, start.monitoring = NULL, end.monitoring = NULL, 
-           ID_Year = NULL, dt = NULL, meandt = NULL, maxdt = NULL)
+           ID_Year = NULL, dt = NULL, meandt = NULL, maxdt = NULL) %>% suppressWarnings
   
   # how many individuals have been removed?
   cat(paste0("Period clipped to ", start," - ", end, "\n"))
