@@ -8,7 +8,7 @@
 #' @param method method of kernel overlap
 #' @param ... additional parameters for \code{\link{kerneloverlap}} function - notably "grid"
 #' @return data frame with ID1, ID2 and overlap index.
-#'
+#' @export
 
 getPairwiseOverlaps <- function(sf.list, column = "ID", method = "VI", ...){
   sp.list <- lapply(sf.list, sf::as_Spatial)
