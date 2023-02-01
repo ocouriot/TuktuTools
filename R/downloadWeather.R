@@ -20,12 +20,12 @@
 #' @param {dir} folder to save the file in (default: temporary directory)
 #' 
 #' @examples 
-#' mydata <- downloadDailytemp("AO000066160")
+#' mydata <- downloadWeather("AO000066160")
 #' @export
 #' 
 
 
-downloadDailytemp <- function(station, dir = tempdir(check = TRUE)){
+downloadWeather <- function(station, dir = tempdir(check = TRUE)){
   data("gsn_stations")
   
   url <- "ftp://ftp.ncdc.noaa.gov/pub/data/ghcn/daily/all/"

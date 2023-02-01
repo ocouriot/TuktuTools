@@ -10,6 +10,5 @@ Encoding: UTF-8
 LazyData: false
 Depends: R (>= 4.0.0), lubridate, magrittr, plyr, dplyr, ggplot2, sp, sf
 Suggests: mapview, cluster, move, stringr,  NbClust, tlocoh, segclust2d, adehabitatLT, adehabitatHR, knitr, rmarkdown
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.3
 VignetteBuilder: knitr
-

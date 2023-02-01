@@ -49,7 +49,7 @@ getWeatherAtLocation <- function(longitude, latitude, start, end,
     print(i)
     mystation <- stations_sorted[i]
     mydistance <- distances_sorted[i]
-    mydailytemp <- downloadDailytemp(mystation, dir = dir)
+    mydailytemp <- downloadWeather(mystation, dir = dir)
     
     if(nrow(mydailytemp) > 1){
       contain <- mydailytemp[mydailytemp$Year %in% plant.year,]
