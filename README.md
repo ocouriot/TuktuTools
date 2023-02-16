@@ -1,4 +1,4 @@
-# TuktuTools
+# TuktuTools <img src="man/figures/logo.svg" align="right" height="139" />
 
 This package containing tools for studying Tuktu (caribou) movement ecology and spatial patterns. To install the current version of this package in R:
 
