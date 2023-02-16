@@ -34,7 +34,9 @@ getCalvingPeriod <- function(df, drawplot = TRUE, min.duration = 5, ...){
   calving_season <- daily_area_movement_withstate[,c("yday","Date","state")] %>% 
     subset(state == 2) %>% mutate(start = min(yday), end = max(yday), 
                                   date.start= min(Date), 
-                                  date.end = max(Date))
+                                  date.end = max(Date),
+                                  Date = NULL)
+  calving_season <- calving_season[1,]
   
   if(drawplot){
     par(mar = c(0,4,0,0), oma = c(4,0,4,2), tck = 0.01, xpd = NA, 
