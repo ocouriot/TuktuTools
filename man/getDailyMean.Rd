@@ -4,23 +4,27 @@
 \alias{getDailyMean}
 \title{Calculate Daily Mean}
 \usage{
-getDailyMean(df)
+getDailyMean(x, idcol = "ID", timecol = "Time", ...)
 }
 \arguments{
-\item{df}{a data frame with the ID, the Time (as date and time), the x and y coordinates in metric system, 
+\item{x}{a data frame (or simple feature) with the ID, the Time (as date and time), the x and y coordinates in metric system, 
 and the Lon and Lat coordinates in WGS84}
+
+\item{idcol}{character string of the name of the ID column}
+
+\item{timecol}{character string of the name of the time column}
 }
 \value{
-A data frame with the daily mean locations
+A data frame (or simple feature) with the daily mean locations
 }
 \description{
-Important note - requires a column called "DateTime"
+Calculate Daily Mean
 }
 \examples{
 require(TuktuTools)
 
 data(caribou)
 
-daily_mean <- getDailyMean(caribou)
-head(daily_mean)
+caribou_dailymean <- getDailyMean(caribou)
+head(caribou_dailymean)
 }

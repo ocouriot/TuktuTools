@@ -13,7 +13,11 @@ getKernelUD(sf, percent = 95, grid = 200, ...)
 
 \item{grid}{grid points (default 200, higher than adehabitat's)}
 
-\item{...}{additional parameters to pass to \link{kernelUD}}
+\item{...}{additional parameters to pass to \link{kernelUD}.  Note, 
+in particular, that \code{method = "epa"}}
+}
+\value{
+A simple feature polygon of the kernel area
 }
 \description{
 wrapper for \link{kernelUD} in adehabitatLT that returns a given UD
