@@ -1,0 +1,117 @@
+---
+title: "Analysis of Caribou Movements and Geospatial Covariates with the TuktuTools R Package"
+author: "Eliezer Gurarie and Ophélie Couriot"
+date: "`r Sys.Date()`"
+output: html_document:
+  number_sections: yes
+    toc: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval = TRUE)
+```
+
+# Introduction
+
+During this workshop, we will demonstrate the `TuktuTools` package, which has been developed for studying Tuktu (caribou) movement ecology and spatial patterns. 
+
+To date, this package contains sets of functions that prep and filter movement data:
+
+- `process_moveNWT` - process data from Movebank;
+- `removeoutliers` - flags fixes considered as *outliers*;
+- `prepData` - prepares and filters data to a specific period of time and/or a minimum number of fixes per day; 
+- `scan_tracks` - visualizes individual paths through time
+
+The package also contains functions that analyze spatial patterns, including:
+- `getSpeed` - computes individual movement rates, displacements, speeds;
+- `getDailyMean` - estimates individual mean daily location (i.e., the mean x and y coordinates of all the daily locations for a given individual);
+- `getLoCoH` and `getKernelUD` - estimate ranging areas with Local Convex Hulls (LoCoH) or Kernel Utilization Distributions (KUD));
+- `getPairwiseDistance` and `getPairwiseOverlap` - estimate daily pairwise distance or pairwise overlap between pairs of individuals;
+- `estimateCalving` - estimate calving status (non-calving or calving, calving with survival or calving with calf death), calving timing, and calving location for given females, using movement rate; 
+- `estimateMigration_stan` - estimates population-level migration timing using STAN
+
+The package contains the following data:
+
+- `caribou` - anonymized movement data for 4 individual Barren-ground caribou;
+- `simulated_migrations` - simulated movement tracks for 18 individuals
+
+# Installation
+
+To install the current version of this package in R:
+
+```{r, eval = FALSE}
+install.packages("devtools")
+
+devtools::install_github("ocouriot/TuktuTools", build_vignettes = TRUE)
+```
+
+
+# Chapter 1: Data and Vizualisation
+
+## Data
+
+The `TuktuTools` package contains movement data from 4 caribou individuals, which have been anonymized.
+The package also contains data from 18 simulated tracks.
+
+```{r}
+require(TuktuTools)
+data(package = 'TuktuTools')
+data(caribou)
+```
+
+## Prepare and filter data
+
+
+
+## Vizualise data
+
+### Using `scan_track`
+
+### Vizualisation on a map
+
+```{r}
+# transform the dataset in a simple feature object (projected object)
+caribou_sf <- caribou %>% st_as_sf(coords=c("Lon", "Lat"), crs = 4326)
+
+# download the map using the basemaps::basemap_raster
+bbox <- st_bbox(caribou_sf) + c(-1,-1,1,1)
+map <- basemaps::basemap_raster(ext = bbox, map_service = "osm", map_type = "topographic", map_res = 2)
+
+# create lines for each individual during summer only after 2006
+# transform in crs: 3857 (same as the map for plotting)
+lines <- caribou_sf %>% 
+  group_by(ID) %>% arrange(Time) %>%
+  summarize(do_union = FALSE) %>%
+  st_cast("LINESTRING") %>% st_transform(3857)
+  
+# add colors using viridis
+library(viridis)
+cols <- data.frame(ID = unique(caribou_sf$ID),
+                   cols = viridis(length(unique(caribou_sf$ID))))
+lines <- lines %>% merge(cols, by = "ID")
+
+# Draw the map and add the individuals tracks with legend
+raster::plotRGB(map, asp = 1, alpha = 100)
+plot(st_geometry(lines), add = TRUE, col = alpha(lines$cols, alpha = .6), lwd = 2)
+legend("right", legend = cols$ID, 
+     col = cols$cols,
+     lwd = 2,  ncol=1)
+```
+
+
+
+# Chapter 2: Basic analysis using TuktuTools
+
+## Get the daily mean location
+
+## Get the daily movement rate
+
+## Get the individuals' Kernel Utilization Distribution
+
+## Get the individuals' Local Convex Hull (LoCoH)
+
+
+# Chapter 3: Estimating parturition time and location
+
+
+# Chapter 4: Estimating migration with STAN
