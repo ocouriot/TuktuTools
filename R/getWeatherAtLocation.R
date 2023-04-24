@@ -8,7 +8,9 @@
 #' the corresponding meteostation. 
 #' 
 #' @param {longitude,latitude} longitude and latitude of the known geographical location
-#' @param start first year of observation.  The function will keep widening its search radius until it finds a station with data reaching back to the startyear.  Also, the returned data will only reach back to the start year. 
+#' @param start first year of observation.  The function will keep widening its 
+#' search radius until it finds a station with data reaching back to the startyear.  
+#' Also, the returned data will only reach back to the start year. 
 #' @param end last year of observations. 
 #' @param threshold distance within which to limit search for weather stations (default 200 km)
 #' @param dir directory to store the raw observations 
@@ -18,8 +20,6 @@
 #' 
 #' @export
 #' 
-
-
 
 getWeatherAtLocation <- function(longitude, latitude, start, end, 
                                  threshold = 200, 
@@ -42,22 +42,18 @@ getWeatherAtLocation <- function(longitude, latitude, start, end,
   stations_sorted  <-  gsn_close$station[order(distances[distances < threshold])]
   distances_sorted <- sort(distances[distances < threshold])
   
-  
   plant.year <- c(start:end)
   dailytemp_1 <- data.frame()
   for(i in 1:length(stations_sorted)){
-    print(i)
     mystation <- stations_sorted[i]
+    print(paste(i, mystation))
+    
     mydistance <- distances_sorted[i]
     mydailytemp <- downloadWeather(mystation, dir = dir)
     
-    if(nrow(mydailytemp) > 1){
+    if(nrow(mydailytemp) > 1 & any(mydailytemp$Year %in% plant.year)){
       contain <- mydailytemp[mydailytemp$Year %in% plant.year,]
-      
-      if (nrow(contain)>1){
-        dailytemp_1 <- gtools::smartbind(dailytemp_1, contain)
-      }
-      
+      dailytemp_1 <- gtools::smartbind(dailytemp_1, contain)
       ds <- min(dailytemp_1$Year) 
       de <- max(dailytemp_1$Year) 
       cat(paste0("The ", i, "th closest station is ", mystation, 
@@ -66,18 +62,12 @@ getWeatherAtLocation <- function(longitude, latitude, start, end,
       
       plant.year <- plant.year[!(plant.year %in% dailytemp_1$Year)]
       
+      tempfiles <- list.files(dir, pattern = "raw")
+      if(!keep.raw) for(f in tempfiles) try(file.remove(paste0(dir,"\\",f)))
+      dailytemp_1[,c("Tmin","Tmax","Tavg", "prcp")] <- 
+        apply(dailytemp_1[,c("Tmin","Tmax","Tavg", "prcp")], 2, 
+              function(x){ x[x < -999] <- NA; x})
     }
-    tempfiles <- list.files(dir, pattern = "raw")
-    if(!keep.raw) for(f in tempfiles) try(file.remove(paste0(dir,"\\",f)))
-    
-    if(length(plant.year)==0){
-      return(dailytemp_1)
-    }
-    dailytemp_1[,c("Tmin","Tmax","Tavg", "prcp")] <- 
-      apply(dailytemp_1[,c("Tmin","Tmax","Tavg", "prcp")], 2, 
-            function(x){ x[x < -999] <- NA; x})
-  }
-  return(data.frame(Station = NA, Year = NA, Month = NA, Day = NA, 
-                    Tmin = NA, Tmax = NA, Tavg = NA))
-  
+  }    
+  return(dailytemp_1)
 }
