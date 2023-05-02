@@ -4,21 +4,28 @@
 \alias{getDailyMean}
 \title{Calculate Daily Mean}
 \usage{
-getDailyMean(x, idcol = "ID", timecol = "Time", ...)
+getDailyMean(x, id.col = "ID", time.col = "Time", ...)
 }
 \arguments{
-\item{x}{a data frame (or simple feature) with the ID, the Time (as date and time), the x and y coordinates in metric system, 
-and the Lon and Lat coordinates in WGS84}
+\item{x}{a data frame or simple feature.}
 
-\item{idcol}{character string of the name of the ID column}
+\item{id.col}{character string of the name of the ID column}
 
-\item{timecol}{character string of the name of the time column}
+\item{time.col}{character string of the name of the time column}
 }
 \value{
-A data frame (or simple feature) with the daily mean locations
+A data frame (or simple feature) with the daily mean locations, the day of year (yday), 
+the year, and otherwise all continuous variables averaged, and all discrete data reduced to the 
+first observation. A data frame will return a data frame, a simple feature will return a simple 
+feature conserving the original projection.
 }
 \description{
-Calculate Daily Mean
+This function takes any large mvoement dataset and return the daily mean locations 
+for each individual for each day for each year of observations.
+}
+\details{
+Every continuous variable (X, Y, Lon, Lat, Time) will be averaged for each day.  Every factor 
+or character vector will be reduced to a single (first) observation.
 }
 \examples{
 require(TuktuTools)

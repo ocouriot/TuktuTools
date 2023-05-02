@@ -1,47 +1,43 @@
 #' Calculate Daily Mean
 #' 
+#' This function takes any large mvoement dataset and return the daily mean locations 
+#' for each individual for each day for each year of observations. 
 #' 
+#' @details Every continuous variable (X, Y, Lon, Lat, Time) will be averaged for each day.  Every factor 
+#' or character vector will be reduced to a single (first) observation.
 #' 
-#' @param x a data frame (or simple feature) with the ID, the Time (as date and time), the x and y coordinates in metric system, 
-#' and the Lon and Lat coordinates in WGS84
-#' @param idcol character string of the name of the ID column 
-#' @param timecol character string of the name of the time column
-#' @return A data frame (or simple feature) with the daily mean locations
+#' @param x a data frame or simple feature.  
+#' @param id.col character string of the name of the ID column 
+#' @param time.col character string of the name of the time column
+#' @return A data frame (or simple feature) with the daily mean locations, the day of year (yday), 
+#' the year, and otherwise all continuous variables averaged, and all discrete data reduced to the 
+#' first observation. A data frame will return a data frame, a simple feature will return a simple 
+#' feature conserving the original projection. 
 #' 
 #' @example examples/example_getDailyMean.R
 #' 
 #' @export
 
-# getDailyMean <- function(df){
-#   df_mean <- df %>% as.data.frame %>%
-#     plyr::mutate(yday = lubridate::yday(Time), Year = year(Time)) %>%
-#     group_by(ID, Year, yday, .add = TRUE) %>%
-#     summarize(x = ifelse(is.null(x), NA, mean(x, na.rm = TRUE)), y = ifelse(is.null(y), NA, mean(y, na.rm = TRUE)), Time = mean(Time),
-#               Lon = ifelse(is.null(Lon), NA, mean(Lon, na.rm = TRUE)), Lat = ifelse(is.null(Lat), NA, mean(Lat, na.rm = TRUE))) %>%
-#     ungroup %>% as.data.frame
-#   df_mean
-# }
-
-
-getDailyMean <- function(x, idcol = "ID", timecol = "Time", ...){
+getDailyMean <- function(x, id.col = "ID", time.col = "Time", ...){
   
   if(inherits(x, "sf")){
     x.sf <- x
     x$X <- st_coordinates(x.sf)[,1]
     x$Y <- st_coordinates(x.sf)[,2]
   } else x.sf <- NULL
-  
-  
+
   x_dailymean <- x %>% as.data.frame %>%
-    plyr::mutate(yday = lubridate::yday(get(timecol)), Year = year(get(timecol))) %>%
-    group_by(get(idcol), Year, yday, .add = TRUE) %>%
+    plyr::mutate(yday = lubridate::yday(get(time.col)), 
+                 Year = year(get(time.col)),
+                 ID = get(id.col)) %>%
+    group_by(ID, Year, yday, .add = TRUE) %>%
     summarize(across(where(is.numeric), ~ mean(.x, na.rm = TRUE)),
-              across(where(is.factor), ~ unique(.x)),
-              across(where(is.character), ~ unique(.x)),
+              across(where(is.factor), ~ head(.x,1)),
+              across(where(is.character), ~ head(.x,1)),
               across(where(is.POSIXct), ~ mean(.x, na.rm = TRUE))) %>%
     ungroup %>% as.data.frame
   
-  names(x_dailymean)[names(x_dailymean) == "get(idcol)"] <- idcol
+  if(id.col != "ID") x_dailymean$ID <- NULL 
   
   if(!is.null(x.sf)) 
     x_dailymean <- st_as_sf(x_dailymean, coords = c("X","Y"),  crs = st_crs(x.sf))
