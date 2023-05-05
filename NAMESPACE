@@ -3,7 +3,6 @@
 export(addBioYear)
 export(downloadWeather)
 export(estimateCalving)
-export(fitSpringMigration)
 export(getCalvingPeriod)
 export(getDailyMean)
 export(getDailyRange)
