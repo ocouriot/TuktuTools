@@ -126,7 +126,7 @@ On those figures each line represents the duration of the monitoring (x axis) fo
 
 ### What is the fix rate?
 
-The fix rate, or the time lag between successive locations, can be extracted by using the difftime() function on the Time column. Again, this function needs to be applied to each individual separately. Here, we are subsetting the data set per ID, and applying a function which is adding a column difftime to each subset. Note that since the vector of time difference is smaller than the vector of time, we add a missing value at the beginning of each vector, for each value to represent the difference in time to the previous location.
+The fix rate, or the time lag between successive locations, can be extracted by using the difftime() function on the Time column. Again, this function needs to be applied to each individual separately. Here, we subset the data set per ID, and apply a function which is adding a column difftime to each subset. Note that since the vector of time difference is smaller than the vector of time, we add a missing value at the beginning of each vector, so each value represents the difference in time to the previous location.
 
 ```{r}
 caribou <- caribou %>% ddply("ID", mutate, 
@@ -160,13 +160,13 @@ Now that we know what the data look like, we can prepare and filter them dependi
 Later in this workshop, we will identify calving timing and calving location for each female. Barren-ground caribou calve between mid-May to mid-June. Studies examining calving dates considered data between May 19 and July 7 (@cameronMovementbasedMethodsInfer2018; @couriotContinentalSynchronyLocal2023).
 So let's filter and prepare the data during this period for each individual.
 
-The `prepData` function, from the `TuktuTools` package, allows to filter data for a defined period, using a start date and an end date, irrespective of the year. This function also allows setting an average minimum number of fixes (relocations) per day, which exclude tracks for individuals having fewer daily fixes than this threshold. Finally, it allows defining a maximum number of successive days missing data. The two last parameters are optional. 
+The `prepData` function, from the `TuktuTools` package, allows filtering data for a defined period, using a start date and an end date, irrespective of the year. This function also allows setting an average minimum number of fixes (relocations) per day, which exclude tracks for individuals having fewer daily fixes than this threshold. Finally, it allows defining a maximum number of successive days missing data. The two last parameters are optional. 
 This function returns a data frame filtered as desired, and indicates the number of individual-year that have been excluded.
 
 ```{r}
 caribou_prepped <- prepData(caribou, start = "05-19", end = "07-07")
 ```
-2 individual-year have been excluded. We can compare the individual-year with our original dataset, to know which individuals have been lost.
+2 individual-years have been excluded. We can compare the individual-years with our original dataset, to know which individuals have been lost.
 
 ```{r}
 setdiff(unique((caribou %>% mutate(ID_year = paste(ID, Year, sep = ":")))$ID_year),
@@ -186,7 +186,7 @@ Looking back at this figure, we see it is because those two individuals were not
 
 ## Visualizing data
 
-`TuktuTools` contains a function to visualize animal tracks: `scan_tracks`. It is helpful to see individuals' trajectories, as well as examine the variation of their x and y locations through time.
+`TuktuTools` contains a function to visualize animal tracks: `scan_tracks`. It is helpful to see individuals' trajectories and examine how their x and y locations vary through time.
 Note: to use this function, X,Y columns must be capitalized.
 
 ### Using `scan_track`
@@ -195,7 +195,7 @@ Note: to use this function, X,Y columns must be capitalized.
 scan_tracks(caribou_prepped %>% mutate(X=x, Y=y))
 ```
 
-As individuals are not monitored the same years (and some of them have several years of monitoring), it is difficult to examine the variation of x and y coordinates through time. We can thus apply this function per individual and per year:
+As individuals are not monitored the same years (and some have several years of monitoring), it is difficult to examine the variation of x and y coordinates through time. We can thus apply this function per individual and per year:
 
 ```{r}
 caribou_prepped %>% mutate(X=x, Y=y) %>% ddply(c("ID", "Year"), scan_tracks, legend = TRUE)
@@ -242,15 +242,15 @@ The `mapview` package is really handy, as it creates interactive map, using simp
 mapview::mapview(lines, zcol = "ID")
 ```
 
-We can zoom in and out on the map, as well as click on the lines to have its information.
+We can zoom in and out on the map, as well as click on the lines for information.
 
 # Chapter 2: Basic analysis using TuktuTools
 
-The `TuktuTools` packages offers a range of functions allowing to easily summarize data and estimate movement rate and range distributions.
+The `TuktuTools` packages offers a range of functions to easily summarize data and estimate movement rate and range distributions.
 
 ## Get the daily mean location
 
-The `getDailyMean` function is a function which takes any large movement dataset and return the daily mean locations for each individual for each day for each year of observations.
+The `getDailyMean` function is a function which takes any large movement dataset and returns the daily mean locations for each individual for each day for each year of observations.
 
 Let's calculate the daily mean locations for individuals during the calving period.
 
@@ -265,7 +265,7 @@ This function becomes handy when we are dealing with very large dataset, to homo
 
 The package contains a function which is calculating the movement rate between successive locations for each individual: `getSpeed`.
 
-Calculating the movement rate between successive daily locations. Note that this function calculate movement rate for each individual separately, but if individuals are monitored several years with a break in between (as in this case, since we considered only the calving period), it is essential to apply this function to each individual and year separately!
+Calculating the movement rate between successive daily locations. Note that this function calculates movement rate for each individual separately, but if individuals are monitored several years with a break in between (as in this case, since we considered only the calving period), it is essential to apply this function to each individual and year separately!
 
 ```{r}
 daily_mr <- caribou_daily_mean %>% 
