@@ -20,7 +20,7 @@ first observation. A data frame will return a data frame, a simple feature will 
 feature conserving the original projection.
 }
 \description{
-This function takes any large mvoement dataset and return the daily mean locations 
+This function takes any large movement dataset and return the daily mean locations 
 for each individual for each day for each year of observations.
 }
 \details{
