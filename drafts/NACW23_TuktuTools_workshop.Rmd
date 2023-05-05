@@ -15,9 +15,9 @@ knitr::opts_chunk$set(echo = TRUE, eval = TRUE)
 
 During this workshop, we will demonstrate the `TuktuTools` package, which has been developed for studying Tuktu (caribou) movement ecology and spatial patterns. 
 
-To date, this package contains sets of functions that prep and filter movement data:
+To date, this package contains functions that prep and filter movement data:
 
-- `process_moveNWT` - process data from Movebank;
+- `process_moveNWT` - processes data from Movebank;
 - `removeoutliers` - flags fixes considered as *outliers*;
 - `prepData` - prepares and filters data to a specific period of time and/or a minimum number of fixes per day; 
 - `scan_tracks` - visualizes individual paths through time
@@ -25,9 +25,9 @@ To date, this package contains sets of functions that prep and filter movement d
 The package also contains functions that analyze spatial patterns, including:
 - `getSpeed` - computes individual movement rates, displacements, speeds;
 - `getDailyMean` - estimates individual mean daily location (i.e., the mean x and y coordinates of all the daily locations for a given individual);
-- `getLoCoH` and `getKernelUD` - estimate ranging areas with Local Convex Hulls (LoCoH) or Kernel Utilization Distributions (KUD));
-- `getPairwiseDistance` and `getPairwiseOverlap` - estimate daily pairwise distance or pairwise overlap between pairs of individuals;
-- `estimateCalving` - estimate calving status (non-calving or calving, calving with survival or calving with calf death), calving timing, and calving location for given females, using movement rate; 
+- `getLoCoH` and `getKernelUD` - estimates ranging areas with Local Convex Hulls (LoCoH) or Kernel Utilization Distributions (KUD);
+- `getPairwiseDistance` and `getPairwiseOverlap` - estimates daily pairwise distance or pairwise overlap between pairs of individuals;
+- `estimateCalving` - estimates calving status (non-calving or calving, calving with survival or calving with calf death), calving timing, and calving location for given females, using movement rate; 
 - `estimateMigration_stan` - estimates population-level migration timing using STAN
 
 The package contains the following data:
@@ -85,7 +85,7 @@ They are all females.
 
 ### What is the range and duration of their monitoring? 
 
-What are the years of monitoring for each individual?
+What are the years each individual was monitored?
 
 ```{r}
 with(caribou, unique(data.frame(ID, Year)))
@@ -110,7 +110,7 @@ ggplot(n.summary, aes(y = ID, xmin = start, xmax = end)) +
     geom_linerange() 
 ```
 
-When there are a lot of individuals (sometimes hundreds), It may make more sense to sort the individuals not alphabetically, but by the time of release. Here’s an approach:
+When there are multiple individuals (sometimes hundreds), It may make more sense to sort the individuals not alphabetically, but by the time of capture. Here’s an approach:
 
 ```{r}
 n.summary <- caribou %>% group_by(ID) %>% 
@@ -139,7 +139,7 @@ What are the statistics (min, max, mean, median, …) of this fix rate?
 ```{r}
 caribou$dtime %>% summary
 ```
-On average, the fix rate is ~4 hours (median is 8 hours), the smallest one is 1 minute and the biggest one is 160 hours, or ~ 7 days.
+On average, the fix rate is ~4 hours (median is 8 hours), the shortest fix is 1 minute and the longest is 160 hours, or ~ 7 days.
 
 Which animal is it and when did it occur?
 
@@ -160,8 +160,8 @@ Now that we know what the data look like, we can prepare and filter them dependi
 Later in this workshop, we will identify calving timing and calving location for each female. Barren-ground caribou calve between mid-May to mid-June. Studies examining calving dates considered data between May 19 and July 7 (@cameronMovementbasedMethodsInfer2018; @couriotContinentalSynchronyLocal2023).
 So let's filter and prepare the data during this period for each individual.
 
-The `prepData` function, from the `TuktuTools` package, allows to filter data for a defined period, using a start date and an end date, irrespective of the year. Thus function also allows to set a minimum average amount of fixes (relocations) per day, which exclude tracks for individuals having less fixes per day than this threshold. Finally, it allows to determine a maximum number of successive days having missing data. The two last parameters are optional. 
-This function returns a data frame filtered as desired, and indicate the number of individual-year that have been excluded.
+The `prepData` function, from the `TuktuTools` package, allows to filter data for a defined period, using a start date and an end date, irrespective of the year. This function also allows setting an average minimum number of fixes (relocations) per day, which exclude tracks for individuals having fewer daily fixes than this threshold. Finally, it allows defining a maximum number of successive days missing data. The two last parameters are optional. 
+This function returns a data frame filtered as desired, and indicates the number of individual-year that have been excluded.
 
 ```{r}
 caribou_prepped <- prepData(caribou, start = "05-19", end = "07-07")
@@ -182,12 +182,12 @@ ggplot(n.summary, aes(y = ID, xmin = start, xmax = end)) +
     geom_linerange() 
 ```
 
-Looking back at this figure, we see that it is because those two individuals were not monitored during the calving period those years.
+Looking back at this figure, we see it is because those two individuals were not monitored during the calving period those years.
 
 ## Visualizing data
 
-`TuktuTools` contains a function to visualize animal tracks: `scan_tracks`. It is helpful to see individuals' trajectories, as well as examining the variation of their x and y locations through time.
-Note: for using this function, X,Y columns must be capitalized.
+`TuktuTools` contains a function to visualize animal tracks: `scan_tracks`. It is helpful to see individuals' trajectories, as well as examine the variation of their x and y locations through time.
+Note: to use this function, X,Y columns must be capitalized.
 
 ### Using `scan_track`
 
