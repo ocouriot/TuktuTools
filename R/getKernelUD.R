@@ -14,6 +14,9 @@
 #' @export
 
 getKernelUD <- function(sf, percent = 95, grid = 200, ...){
+  if(class(sf)[1] == "data.frame"){
+    sf <- st_as_sf(sf)
+  }
   ll <- st_coordinates(sf)
   ll.sp <- SpatialPoints(coords = ll)
   ll.kernel <- adehabitatHR::kernelUD(ll.sp, grid = grid, ...) %>% 

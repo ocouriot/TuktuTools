@@ -18,6 +18,9 @@
 
 getLoCoH <- function(sf,  nn = 10, level = .95, 
                      ...){
+  if(class(sf)[1] == "data.frame"){
+    sf <- st_as_sf(sf)
+  }
     xy <- sf %>% st_coordinates()
     
     my.lxy <- tlocoh::xyt.lxy(xy=xy,  

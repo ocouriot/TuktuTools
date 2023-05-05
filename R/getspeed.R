@@ -33,7 +33,7 @@ getSpeed <- function(x){
 }
 
 annotateWithSpeeds <- function(df){
-  droplevels(df) %>% arrange(Time) %>% 
+  droplevels(df) %>% dplyr::arrange(Time) %>% 
     mutate(z = x+1i*y, 
            dt = c(NA, difftime(Time[-1], Time[-length(Time)], units = "hours") %>% as.numeric), 
            sl = c(NA, Mod(diff(z))), 

@@ -1,6 +1,6 @@
 #' Calculate Daily Mean
 #' 
-#' This function takes any large mvoement dataset and return the daily mean locations 
+#' This function takes any large movement dataset and return the daily mean locations 
 #' for each individual for each day for each year of observations. 
 #' 
 #' @details Every continuous variable (X, Y, Lon, Lat, Time) will be averaged for each day.  Every factor 
@@ -40,6 +40,6 @@ getDailyMean <- function(x, id.col = "ID", time.col = "Time", ...){
   if(id.col != "ID") x_dailymean$ID <- NULL 
   
   if(!is.null(x.sf)) 
-    x_dailymean <- st_as_sf(x_dailymean, coords = c("X","Y"),  crs = st_crs(x.sf))
+    x_dailymean <- st_as_sf(x_dailymean, coords = c("x","y"),  crs = st_crs(x.sf))
   x_dailymean
 }

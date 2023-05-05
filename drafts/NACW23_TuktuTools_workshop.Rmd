@@ -246,16 +246,39 @@ We can zoom in and out on the map, as well as click on the lines to have its inf
 
 # Chapter 2: Basic analysis using TuktuTools
 
+The `TuktuTools` packages offers a range of functions allowing to easily summarize data and estimate movement rate and range distributions.
+
 ## Get the daily mean location
 
+The `getDailyMean` function is a function which takes any large movement dataset and return the daily mean locations for each individual for each day for each year of observations.
+
+Let's calculate the daily mean locations for individuals during the calving period.
+
+```{r}
+caribou_daily_mean <- getDailyMean(caribou_prepped)
+head(caribou_daily_mean)
+```
+This function becomes handy when we are dealing with very large dataset, to homogenize data, by having one location per day for each individual, and do further analyses not requiring a fine fix rate.
 
 
 ## Get the daily movement rate
 
-## Get the individuals' Kernel Utilization Distribution
+The package contains a function which is calculating the movement rate between successive locations for each individual: `getSpeed`.
 
-## Get the individuals' Local Convex Hull (LoCoH)
+Calculating the movement rate between successive daily locations. Note that this function calculate movement rate for each individual separately, but if individuals are monitored several years with a break in between (as in this case, since we considered only the calving period), it is essential to apply this function to each individual and year separately!
 
+```{r}
+daily_mr <- caribou_daily_mean %>% 
+  ddply(c("ID", "Year"), getSpeed)
+head(daily_mr)
+```
+
+We can visualize the movement rate of each individual through time. To have all the individuals on the same figure, we add a column `doy` (i.e, day of year). We also need to create a column for each ID-Year, as some individuals have been monitored several years.
+
+```{r}
+daily_mr <- daily_mr %>% mutate(doy = yday(Time), ID_Year = as.factor(paste(ID, Year, sep = "_")))
+ggplot(data = daily_mr, aes(x = doy, y = speed, group = ID_Year, colour = ID_Year)) + geom_line()
+```
 
 # Chapter 3: Estimating parturition time and location
 
