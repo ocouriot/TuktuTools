@@ -42,5 +42,4 @@ vignettes/*.pdf
 
 *.Rproj
 *.Rbuildignore
-/doc/
 /Meta/

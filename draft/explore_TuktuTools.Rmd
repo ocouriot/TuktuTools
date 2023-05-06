@@ -2,18 +2,25 @@
 title: "Analysis of Caribou Movements with the TuktuTools R Package"
 author: "Ophélie Couriot and Eliezer Gurarie"
 date: "5/5/2023"
-output: rmarkdown::html_vignette
-vignette: >
-  %\VignetteIndexEntry{explore_TuktuTools}
-  %\VignetteEncoding{UTF-8}
-  %\VignetteEngine{knitr::rmarkdown}
+output:
+  html_document:
+    toc: true
+    toc-float: true
 editor_options: 
   chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, eval = TRUE, out.width="100%", dpi=600)
+knitr::opts_chunk$set(echo = TRUE, eval = TRUE, out.width="100%", dpi=100)
 ```
+
+```{r, echo = FALSE, eval = FALSE}
+vignette: >
+  %\VignetteIndexEntry{explore_TuktuTools}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+```
+
 
 # Introduction
 
@@ -45,7 +52,6 @@ To install the current version of this package in R:
 
 ```{r, eval = FALSE}
 install.packages("devtools")
-
 devtools::install_github("ocouriot/TuktuTools", build_vignettes = TRUE)
 ```
 
@@ -57,7 +63,7 @@ devtools::install_github("ocouriot/TuktuTools", build_vignettes = TRUE)
 The `TuktuTools` package contains real movement data from 4 caribou individuals, which have been anonymized.
 The package also contains data of 18 simulated tracks of caribou, during the spring migration.
 
-```{r, message = FALSE}
+```{r, message = FALSE, eval = 1}
 require(TuktuTools)
 data(package = 'TuktuTools')
 ```
@@ -170,6 +176,7 @@ This function returns a data frame filtered as desired, and indicates the number
 ```{r}
 caribou_prepped <- prepData(caribou, start = "05-19", end = "07-07")
 ```
+
 2 individual-year have been excluded. We can compare the individual-year with our original dataset, to know which individuals have been lost.
 
 ```{r}
@@ -330,5 +337,5 @@ We can see that the more nearest neighbors, the less sensitive to avoided areas 
 
 # Chapter 3: Estimating parturition time and location
 
-To estimate parturition time and location, we refined the “individual-based method” (IBM) developed by DeMars et al (2013) to infer calving status. The method is detailed in the `estimating_parturition`vignette of the `TuktuTools` package.
+To estimate parturition time and location, we refined the “individual-based method” (IBM) developed by DeMars et al (2013) to infer calving status. The method is detailed in the `estimating_parturition` vignette of the `TuktuTools` package.
 
