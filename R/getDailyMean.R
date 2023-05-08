@@ -27,11 +27,11 @@ getDailyMean <- function(x, id.col = "ID", time.col = "Time", ...){
   } else x.sf <- NULL
 
   x_dailymean <- x %>% as.data.frame %>%
-    plyr::mutate(yday = lubridate::yday(get(time.col)), 
-                 Year = year(get(time.col)),
+    dplyr::mutate(yday = lubridate::yday(get(time.col)), 
+                 Year = lubridate::year(get(time.col)),
                  ID = get(id.col)) %>%
     group_by(ID, Year, yday, .add = TRUE) %>%
-    summarize(across(where(is.numeric), ~ mean(.x, na.rm = TRUE)),
+    dplyr::summarize(across(where(is.numeric), ~ mean(.x, na.rm = TRUE)),
               across(where(is.factor), ~ head(.x,1)),
               across(where(is.character), ~ head(.x,1)),
               across(where(is.POSIXct), ~ mean(.x, na.rm = TRUE))) %>%
@@ -40,6 +40,6 @@ getDailyMean <- function(x, id.col = "ID", time.col = "Time", ...){
   if(id.col != "ID") x_dailymean$ID <- NULL 
   
   if(!is.null(x.sf)) 
-    x_dailymean <- st_as_sf(x_dailymean, coords = c("x","y"),  crs = st_crs(x.sf))
+    x_dailymean <- st_as_sf(x_dailymean, coords = c("X","Y"),  crs = st_crs(x.sf))
   x_dailymean
 }
