@@ -4,7 +4,7 @@
 \alias{getSpeed}
 \title{get speed}
 \usage{
-getSpeed(x)
+getSpeed(x, id.col = "ID", x.col = "x", y.col = "y", ...)
 }
 \arguments{
 \item{x}{a data frame containing columns: ID as individual identifiant,

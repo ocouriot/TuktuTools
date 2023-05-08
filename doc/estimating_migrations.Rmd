@@ -1,0 +1,71 @@
+---
+title: "Hierarchical estimating of caribou migration"
+author: "Elie Gurarie"
+date: "2023-04-11"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+require(TuktuTools)
+```
+
+These data were simulated to roughly replicate the migrations of Bathurst caribou, using results from a hierarchical migration model in Gurarie et al. 2019. 
+
+Load data
+
+```{r}
+data(simulated_migrations)
+```
+
+
+Some basic visualizations:
+```{r}
+scan_tracks(simulated_migrations, legend = TRUE)
+```
+
+A nicer version with the simple feature
+```{r}
+simulated_migrations.sf %>% 
+  scan_tracks(id.col = "Name", colors = rainbow(18),
+              legend= TRUE, legend.pos = "topleft")
+```
+
+use mapview to see the tracks in projection
+
+```{r}
+require(mapview)
+simulated_migrations.sf %>% group_by(Name) %>% 
+  summarize(do_union=FALSE) %>% st_cast("LINESTRING") %>% 
+  mapview
+```
+
+
+# Fitting migrations
+
+```{r}
+source("../R/estimateMigration_stan.R")
+```
+
+Get initial values:
+
+```{r}
+stan.inits <- getInits(simulated_migrations, t_mean = t.mean, 
+                   dt_mean = dt, plotme = TRUE, chains = 4)
+```
+
+Fit the data
+
+```{r}
+myresults <- try(fitSpringMigration2(mydata, iter = 800, warmup = 600,
+																		 inits = stan.inits, chains = 4,
+																		 directory = directory, 
+																		 filename = filename, 
+																		 squashslope = 1, softslope = 1,
+																		 cores = n.clusters))
+```
+
+Plot the results
