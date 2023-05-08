@@ -1,0 +1,56 @@
+---
+title: "getMovementRate"
+author: "Chloe Beaupre"
+date: "2023-05-08"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Get weather station data
+
+Given a known geographical location, the package contains a function to download the corresponding raw text file of observations for the closest station from "https://www.ncei.noaa.gov/pub/data/ghcn/daily/gsn/", and converts the relevant average, maximum, minimum daily temperature into a dataframe. This function also reports the distance between the given geographical location and the corresponding station: `getWeatherAtLocation`.
+
+The package contains a dataset containing location information for all stations. Let's first map all the stations in the Alaska region where longitude is < -130 and latitude > 60.
+
+```{r mapStations}
+
+data("gsn_stations")
+gsn_stations %>% head
+
+gsn.sf <- st_as_sf(gsn_stations %>% subset(lon < -130 & lat > 60), 
+                   coords = c("lon", "lat")) %>% st_set_crs(4326)
+
+mapview(gsn.sf[,"station"])
+
+```
+
+Let's define our location of interest and plot it to see which stations are nearest.
+
+```{r}
+point <- data.frame(lon = -152.5, lat = 68.25) 
+point.sf <- my_point %>% st_as_sf(coords = c("lon", "lat"), crs = st_crs(4326))
+
+mapview(gsn.sf[,"station"]) + mapview(point.sf, col.regions = "red")
+
+```
+
+Now let's run the function. It takes a few minutes but notice as it runs that it also reports the distance between the given geographical location and the corresponding meteostation.
+
+```{r getWeatherAtLocation}
+
+realWeather <- getWeatherAtLocation(point$lon, point$lat, 
+                          start = 2010, end = 2022) 
+
+# plot avg temperature by year
+require(ggplot2)
+
+realWeather %>% subset(Month == 7,) %>% arrange(Day) %>% 
+  ggplot(aes(Day, Tavg, col = Station)) + 
+  geom_ribbon(aes(ymin = Tmin, ymax = Tmax)) + 
+  geom_point() + geom_path() + facet_wrap(.~Year)
+
+```
+
