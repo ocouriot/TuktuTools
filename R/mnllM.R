@@ -24,7 +24,8 @@
 mnll2M <- function(df, int, kcons){
   
   speed <- na.omit(df$speed)
-  speed[speed == 0] <- 1
+  speed[speed == 0] <- 0.1
+  df$speed[df$speed == 0] <- 0.1
   speedmean <- mean(speed)
   speedvar <- var(speed)
   
@@ -58,7 +59,7 @@ mnll2M <- function(df, int, kcons){
   
   ##
   # M1: Calf survived
-  BPmax <- max(dhours)/24
+  BPmax <- trunc(max(dhours)/24)
   
   if(BPmax-int<=0){
     results[1,"mnllCalf"] <- NA # maximum log-likelihood of the model
@@ -109,7 +110,8 @@ mnll2M <- function(df, int, kcons){
 mnll3M <- function(df, int, kcons){
 
   speed <- na.omit(df$speed)
-  speed[speed == 0] <- 1
+  speed[speed == 0] <- 0.1
+  df$speed[df$speed == 0] <- 0.1
   speedmean <- mean(speed)
   speedvar <- var(speed)
 
@@ -143,7 +145,7 @@ mnll3M <- function(df, int, kcons){
   results[1,"mnllNoCalf"] <- -MLL0
 
   # M1: Calf survived
-  BPmax <- max(dhours)/24
+  BPmax <- trunc(max(dhours)/24)
 
   if(BPmax-int<=0){
     results[1,"mnllCalf"] <- NA # maximum log-likelihood of the model

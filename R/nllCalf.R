@@ -48,6 +48,8 @@ nllCalf <- function(df, BP1, kcons, PlotMe = FALSE) {
   df <- droplevels(subset(df %>% as.data.frame, is.na(speed)==FALSE))
   # speed vector
   speed <- df$speed
+  speed[speed == 0] <- 0.1
+  df$speed[df$speed == 0] <- 0.1
   speed.a <- df$speed[df$dhours <= BP1*24]
   speed.b <- df$speed[df$dhours > BP1*24]
   
@@ -152,6 +154,8 @@ nllCalfDeath <- function(df, BP1, BP2, kcons, PlotMe = FALSE){
   df <- droplevels(subset(df %>% as.data.frame, is.na(speed) == FALSE))
   # speed vector
   speed <- df$speed
+  speed[speed == 0] <- 0.1
+  df$speed[df$speed == 0] <- 0.1
   speed.a <- df$speed[df$dhours <= BP1*24]
   speed.b <- df$speed[df$dhours > BP1*24 & df$dhours <= BP2*24]
   speed.c <- df$speed[df$dhours > BP2*24]

@@ -34,7 +34,7 @@ prepData <- function(df, start, end, nfixes = Inf, dayloss = Inf, restrictive = 
     mutate(Year = year(Time), 
            start = ymd(paste(Year, start), tz = tz(Time)),
            end = ymd(paste(Year, end), tz = tz(Time))) %>%
-    subset(Time >= start & Time < end) %>% 
+    subset(Time >= start & Time < (end + 3600 * 24)) %>% 
     mutate(start = as.Date(start), end = as.Date(end))
   
   # Remove individuals for which monitoring stopped before the end or 
@@ -63,7 +63,7 @@ prepData <- function(df, start, end, nfixes = Inf, dayloss = Inf, restrictive = 
     ddply(c("ID", "Year"), 
           function(x) x %>% 
             mutate(meandt = mean(.$dt, na.rm = TRUE), maxdt = max(.$dt, na.rm = TRUE))) %>% 
-      subset(meandt < nfixes*24 & maxdt < dayloss*24) %>% droplevels %>% 
+      subset(meandt < 24/nfixes & maxdt < dayloss*24) %>% droplevels %>% 
     mutate(start = NULL, end = NULL, start.monitoring = NULL, end.monitoring = NULL, 
            ID_Year = NULL, dt = NULL, meandt = NULL, maxdt = NULL) %>% suppressWarnings
   
