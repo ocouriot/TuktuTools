@@ -74,6 +74,11 @@ prepData <- function(df, start, end, nfixes = Inf, dayloss = Inf, restrictive = 
                length(unique(paste0(tempo2$ID,tempo2$Year))),
              "\n"))
   
+  removed_inds <- setdiff(unique(paste(df$ID,df$Year, sep = " in ")),
+                          unique(paste(tempo2$ID,tempo2$Year, sep = " in ")))
+  cat("Excluded individuals: \n")
+  cat(paste0(removed_inds, "\n"))
+  
   if(class(df)[1] == "sf"){
     tempo2 <- st_as_sf(tempo2, crs = st_crs(df))
   }
