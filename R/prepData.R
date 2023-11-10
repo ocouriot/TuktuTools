@@ -27,7 +27,7 @@
 #' 
 #' @export
 
-prepData <- function(df, start, end, nfixes = Inf, dayloss = Inf, restrictive = FALSE){
+prepData <- function(df, start, end, nfixes = 1, dayloss = Inf, restrictive = FALSE){
 
     # just keep time series between defined start and end
   tempo <- df %>% as.data.frame %>% 
@@ -63,7 +63,7 @@ prepData <- function(df, start, end, nfixes = Inf, dayloss = Inf, restrictive = 
     ddply(c("ID", "Year"), 
           function(x) x %>% 
             mutate(meandt = mean(.$dt, na.rm = TRUE), maxdt = max(.$dt, na.rm = TRUE))) %>% 
-      subset(meandt < 24/nfixes & maxdt < dayloss*24) %>% droplevels %>% 
+      subset(meandt <= 24/nfixes & maxdt <= dayloss*24) %>% droplevels %>% 
     mutate(start = NULL, end = NULL, start.monitoring = NULL, end.monitoring = NULL, 
            ID_Year = NULL, dt = NULL, meandt = NULL, maxdt = NULL) %>% suppressWarnings
   
