@@ -46,10 +46,11 @@
 #' @param kcons vector of the minimum and maximum time it takes the female to recover normal speed (in days)
 #' @param models either "full" to fit all three models (i.e., no calf, calf and calf death models), or 
 #' "calfonly" to fit only the no calf and calf models.
-#' @param drawplot if TRUE, the function will draw a plot of the movement rate in function to the date
-#' with the prediction line of the best model selected by AIC
-#' @param saveplot if TRUE, the plot of the best model will be 
-#' @param dir the directory used to save the plot (e.g., "C://Users/Documents/")
+#' @param drawplot if TRUE, the function will draw plots of the movement rate in function to the date
+#' with the prediction line of the best model selected by AIC, as well as the path of the individual 
+#' with the calving location and a plot of the net square displacement 
+#' in function of time with  a vertical line corresponding to the estimated calving date
+#' 
 #'
 #' @return returns list of 3 dataframes:
 #' `statistics` containing the best model for each female, selected based on AIC, the AIC of the 3 models 
@@ -247,28 +248,57 @@ estimateCalving <- function (df, int, kcons, models = c("full","calfonly"),
     }
    
     
-    ####### if PlotAIC = TRUE statement plots
+    ####### if drawplot = TRUE 
     ####### Making plots of results ##########
     temp <- droplevels(subset(temp, is.na(speed)==FALSE))
     temp <- temp[order(temp$Time),]
     if(drawplot){
       
+      getNSD <- function(df) {
+        df <- df %>% arrange(Time)
+        df$z <- df$x + 1i*df$y
+        df$NSD <- sapply(df$z, function(x) {Mod(diff(c(df$z[1], x)))})
+        return(df)
+      }
+      
+      temp <- temp %>% getNSD
+      
       if (coeffs$Best.Model[coeffs$ID_Year == i] == "nocalf") {   #if the best model is the "didn't calve model", plot a flat line
+        start <- as.data.frame(list(x = temp$x[1], 
+                                    y = temp$y[1]))
         
         p1 <- ggplot(temp,aes(Time,speed,group=1)) +
           geom_line() +
           theme(panel.background = element_blank()) +  #Sets background to white
           geom_hline(aes(yintercept=fit.values.nocalf, group=1, colour=2), show.legend=FALSE, size=1) +
-          labs(x = "Date", y = "Speed (m.h-1)", title = paste("No calf model for",ID_Year, sep = " ")) +
-          theme(axis.line.x = element_line(size = .5,colour = "black",linetype = "solid")) + #add axis lines
-          theme(axis.line.y = element_line(size = .5,colour = "black",linetype = "solid")) + #add axis lines
+          labs(x = "Date", y = "Speed (m.h-1)") +
+          theme(axis.line.x = element_line(linewidth = .5,colour = "black",linetype = "solid")) + #add axis lines
+          theme(axis.line.y = element_line(linewidth = .5,colour = "black",linetype = "solid")) + #add axis lines
           theme(plot.title = element_text(size = 12,face = "bold",margin = margin(10,0,10,0))) +
           ylim(c(0,2500))
         
-        if(saveplot)
-          ggsave(plot = p1, filename=paste0(paste(ID_Year,"no_calving.jpeg",sep="_")), 
-                 width = 8,height = 4,device="jpg") else print(p1)
+        # plot of the NSD
+        p1b <- ggplot(temp, aes(Time, NSD, group = 1)) +
+          geom_line() + theme(panel.background = element_blank()) +  #Sets background to white
+          labs(x = "Date", y = "NSD (m)") +
+          theme(axis.line.x = element_line(linewidth = .5,colour = "black",linetype = "solid")) + #add axis lines
+          theme(axis.line.y = element_line(linewidth = .5,colour = "black",linetype = "solid")) + #add axis lines
+          theme(plot.title = element_text(size = 12,face = "bold",margin = margin(10,0,10,0))) 
         
+        # plot of the path
+        
+      p1c <- ggplot(temp, aes(x, y, group = 1)) +
+        geom_path() +
+        geom_point(data = start, aes(x =x, y = y), colour = "green2", shape  = 17, size  =3) +
+        theme(panel.background = element_blank()) +  #Sets background to white
+        labs(x = "X coordinates", y = "Y coordinates") +
+        theme(axis.line.x = element_line(linewidth = .5,colour = "black",linetype = "solid")) + #add axis lines
+        theme(axis.line.y = element_line(linewidth = .5,colour = "black",linetype = "solid")) + #add axis lines
+        theme(plot.title = element_text(size = 12,face = "bold",margin = margin(10,0,10,0)))
+      
+      print(gridExtra::grid.arrange(p1, p1c, p1b, ncol=3,
+                                    top = grid::textGrob(paste("No calf model for",ID_Year,sep = " " ),
+                                                         gp=grid::gpar(fontsize=20,font=3))))
       } # END plot of the no calf model
       
       
@@ -276,21 +306,46 @@ estimateCalving <- function (df, int, kcons, models = c("full","calfonly"),
         ## Settings for line commands ##
         calve=as.POSIXct(results$BPs[["date.BP1.calf"]])
         
+        start <- as.data.frame(list(x = temp$x[1], 
+                                    y = temp$y[1]))
+        
+        calf.loc <- as.data.frame(list(x = results.summary.temp$calf.loc.x, 
+                                  y = results.summary.temp$calf.loc.y))
         ## Plotting ##
         p2 <- ggplot(temp,aes(Time,speed,group=1)) +
           geom_line() +
           theme(panel.background=element_blank()) +  #Sets background to white
           geom_vline(xintercept=as.numeric(calve),linetype=4,colour="black") + #break point at calving event
           geom_text(aes(x=(calve+2*24*3600),label=calve,y=1500),angle=90,size=4,fontface="italic") + #Labels the calving line with calving date
-          labs(x="Date",y="Speed (m.h-1)",title=paste("Calf model for",ID_Year,sep = " " )) +
-          theme(axis.line.x=element_line(size=.5,colour = "black",linetype = "solid")) + #add axis lines
-          theme(axis.line.y=element_line(size=.5,colour = "black",linetype = "solid")) + #add axis lines
+          labs(x="Date",y="Speed (m.h-1)") +
+          theme(axis.line.x=element_line(linewidth=.5,colour = "black",linetype = "solid")) + #add axis lines
+          theme(axis.line.y=element_line(linewidth=.5,colour = "black",linetype = "solid")) + #add axis lines
           theme(plot.title=element_text(size=12,face="bold",margin = margin(10,0,10,0))) +
           ylim(c(0,2500)) +
           geom_line(aes(as.POSIXct(Time), fit.values.calf, colour=1, group=1), show.legend=FALSE, size=1) #plots predicted values
-        if(saveplot)
-          ggsave(plot= p2, filename=paste0(dir, paste(ID_Year,"Calved.jpeg",sep="_")), 
-                 width = 8,height = 4,device="jpg") else print(p2)
+          
+        # plot of the NSD
+        p2b <- ggplot(temp, aes(Time, NSD, group = 1)) +
+          geom_line() + theme(panel.background = element_blank()) +
+          geom_vline(xintercept=as.numeric(calve),linetype=4,colour="black") + #Sets background to white
+          labs(x = "Date", y = "NSD (m)", title = ID_Year) +
+          theme(axis.line.x = element_line(linewidth = .5,colour = "black",linetype = "solid")) + #add axis lines
+          theme(axis.line.y = element_line(linewidth = .5,colour = "black",linetype = "solid")) + #add axis lines
+          theme(plot.title = element_text(size = 12,face = "bold",margin = margin(10,0,10,0))) 
+        
+        p2c <- ggplot(temp, aes(x, y, group = 1)) +
+          geom_path() +
+          geom_point(data = start, aes(x =x, y = y), colour = "green2", shape  = 17, size  =3) +
+          geom_point(data = calf.loc, aes(x =x, y = y), colour = "red", shape  = 17, size  =3) +
+          theme(panel.background = element_blank()) +  #Sets background to white
+          labs(x = "X coordinates", y = "Y coordinates") +
+          theme(axis.line.x = element_line(linewidth = .5,colour = "black",linetype = "solid")) + #add axis lines
+          theme(axis.line.y = element_line(linewidth = .5,colour = "black",linetype = "solid")) + #add axis lines
+          theme(plot.title = element_text(size = 12,face = "bold",margin = margin(10,0,10,0)))
+        
+        print(gridExtra::grid.arrange(p2, p2c, p2b, ncol=3,
+                                      top = grid::textGrob(paste("Calf model for",ID_Year,sep = " " ),
+                                                           gp=grid::gpar(fontsize=20,font=3))))
       } # END plot of the calf model
       
       
@@ -299,6 +354,10 @@ estimateCalving <- function (df, int, kcons, models = c("full","calfonly"),
         calve=as.POSIXct(results$BPs[["date.BP1.calfdeath"]])
         calf.loss=as.POSIXct(results$BPs[["date.BP2.calfdeath"]])
         
+        start <- as.data.frame(list(x = temp$x[1], 
+                                    y = temp$y[1]))
+        calf.loc <- as.data.frame(list(x = results.summary.temp$calf.loc.x, 
+                                       y = results.summary.temp$calf.loc.y))
         ## Plotting ##
         p3 <- ggplot(temp,aes(Time,speed,group=1)) +
           geom_line() +
@@ -307,15 +366,37 @@ estimateCalving <- function (df, int, kcons, models = c("full","calfonly"),
           geom_text(aes(x=(calve+2*24*3600),label=calve,y=1500),angle=90,size=4,fontface="italic") + #Labels the calving line with calving date
           geom_vline(xintercept=as.numeric(calf.loss),linetype=4,colour="black") + #break point at calf loss event
           geom_text(aes(x=(calf.loss-2*24*3600),label=calf.loss,y=1500),angle=90,size=4,fontface="italic") + #Labels calf loss
-          labs(x="Date",y="Speed (m.h-1)",title=paste("Calf death model for",ID_Year,sep = " " )) +
+          labs(x="Date",y="Speed (m.h-1)") +
           theme(axis.line.x=element_line(size=.5,colour = "black",linetype = "solid")) + #add axis lines
           theme(axis.line.y=element_line(size=.5,colour = "black",linetype = "solid")) + #add axis lines
           theme(plot.title=element_text(size=12,face="bold",margin = margin(10,0,10,0))) +
           ylim(c(0,2500)) +
           geom_line(aes(as.POSIXct(Time), fit.values.calfdeath, colour=1, group=1), show.legend=FALSE, size=1) #plots predicted values
-        if(saveplot)
-          ggsave(plot = p3, filename=paste0(dir, paste(ID_Year,"Calf_loss.jpeg",sep="_")),
-                 width = 8,height = 4,device="jpg") else print(p3)
+        
+        # plot of the NSD
+        p3b <- ggplot(temp, aes(Time, NSD, group = 1)) +
+          geom_line() + theme(panel.background = element_blank()) +
+          geom_vline(xintercept=as.numeric(calve),linetype=4,colour="black") + 
+          geom_vline(xintercept=as.numeric(calf.loss),linetype=4,colour="black") + 
+          labs(x = "Date", y = "NSD (m)") +
+          theme(axis.line.x = element_line(linewidth = .5,colour = "black",linetype = "solid")) + #add axis lines
+          theme(axis.line.y = element_line(linewidth = .5,colour = "black",linetype = "solid")) + #add axis lines
+          theme(plot.title = element_text(size = 12,face = "bold",margin = margin(10,0,10,0))) 
+        
+        p3c <- ggplot(temp, aes(x, y, group = 1)) +
+          geom_path() +
+          geom_point(data = start, aes(x =x, y = y), colour = "green2", shape  = 17, size  =3) +
+          geom_point(data = calf.loc, aes(x =x, y = y), colour = "red", shape  = 17, size  =3) +
+          theme(panel.background = element_blank()) +  #Sets background to white
+          labs(x = "X coordinates", y = "Y coordinates") +
+          theme(axis.line.x = element_line(linewidth = .5,colour = "black",linetype = "solid")) + #add axis lines
+          theme(axis.line.y = element_line(linewidth = .5,colour = "black",linetype = "solid")) + #add axis lines
+          theme(plot.title = element_text(size = 12,face = "bold",margin = margin(10,0,10,0)))
+        
+        
+        print(gridExtra::grid.arrange(p3, p3c, p3b, ncol=3,
+                                      top = grid::textGrob(paste("Calf death model for",ID_Year,sep = " " ),
+                                                           gp=grid::gpar(fontsize=20,font=3))))
       } # End Plot of the calf death model
       
     } # End if drawplot == T
