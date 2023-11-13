@@ -35,7 +35,7 @@
 plotCalving <- function (df, int, kcons, bestmodel) {
 
   # run the mnll3 for each individual to obtain MLE, AIC for the 3 models
-    temp=droplevels(df)
+    temp=droplevels(df %>% as.data.frame)
     temp <- temp[order(temp$Time),]
     ID=unique(temp$ID)
     Year <- unique(temp$Year)
@@ -64,62 +64,95 @@ plotCalving <- function (df, int, kcons, bestmodel) {
       fit.values <- fit$fit
     }
 
-
+    getNSD <- function(df) {
+      df <- df %>% arrange(Time)
+      df$z <- df$x + 1i*df$y
+      df$NSD <- sapply(df$z, function(x) {Mod(diff(c(df$z[1], x)))})
+      return(df)
+    }
+    
+    temp <- temp %>% getNSD
+    
     ####### Making plots of results ##########
     temp <- droplevels(subset(temp, is.na(speed)==FALSE))
+    temp$fit <- fit.values
     if (bestmodel == "nocalf") {   #if the best model is the "didn't calve model", plot a flat line
 
-        p1 <- ggplot(temp,aes(Time,speed, color = yday),show.legend = FALSE) +
-          geom_line(show.legend = FALSE) + scale_color_gradientn(colours = rainbow(5)) +
+        p1 <- ggplot(temp,aes(Time,speed,group=1)) +
+          geom_line() +
           theme(panel.background = element_blank()) +  #Sets background to white
-          geom_hline(aes(yintercept=fit.values, group=1), colour= 'darkblue', show.legend=FALSE, size=1) +
-          labs(x = "Date", y = "Speed (m.h-1)", title = paste0("No calf model for: ", ID , ' in ', Year)) +
-          theme(axis.line.x = element_line(size = .5,colour = "black",linetype = "solid")) + #add axis lines
-          theme(axis.line.y = element_line(size = .5,colour = "black",linetype = "solid")) + #add axis lines
-          theme(plot.title = element_text(size = 16,face = "bold",margin = margin(10,0,10,0))) +
+          geom_line(aes(as.POSIXct(Time), fit, group=1), colour='darkblue', show.legend=FALSE, size=1) +
+          labs(x = "Date", y = "Speed (m.h-1)") +
+          theme(axis.line.x = element_line(linewidth = .5,colour = "black",linetype = "solid")) + #add axis lines
+          theme(axis.line.y = element_line(linewidth = .5,colour = "black",linetype = "solid")) + #add axis lines
+          theme(plot.title = element_text(size = 12,face = "bold",margin = margin(10,0,10,0))) +
           ylim(c(0,2500))
 
-        # plot the individual track
-        p2 <- ggplot(temp,aes(x,y, color = yday)) +
-          geom_path(show.legend = FALSE) + coord_fixed() +
-          scale_color_gradientn(colours = rainbow(5)) +
-          theme(panel.background=element_blank()) +  #Sets background to white
-          labs(x = "X coordinates",
-               y = "Y coordinates") +
-          theme(axis.line.x=element_line(size=.5,colour = "darkgrey",linetype = "solid")) +
-          theme(axis.line.y=element_line(size=.5,colour = "darkgrey",linetype = "solid")) #add axis lines
+        # plot of the path
+        p2 <- ggplot(temp, aes(x, y, group = 1)) +
+          geom_path() +
+          geom_point(data = start, aes(x =x, y = y), colour = "green2", shape  = 17, size  =3) +
+          theme(panel.background = element_blank()) +  #Sets background to white
+          labs(x = "X coordinates", y = "Y coordinates") +
+          theme(axis.line.x = element_line(linewidth = .5,colour = "black",linetype = "solid")) + #add axis lines
+          theme(axis.line.y = element_line(linewidth = .5,colour = "black",linetype = "solid")) + #add axis lines
+          theme(plot.title = element_text(size = 12,face = "bold",margin = margin(10,0,10,0)))
+        
+        # plot of the NSD
+        p3 <- ggplot(temp, aes(Time, NSD, group = 1)) +
+          geom_line() + theme(panel.background = element_blank()) +  #Sets background to white
+          labs(x = "Date", y = "NSD (m)") +
+          theme(axis.line.x = element_line(linewidth = .5,colour = "black",linetype = "solid")) + #add axis lines
+          theme(axis.line.y = element_line(linewidth = .5,colour = "black",linetype = "solid")) + #add axis lines
+          theme(plot.title = element_text(size = 12,face = "bold",margin = margin(10,0,10,0))) 
+
       } # END plot of the no calf model
 
 
       if (bestmodel == "calf"){   #if the best model is the "calf model", plot a single break point
         ## Settings for line commands ##
         calve=as.POSIXct(results$BPs[["date.BP1.calf"]])
-
+        start <- as.data.frame(list(x = temp$x[1], 
+                                    y = temp$y[1]))
+        
+        calf.loc <- as.data.frame(list(x = temp[which.min(abs(as.numeric(difftime(temp$Time,calve,units = "secs"))))+1,
+                                                c("x")][1], 
+                                       y = temp[which.min(abs(as.numeric(difftime(temp$Time,calve,units = "secs"))))+1,
+                                                c("y")][1]))
+        
         ## Plotting ##
-        p1 <- ggplot(temp,aes(Time,speed, color = yday),show.legend = FALSE) +
-          geom_line(show.legend = FALSE) + scale_color_gradientn(colours = rainbow(5)) +
+        p1 <- ggplot(temp,aes(Time,speed,group=1)) +
+          geom_line() +
           theme(panel.background=element_blank()) +  #Sets background to white
           geom_vline(xintercept=as.numeric(calve),linetype=4,colour="black") + #break point at calving event
-          geom_text(aes(x=(calve+1*24*3600),label=as.Date(calve),y=1500),angle=90,size=3,fontface="italic", colour = 'black') + #Labels the calving line with calving date
-          labs(x="Date",y="Speed (m.h-1)",title=paste0("Calf model for: ", ID , ' in ', Year)) +
-          theme(axis.line.x=element_line(size=.5,colour = "black",linetype = "solid")) + #add axis lines
-          theme(axis.line.y=element_line(size=.5,colour = "black",linetype = "solid")) + #add axis lines
-          theme(plot.title=element_text(size=16,face="bold",margin = margin(10,0,10,0))) +
+          geom_text(aes(x=(calve+2*24*3600),label=calve,y=1500),angle=90,size=4,fontface="italic") + #Labels the calving line with calving date
+          labs(x="Date",y="Speed (m.h-1)") +
+          theme(axis.line.x=element_line(linewidth=.5,colour = "black",linetype = "solid")) + #add axis lines
+          theme(axis.line.y=element_line(linewidth=.5,colour = "black",linetype = "solid")) + #add axis lines
+          theme(plot.title=element_text(size=12,face="bold",margin = margin(10,0,10,0))) +
           ylim(c(0,2500)) +
-          geom_line(aes(x=as.POSIXct(Time), y=fit.values, group=1), colour = 'darkblue', show.legend=FALSE, size=1) #plots predicted values
-
-        # plot the individual track
-        p2 <- ggplot(temp,aes(x,y, color = yday)) +
-          geom_path(show.legend = FALSE) + coord_fixed() +
-          scale_color_gradientn(colours = rainbow(5)) +
-          theme(panel.background=element_blank()) +  #Sets background to white
-          geom_point(aes(x = na.omit(temp[temp$Time == calve,]$x),
-                         y = na.omit(temp[temp$Time == calve,]$y)),
-                     shape=24, fill = 'red', color = 'red', size = 2) + # point at calving event
-          labs(x = "X coordinates",
-               y = "Y coordinates") +
-          theme(axis.line.x=element_line(size=.5,colour = "darkgrey",linetype = "solid")) +
-          theme(axis.line.y=element_line(size=.5,colour = "darkgrey",linetype = "solid")) #add axis lines
+          geom_line(aes(as.POSIXct(Time), fit, group=1), colour = 'darkblue', show.legend=FALSE, size=1) #plots predicted values
+        
+        # plot of the path
+        p2 <- ggplot(temp, aes(x, y, group = 1)) +
+          geom_path() +
+          geom_point(data = start, aes(x =x, y = y), colour = "green2", shape  = 17, size  =3) +
+          geom_point(data = calf.loc, aes(x =x, y = y), colour = "red", shape  = 17, size  =3) +
+          theme(panel.background = element_blank()) +  #Sets background to white
+          labs(x = "X coordinates", y = "Y coordinates") +
+          theme(axis.line.x = element_line(linewidth = .5,colour = "black",linetype = "solid")) + #add axis lines
+          theme(axis.line.y = element_line(linewidth = .5,colour = "black",linetype = "solid")) + #add axis lines
+          theme(plot.title = element_text(size = 12,face = "bold",margin = margin(10,0,10,0)))
+        
+        # plot of the NSD
+        p3 <- ggplot(temp, aes(Time, NSD, group = 1)) +
+          geom_line() + theme(panel.background = element_blank()) +
+          geom_vline(xintercept=as.numeric(calve),linetype=4,colour="black") + #Sets background to white
+          labs(x = "Date", y = "NSD (m)", title = ID_Year) +
+          theme(axis.line.x = element_line(linewidth = .5,colour = "black",linetype = "solid")) + #add axis lines
+          theme(axis.line.y = element_line(linewidth = .5,colour = "black",linetype = "solid")) + #add axis lines
+          theme(plot.title = element_text(size = 12,face = "bold",margin = margin(10,0,10,0))) 
+        
       } # END plot of the calf model
 
 
@@ -127,39 +160,54 @@ plotCalving <- function (df, int, kcons, bestmodel) {
         ## Settings for line commands ##
         calve=as.POSIXct(results$BPs[["date.BP1.calfdeath"]])
         calf.loss=as.POSIXct(results$BPs[["date.BP2.calfdeath"]])
+        
+        start <- as.data.frame(list(x = temp$x[1], 
+                                    y = temp$y[1]))
+        
+        calf.loc <- as.data.frame(list(x = temp[which.min(abs(as.numeric(difftime(temp$Time,calve,units = "secs"))))+1,
+                                                c("x")][1], 
+                                       y = temp[which.min(abs(as.numeric(difftime(temp$Time,calve,units = "secs"))))+1,
+                                                c("y")][1]))
 
         ## Plotting ##
-        p1 <- ggplot(temp,aes(Time,speed,color = yday)) +
-          geom_line(show.legend = FALSE) +
-          scale_color_gradientn(colours = rainbow(5)) +
+        p1 <- ggplot(temp,aes(Time,speed,group=1)) +
+          geom_line() +
           theme(panel.background=element_blank()) +  #Sets background to white
           geom_vline(xintercept=as.numeric(calve),linetype=4,colour="black") + #break point at calving event
-          geom_text(aes(x=(calve+1*24*3600),label=as.Date(calve),y=1500),angle=90,size=3,fontface="italic", colour = 'black') + #Labels the calving line with calving date
+          geom_text(aes(x=(calve+2*24*3600),label=calve,y=1500),angle=90,size=4,fontface="italic") + #Labels the calving line with calving date
           geom_vline(xintercept=as.numeric(calf.loss),linetype=4,colour="black") + #break point at calf loss event
-          geom_text(aes(x=(calf.loss-1*24*3600),label=as.Date(calf.loss),y=1500),angle=90,size=3,fontface="italic", colour = 'black') + #Labels calf loss
-          labs(x="Date",y="Speed (m.h-1)",title=paste0("Calf death model for: ", ID , ' in ', Year)) +
+          geom_text(aes(x=(calf.loss-2*24*3600),label=calf.loss,y=1500),angle=90,size=4,fontface="italic") + #Labels calf loss
+          labs(x="Date",y="Speed (m.h-1)") +
           theme(axis.line.x=element_line(size=.5,colour = "black",linetype = "solid")) + #add axis lines
           theme(axis.line.y=element_line(size=.5,colour = "black",linetype = "solid")) + #add axis lines
-          theme(plot.title=element_text(size=16,face="bold",margin = margin(10,0,10,0))) +
+          theme(plot.title=element_text(size=12,face="bold",margin = margin(10,0,10,0))) +
           ylim(c(0,2500)) +
-          geom_line(aes(as.POSIXct(Time), fit.values, group=1), colour= 'darkblue', show.legend=FALSE, size=1) #plots predicted values
-
-        # plot the individual track
-        p2 <- ggplot(temp,aes(x,y, color = yday)) +
-          geom_path(show.legend = FALSE) + coord_fixed() +
-          scale_color_gradientn(colours = rainbow(5)) +
-          theme(panel.background=element_blank()) +  #Sets background to white
-          geom_point(aes(x = na.omit(temp[temp$Time == calve,]$x),
-                         y = na.omit(temp[temp$Time == calve,]$y)),
-                     shape=24, fill = 'red', color = 'red', size = 2) + # point at calving event
-          geom_point(aes(x = na.omit(temp[temp$Time == calf.loss,]$x),
-                         y = na.omit(temp[temp$Time == calf.loss,]$y)),
-                     shape=25, fill = 'black', color = 'black', size = 2) + # point at calf death event
-          labs(x = "X coordinates",
-               y = "Y coordinates") +
-          theme(axis.line.x=element_line(size=.5,colour = "darkgrey",linetype = "solid")) +
-          theme(axis.line.y=element_line(size=.5,colour = "darkgrey",linetype = "solid")) #add axis lines
+          geom_line(aes(as.POSIXct(Time), fit, group=1), colour = 'darkblue', show.legend=FALSE, size=1) #plots predicted values
+        
+        # plot of the NSD
+        p3 <- ggplot(temp, aes(Time, NSD, group = 1)) +
+          geom_line() + theme(panel.background = element_blank()) +
+          geom_vline(xintercept=as.numeric(calve),linetype=4,colour="black") + 
+          geom_vline(xintercept=as.numeric(calf.loss),linetype=4,colour="black") + 
+          labs(x = "Date", y = "NSD (m)") +
+          theme(axis.line.x = element_line(linewidth = .5,colour = "black",linetype = "solid")) + #add axis lines
+          theme(axis.line.y = element_line(linewidth = .5,colour = "black",linetype = "solid")) + #add axis lines
+          theme(plot.title = element_text(size = 12,face = "bold",margin = margin(10,0,10,0))) 
+        
+        p2 <- ggplot(temp, aes(x, y, group = 1)) +
+          geom_path() +
+          geom_point(data = start, aes(x =x, y = y), colour = "green2", shape  = 17, size  =3) +
+          geom_point(data = calf.loc, aes(x =x, y = y), colour = "red", shape  = 17, size  =3) +
+          theme(panel.background = element_blank()) +  #Sets background to white
+          labs(x = "X coordinates", y = "Y coordinates") +
+          theme(axis.line.x = element_line(linewidth = .5,colour = "black",linetype = "solid")) + #add axis lines
+          theme(axis.line.y = element_line(linewidth = .5,colour = "black",linetype = "solid")) + #add axis lines
+          theme(plot.title = element_text(size = 12,face = "bold",margin = margin(10,0,10,0)))
+        
       } # end if calf death statement
 
-    ggpubr::ggarrange(p1, p2, ncol = 2)
+    ID_Year <- paste(temp$ID, temp$Year, sep = "_")
+    gridExtra::grid.arrange(p1, p2, p3, ncol = 3,
+                            top = grid::textGrob(paste(paste(bestmodel,"model for", sep = " "),ID_Year,sep = " " ),
+                                                 gp=grid::gpar(fontsize=20,font=3)))
 }
