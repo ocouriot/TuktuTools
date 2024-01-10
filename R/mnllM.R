@@ -69,7 +69,7 @@ mnll2M <- function(df, int, kcons){
     
     BPs[["recovery"]] <- NA
   } else {
-    BP1s  <- (int:(BPmax-int)) # All possible BP
+    BP1s <- dhours[dhours>= 3*24 & dhours <= BPmax * 24]/24 # All possible BP
     ll1s <- rep(NA,length(BP1s))
     trytogetbp <- function (bp) {
       fit <- try(nllCalf(df = df, BP = bp, kcons = kcons),silent=TRUE)
@@ -155,7 +155,7 @@ mnll3M <- function(df, int, kcons){
 
     BPs[["recovery"]] <- NA
   } else {
-    BP1s  <- (int:(BPmax-int)) # All possible BP
+    BP1s <- dhours[dhours>= 3*24 & dhours <= BPmax * 24]/24 # All possible BP
     ll1s <- rep(NA,length(BP1s))
     trytogetbp <- function (bp) {
       fit <- try(nllCalf(df = df, BP = bp, kcons = kcons),silent=TRUE)
@@ -194,7 +194,9 @@ mnll3M <- function(df, int, kcons){
     BPs[["date.BP1.calfdeath"]] <- NA  #mle of BP1 in real date and time
     BPs[["date.BP2.calfdeath"]] <- NA  #mle of BP2 in real date and time
   } else {
-    BP2s <- expand.grid(list(BP1=int:(BPmax-int),BP2=int:(BPmax-int)))
+    BP2s <- expand.grid(list(
+      BP1=dhours[dhours>= 3*24 & dhours <= BPmax * 24]/24,
+      BP2=int:(BPmax-int)))
     BP2s <- BP2s[(BP2s$BP2-BP2s$BP1)>=int,]
     BP2s <- BP2s[(BP2s$BP2-BP2s$BP1) < kcons[2],]
 

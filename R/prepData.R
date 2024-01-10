@@ -58,7 +58,7 @@ prepData <- function(df, start, end, nfixes = 1, dayloss = Inf, restrictive = FA
             arrange(Time) %>% 
             mutate(n = length(Time),
               dt = ifelse(n < 3, NA,
-                               c(NA, as.integer(difftime(Time[2:length(Time)],Time[1:(length(Time)-1)],"hours")))),
+                               c(NA, as.integer(difftime(Time[2:length(Time)],Time[1:(length(Time)-1)],units="hours")))),
               n = NULL)) %>%
     ddply(c("ID", "Year"), 
           function(x) x %>% 
