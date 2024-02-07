@@ -26,7 +26,7 @@ getPairwiseDistances <- function(sf.list){
     data.frame(ID1, ID2, pair, distance = as.numeric(D[upper.tri(D)]))
   }
 
-  sf <- sf.list %>% ldply(getDailyMean) %>% st_as_sf
+  sf <- sf.list %>% ldply() %>% st_as_sf(crs = st_crs(sf.list[[1]])) # %>% ldply(getDailyMean) %>% st_as_sf
 
   #cat("Computing all pairwise distances\n")
   sf %>% group_by(Year, yday) %>% group_modify(~getDistances(.x), .keep = TRUE) %>%

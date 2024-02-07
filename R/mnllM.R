@@ -59,9 +59,9 @@ mnll2M <- function(df, int, kcons){
   
   ##
   # M1: Calf survived
-  BPmax <- trunc(max(dhours)/24)
+  BPmax <- trunc(max(dhours)/24)-int
   
-  if(BPmax-int<=0){
+  if(BPmax<=0){
     results[1,"mnllCalf"] <- NA # maximum log-likelihood of the model
     BPs[["BP1.calf"]] <- NA # mle of BP1 in terms of days
     
@@ -69,7 +69,7 @@ mnll2M <- function(df, int, kcons){
     
     BPs[["recovery"]] <- NA
   } else {
-    BP1s <- dhours[dhours>= 3*24 & dhours <= BPmax * 24]/24 # All possible BP
+    BP1s <- dhours[dhours>= (int*24) & dhours <= (BPmax * 24)]/24 # All possible BP
     ll1s <- rep(NA,length(BP1s))
     trytogetbp <- function (bp) {
       fit <- try(nllCalf(df = df, BP = bp, kcons = kcons),silent=TRUE)
@@ -145,9 +145,9 @@ mnll3M <- function(df, int, kcons){
   results[1,"mnllNoCalf"] <- -MLL0
 
   # M1: Calf survived
-  BPmax <- trunc(max(dhours)/24)
+  BPmax <- trunc(max(dhours)/24)-int
 
-  if(BPmax-int<=0){
+  if(BPmax<=0){
     results[1,"mnllCalf"] <- NA # maximum log-likelihood of the model
     BPs[["BP1.calf"]] <- NA # mle of BP1 in terms of days
 
@@ -155,7 +155,7 @@ mnll3M <- function(df, int, kcons){
 
     BPs[["recovery"]] <- NA
   } else {
-    BP1s <- dhours[dhours>= 3*24 & dhours <= BPmax * 24]/24 # All possible BP
+    BP1s <- dhours[dhours >= (int*24) & dhours <= (BPmax * 24)]/24 # All possible BP
     ll1s <- rep(NA,length(BP1s))
     trytogetbp <- function (bp) {
       fit <- try(nllCalf(df = df, BP = bp, kcons = kcons),silent=TRUE)
@@ -186,7 +186,7 @@ mnll3M <- function(df, int, kcons){
   # Note that BP are constrained to be int number of non-missing steps apart.
   # To make the code run faster, the BPs are also limited to be less than
   # maximum number of steps it takes for the female to recover her movement apart
-  if(BPmax-int <=0){
+  if(BPmax <=0){
     results[1,"mnllCalfDeath"] <- NA # mnll2
 
     BPs[["BP1.calfdeath"]] <- NA #mle of BP1.calfdeath in days
@@ -195,8 +195,8 @@ mnll3M <- function(df, int, kcons){
     BPs[["date.BP2.calfdeath"]] <- NA  #mle of BP2 in real date and time
   } else {
     BP2s <- expand.grid(list(
-      BP1=dhours[dhours>= 3*24 & dhours <= BPmax * 24]/24,
-      BP2=int:(BPmax-int)))
+      BP1 = dhours[dhours >= (int*24) & dhours <= (BPmax * 24)]/24,
+      BP2=int:(BPmax)))
     BP2s <- BP2s[(BP2s$BP2-BP2s$BP1)>=int,]
     BP2s <- BP2s[(BP2s$BP2-BP2s$BP1) < kcons[2],]
 

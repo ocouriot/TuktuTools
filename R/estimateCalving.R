@@ -322,7 +322,7 @@ estimateCalving <- function (df, int, kcons, models = c("full","calfonly"),
           theme(axis.line.y=element_line(linewidth=.5,colour = "black",linetype = "solid")) + #add axis lines
           theme(plot.title=element_text(size=12,face="bold",margin = margin(10,0,10,0))) +
           ylim(c(0,2500)) +
-          geom_line(aes(as.POSIXct(Time), fit.values.calf, colour=1, group=1), show.legend=FALSE, size=1) #plots predicted values
+          geom_line(aes(as.POSIXct(Time), fit.values.calf, colour=1, group=1), show.legend=FALSE, linewidth=1) #plots predicted values
           
         # plot of the NSD
         p2b <- ggplot(temp, aes(Time, NSD, group = 1)) +
