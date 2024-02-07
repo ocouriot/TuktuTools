@@ -27,7 +27,7 @@
 #' 
 #' @export
 
-prepData <- function(df, start, end, nfixes = 1, dayloss = Inf, restrictive = FALSE){
+prepData <- function(df, start, end, nfixes = .0001, dayloss = Inf, restrictive = FALSE){
 
     # just keep time series between defined start and end
   tempo <- df %>% as.data.frame %>% 
