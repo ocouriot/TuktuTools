@@ -21,7 +21,7 @@ getKernelUD <- function(sf, percent = 95, grid = 200, ...){
   ll.sp <- SpatialPoints(coords = ll)
   ll.kernel <- adehabitatHR::kernelUD(ll.sp, grid = grid, ...) %>% 
     adehabitatHR::getverticeshr(percent)
-  ll.poly <- st_as_sf(ll.kernel) %>% st_cast("POLYGON")
+  ll.poly <- st_as_sf(ll.kernel) %>% st_cast("POLYGON") %>% st_set_crs(st_crs(sf))
   ll.poly$area <- st_area(ll.poly)
-  ll.poly[which.max(ll.poly$area),] %>% st_set_crs(st_crs(sf))
+  ll.poly 
 }
