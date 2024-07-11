@@ -9,7 +9,7 @@
 #' @return data frame with (among others) ID, nickname, distance, date
 #'
 #' @example examples/example_getPairwiseDistance.R
-#' 
+#'
 #' @export
 
 
@@ -30,5 +30,5 @@ getPairwiseDistances <- function(sf.list){
 
   #cat("Computing all pairwise distances\n")
   sf %>% group_by(Year, yday) %>% group_modify(~getDistances(.x), .keep = TRUE) %>%
-    mutate(Date = (ymd_hm(paste(Year - 1, "12-31 12:00")) + ddays(yday)) %>% as.POSIXct)
+    mutate(Date = (ymd_hm(paste(as.numeric(Year) - 1, "12-31 12:00")) + ddays(yday)) %>% as.POSIXct)
 }
