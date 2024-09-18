@@ -27,7 +27,7 @@ cleanData <- function(dfa){
   if(!("Year" %in% names(dfa))) {dfa$Year = lubridate::year(dfa$Time)}
   row.names(dfa) <- 1:nrow(dfa)
 
-    tempo.speed <- ddply(dfa, c("ID", "Year"), getSpeed) %>% mutate(dt.sec = dt*24*60)
+    tempo.speed <- ddply(dfa, c("ID", "Year"), getSpeed) %>% mutate(dt.sec = dt*60*60)
     
     # relocations with high speed (>50km per hour) or small time interval 
     # (<= 2 minutes) or with high speed & small time interval 
