@@ -57,7 +57,7 @@ toremove <- data.frame()
 for(j in 1:steps){
   # look for potential "outliers"
   c1.speed <- keep %>% subset(!outlier) %>% ddply(c("ID","Year"), getSpeed) %>% 
-    mutate(dt.sec = dt * 24 * 60)
+    mutate(dt.sec = dt * 60 * 60)
   
   
   # see if there are some outliers: speed > 15km per hour, or delta time < 2 min, or speed > 10 km per hour and delta time < 10 minutes
