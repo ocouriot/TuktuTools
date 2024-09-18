@@ -61,7 +61,7 @@ for(j in 1:steps){
   
   
   # see if there are some outliers: speed > 15km per hour, or delta time < 2 min, or speed > 10 km per hour and delta time < 10 minutes
-  verif <- table(c1.speed$speed > 50000 | c1.speed$dt.sec <= 120 | 
+  verif <- table(c1.speed$speed > max.speed*1e3  | c1.speed$dt.sec <= min.interval*60 | 
                    (c1.speed$speed > 20000 & c1.speed$dt.sec <= 600))
   if(j < steps){
     if(dim(verif)==2){
