@@ -24,7 +24,7 @@ removeOutliers <- function(df, steps = 10, max.speed = 50, min.interval = 2){
 cleanData <- function(dfa){
   
   dfa <- dfa %>% arrange(ID, Time)
-  if(!("Year" %in% names(dfa))) dfa$Year = lubridate::year(Time)
+  if(!("Year" %in% names(dfa))) {dfa$Year = lubridate::year(dfa$Time)}
   row.names(dfa) <- 1:nrow(dfa)
 
     tempo.speed <- ddply(dfa, c("ID", "Year"), getSpeed) %>% mutate(dt.sec = dt*24*60)
