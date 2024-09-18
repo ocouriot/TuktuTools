@@ -50,7 +50,7 @@ cleanData <- function(dfa){
 # create a unique identifier for each individual per Year
 c1 <- subset(df %>% as.data.frame, ! ID %in% names(which(table(df$ID)<3)))
 keep <- c1 %>% mutate(outlier = FALSE)
-
+if(!("Year" %in% names(keep))) {keep$Year = lubridate::year(keep$Time)}
 # Loop to clean data in several steps, once there are no outliers left,
 # the loop stop and return the dataframe without outliers
 toremove <- data.frame()
