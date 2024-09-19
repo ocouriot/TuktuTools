@@ -24,10 +24,10 @@ removeOutliers <- function(df, steps = 10, max.speed = 50, min.interval = 2){
 cleanData <- function(dfa){
   
   dfa <- dfa %>% arrange(ID, Time)
-  if(!("Year" %in% names(dfa))) dfa$Year = lubridate::year(Time)
+  if(!("Year" %in% names(dfa))) {dfa$Year = lubridate::year(dfa$Time)}
   row.names(dfa) <- 1:nrow(dfa)
 
-    tempo.speed <- ddply(dfa, c("ID", "Year"), getSpeed) %>% mutate(dt.sec = dt*24*60)
+    tempo.speed <- ddply(dfa, c("ID", "Year"), getSpeed) %>% mutate(dt.sec = dt*60*60)
     
     # relocations with high speed (>50km per hour) or small time interval 
     # (<= 2 minutes) or with high speed & small time interval 
@@ -50,18 +50,18 @@ cleanData <- function(dfa){
 # create a unique identifier for each individual per Year
 c1 <- subset(df %>% as.data.frame, ! ID %in% names(which(table(df$ID)<3)))
 keep <- c1 %>% mutate(outlier = FALSE)
-
+if(!("Year" %in% names(keep))) {keep$Year = lubridate::year(keep$Time)}
 # Loop to clean data in several steps, once there are no outliers left,
 # the loop stop and return the dataframe without outliers
 toremove <- data.frame()
 for(j in 1:steps){
   # look for potential "outliers"
   c1.speed <- keep %>% subset(!outlier) %>% ddply(c("ID","Year"), getSpeed) %>% 
-    mutate(dt.sec = dt * 24 * 60)
+    mutate(dt.sec = dt * 60 * 60)
   
   
   # see if there are some outliers: speed > 15km per hour, or delta time < 2 min, or speed > 10 km per hour and delta time < 10 minutes
-  verif <- table(c1.speed$speed > 50000 | c1.speed$dt.sec <= 120 | 
+  verif <- table(c1.speed$speed > max.speed*1e3  | c1.speed$dt.sec <= min.interval*60 | 
                    (c1.speed$speed > 20000 & c1.speed$dt.sec <= 600))
   if(j < steps){
     if(dim(verif)==2){
