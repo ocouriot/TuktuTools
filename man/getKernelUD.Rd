@@ -20,7 +20,7 @@ in particular, that \code{method = "epa"}}
 A simple feature polygon of the kernel area
 }
 \description{
-wrapper for \link{kernelUD} in adehabitatLT that returns a given UD
+wrapper for \link{kde} functino in ks that returns a given UD
 as a simple feature polygon from a simple feature point collection
 }
 \examples{

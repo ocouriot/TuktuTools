@@ -43,3 +43,42 @@ getDailyMean <- function(x, id.col = "ID", time.col = "Time", ...){
     x_dailymean <- st_as_sf(x_dailymean, coords = c("X","Y"),  crs = st_crs(x.sf))
   x_dailymean
 }
+
+
+#' @export
+getDailyMean_dt <- function(x, id.col = "ID", time.col = "Time", ...) {
+    
+    if (inherits(x, "sf")) {
+        x.sf <- x
+        x$X <- st_coordinates(x.sf)[, 1]
+        x$Y <- st_coordinates(x.sf)[, 2]
+    } else x.sf <- NULL
+    
+    dt <- as.data.table(as.data.frame(x))
+    dt[, `:=`(yday = yday(get(time.col)), Year = year(get(time.col)), ID = get(id.col))]
+    
+    by_cols <- c("ID", "Year", "yday")
+    
+    type_agg <- list(
+        is.numeric  = function(col) bquote(mean(.(as.name(col)), na.rm = TRUE)),
+        is.factor   = function(col) bquote(head(.(as.name(col)), 1)),
+        is.character = function(col) bquote(head(.(as.name(col)), 1)),
+        is.POSIXct  = function(col) bquote(mean(.(as.name(col)), na.rm = TRUE))
+    )
+    
+    agg_exprs <- unlist(lapply(names(type_agg), function(type_fn) {
+        cols <- setdiff(names(dt)[sapply(dt, get(type_fn))], by_cols)
+        setNames(lapply(cols, type_agg[[type_fn]]), cols)
+    }), recursive = FALSE)
+    
+    x_dailymean <- dt[, lapply(agg_exprs, eval, .SD), by = by_cols] |> as.data.frame() |> 
+        setorder(ID, Year, yday)
+    
+    if (id.col != "ID") x_dailymean$ID <- NULL
+    if (!is.null(x.sf))
+        x_dailymean <- st_as_sf(x_dailymean, coords = c("X", "Y"), crs = st_crs(x.sf))
+    
+    return(x_dailymean)
+}
+
+

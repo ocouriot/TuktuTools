@@ -8,9 +8,9 @@ Description: TuktuTools is a package for analyzing spatial and movement patterns
 License: GNU General Public License
 Encoding: UTF-8
 LazyData: false
-Depends: R (>= 4.0.0), lubridate, magrittr, plyr, dplyr, ggplot2, sp, sf, gridExtra, grid
+Depends: R (>= 4.0.0), lubridate, magrittr, plyr, dplyr, ggplot2, sp, sf, gridExtra, grid, data.table
 Suggests: mapview, cluster, move, stringr, NbClust, tlocoh, segclust2d, adehabitatLT, adehabitatHR, knitr, rmarkdown
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.3
 VignetteBuilder: knitr
 Biarch: true
 SystemRequirements: GNU make
