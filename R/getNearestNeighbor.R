@@ -33,6 +33,7 @@
 #'   }
 #'
 #' @seealso \link{getDailyMean}
+#' @example examples/example_getNearestNeighbor.R
 
 getNearestNeighbor <- function(x, 
                                id.col = "ID", time.col = "Time", 
