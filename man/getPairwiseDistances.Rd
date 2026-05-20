@@ -21,9 +21,9 @@ data(caribou)
 
 # subset on the two individuals which have monitoring the same year (Vixen and Comet, in 2007)
 # and transform into Simple Feature object
-b.subset <- caribou \%>\% plyr::mutate(yday = yday(Time)) \%>\% 
-  arrange(ID, Time) \%>\% subset(Year == 2007) \%>\%
-  st_as_sf(coords = c("Lon","Lat")) \%>\% st_set_crs(4326) \%>\%
+b.subset <- caribou |>  plyr::mutate(yday = yday(Time)) |>  
+  arrange(ID, Time)  |>  subset(Year == 2007) |> 
+  st_as_sf(coords = c("Lon","Lat"))  |>  st_set_crs(4326) \%>\% 
   mutate(Lon = st_coordinates(.)[,1], Lat = st_coordinates(.)[,2])
 
 b.list <- dlply(b.subset, "ID", st_as_sf) # create a list of the sf by individual
