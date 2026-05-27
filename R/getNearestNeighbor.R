@@ -18,7 +18,7 @@
 #' @param min_days  Minimum number of co-located days (matched
 #'   \code{yday} and \code{Year}) required to include a pair in the output.
 #'   Pairs with fewer overlapping observations are dropped. Default \code{10}.
-#' @param min_distance  Threshold distance (in km) between centroids of all 
+#' @param max_distance  Threshold distance (in km) between centroids of all 
 #'   paired locations, to avoid measuring day-by-day distances of animals many
 #'   hundreds of km apart. Default 1000km (i.e. most animals retained). 
 #' @return a data frame with one row per individual, containing:
@@ -32,13 +32,14 @@
 #'       neighbour exceeds \code{min_distance} km}
 #'   }
 #'
+#' @export
 #' @seealso \link{getDailyMean}
 #' @example examples/example_getNearestNeighbor.R
 
 getNearestNeighbor <- function(x, 
                                id.col = "ID", time.col = "Time", 
                                min_days = 10,
-                               min_distance = 1e3){
+                               max_distance = 1e3){
     
     # 1. Check projection if sf
     if(inherits(x, "sf")) {
@@ -83,7 +84,7 @@ getNearestNeighbor <- function(x,
     # Filter pairs by centroid distance before computing full pairwise distances
     pairs <- Filter(function(p) {
         Mod(centroids$Z_centroid[centroids$.id == p[1]] - 
-                centroids$Z_centroid[centroids$.id == p[2]]) < (min_distance * 1e3)
+                centroids$Z_centroid[centroids$.id == p[2]]) < (max_distance * 1e3)
     }, pairs)
     cat("Pairs after filter:", length(pairs), "\n")
 

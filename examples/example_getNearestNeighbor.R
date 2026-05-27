@@ -28,7 +28,7 @@ getNearestNeighbor(caribou_dailymean)
     c <- nwt_raw |> subset(Year == 2023 & month(Time) == 4 & sex == "f") |> 
         getDailyMean_dt(id.col = "OriginalID") |> st_as_sf(coords = c("Lon", "Lat"), crs = 4326) |> 
         st_transform(Canada_lambert)
-    c_nn <- getNearestNeighbor(c, id.col = "OriginalID", min_distance = 500)
+    c_nn <- getNearestNeighbor(c, id.col = "OriginalID", max_distance = 500)
     
 # plot results:
    
