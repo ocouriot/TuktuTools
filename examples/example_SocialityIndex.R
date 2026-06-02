@@ -15,7 +15,7 @@ system.time(si <- getSocialityIndex(b2023_dm, r = 200, percent = 95))
 ## 3. In parallel (much faster)
 
 plan(multisession, workers = 10)
-system.time(si <- getSocialityIndex(b2023_dm, r = 200, parallel = TRUE))
+system.time(si <- getSocialityIndex(b2023_dm, r = 200, parallel = TRUE, percent = 50))
 head(si)
 
 ## Plot

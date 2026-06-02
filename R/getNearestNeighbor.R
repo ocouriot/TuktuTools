@@ -122,7 +122,7 @@ getNearestNeighbor <- function(x,
                        D_median = min(D_median)) |> plyr::rename(c(ID1 = "ID")) 
     
     # double for all pairs
-    
+    d_closest <- as.data.table(d_closest)
     d_closest <- rbindlist(list(
         d_closest,
         setNames(d_closest[, c("Neighbor", "ID", "D_median")], 
