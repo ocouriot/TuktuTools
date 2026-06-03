@@ -19,6 +19,8 @@
 #' @param rate Numeric. Resampling interval in hours. Default \code{8}.
 #' @param tolerance Numeric. Tolerance around \code{rate} (in hours) passed to
 #'   \code{amt::track_resample}. Default \code{rate / 2}.
+#' @param cushion_days number of days within the start and end within which to 
+#'  allow the calculation
 #' @param ... Additional arguments passed to \code{amt::track_resample}.
 #'
 #' @return Data frame with:
@@ -40,14 +42,12 @@
 #'
 #' @example examples/example_computeDistances.R
 #' @export
+#' 
 computeDistances <- function(df,
-                             X.col     = "X",
-                             Y.col     = "Y",
-                             time.col  = "Time",
-                             start     = "02-01",
-                             end       = "06-01",
-                             rate      = 8,
-                             tolerance = rate / 2) {
+                             X.col  = "X", Y.col = "Y", time.col  = "Time",
+                             start  = "02-01", end  = "06-01",
+                             rate  = 8, tolerance = 2, 
+                             cushion_days = 7) {
     
     ## 1. Date-window filter -----------------------------------------------
     md <- format(df[[time.col]], "%m-%d")
@@ -59,13 +59,46 @@ computeDistances <- function(df,
         return(NULL)
     }
     
-    ## 2. Resample ---------------------------------------------------------
-    lag_hr    <- c(NA_real_, as.numeric(diff(df[[time.col]]), units = "hours"))
-    in_window <- !is.na(lag_hr) &
-        lag_hr >= (rate - tolerance) &
-        lag_hr <= (rate + tolerance)
-    in_window[1] <- TRUE
-    df <- df[in_window, ]
+    start_doy <- yday(ymd(paste0("2001-", start)))
+    end_doy   <- yday(ymd(paste0("2001-", end)))
+    
+    if (yday(min(df[[time.col]])) > (start_doy + cushion_days) |
+        yday(max(df[[time.col]])) < (end_doy   - cushion_days)) {
+        message(sprintf("computeDistances: track does not span full window (got %s to %s); returning NULL.",
+                        format(min(df[[time.col]]), "%m-%d"),
+                        format(max(df[[time.col]]), "%m-%d")))
+        return(NULL)
+    }
+    
+    ## 2. Phase-optimised resampling ---------------------------------------
+    t_min <- min(df[[time.col]])
+    t_max <- max(df[[time.col]])
+    
+    ## Try each possible phase shift (one per fix in the first rate-window)
+    ## so that the regular grid is anchored to an observed fix
+    phase_starts <- df[[time.col]][df[[time.col]] <= t_min + 3600 * rate]
+    
+    best <- NULL
+    for (t0 in phase_starts) {
+        class(t0) <- class(t_min)   # preserve POSIXct after loop indexing
+        time_target <- seq(t0, t_max, by = 3600 * rate)
+        
+        ## For each target, find nearest observed fix
+        nearest_idx <- sapply(time_target, function(t) which.min(abs(df[[time.col]] - t)))
+        nearest_t   <- df[[time.col]][nearest_idx]
+        match_hr    <- abs(as.numeric(difftime(time_target, nearest_t, units = "hours")))
+        
+        keep    <- which(match_hr < tolerance)
+        n_gaps  <- length(time_target) - length(keep)
+        
+        if (is.null(best) || n_gaps < best$n_gaps) {
+            best <- list(idx    = nearest_idx[keep],
+                         n_gaps = n_gaps,
+                         n_expected = length(time_target))
+        }
+    }
+    
+    df_filtered <- df[best$idx, ]
     
     if (nrow(df) < 2) {
         message("computeDistances: fewer than 2 fixes after resampling; returning NULL.")
@@ -73,11 +106,14 @@ computeDistances <- function(df,
     }
     
     ## 3. Distances via complex arithmetic ---------------------------------
-    z <- df[[X.col]] + 1i * df[[Y.col]]
+    z_filtered <- df_filtered[[X.col]] + 1i * df_filtered[[Y.col]]
+    z_raw <- df[[X.col]] + 1i * df[[Y.col]]
     
     data.frame(
-        n_fixes          = nrow(df),
-        total_distance   = sum(Mod(diff(z)), na.rm = TRUE) / 1000,
-        net_displacement = Mod(z[length(z)] - z[1])        / 1000
+        n_fixes        = nrow(df),
+        n_gaps         = best$n_gaps,
+        n_expected     = best$n_expected,
+        total_distance   = sum(Mod(diff(z_filtered)), na.rm = TRUE) / 1000,
+        net_displacement = Mod(z_raw[length(z_raw)] - z_raw[1]) / 1000
     )
 }
