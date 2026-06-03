@@ -123,9 +123,10 @@ getNearestNeighbor <- function(x,
     
     # double for all pairs
     d_closest <- as.data.table(d_closest)
+    if(nrow(d_closest) == 0) return(d_closest)
     d_closest <- rbindlist(list(
         d_closest,
-        setNames(d_closest[, c("Neighbor", "ID", "D_median")], 
+        setNames(d_closest[, .(Neighbor, ID, D_median)],
                  c("ID", "Neighbor", "D_median"))))
     
     return(d_closest)
